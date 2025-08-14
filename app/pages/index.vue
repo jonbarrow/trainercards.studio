@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { UButton } from '#components';
 import templates from '@/trainer-card-templates';
-import type { NavigationMenuItem } from '@nuxt/ui'
 import type TrainerImage from '@/types/trainer-image';
 import type Pokemon from '@/types/pokemon';
 import type PokemonImage from '@/types/pokemon-image';
@@ -10,15 +9,6 @@ import type BadgeData from '@/types/badge-data';
 import type ModernIconData from '@/types/modern-icon-data';
 
 const { loadImage } = useImageCache();
-
-const navigationItems = ref<NavigationMenuItem[]>([
-	{
-		label: 'GitHub',
-		icon: 'i-simple-icons-github',
-		to: 'https://github.com/nuxt/ui',
-		target: '_blank'
-	}
-]);
 
 const trainerCardCanvas = ref<HTMLCanvasElement | null>(null);
 const selectedTemplateIndex = ref(0);
@@ -308,7 +298,13 @@ onMounted(() => {
 
 <template>
 	<div>
-		<UNavigationMenu :items="navigationItems" class="w-full" />
+		<div class="flex items-center justify-between w-full px-4 py-2">
+			<div class="flex items-center">
+				<span class="text-xl font-semibold">Trainer Cards Studio</span>
+			</div>
+
+			<UButton to="https://github.com/jonbarrow/trainercards.studio" target="_blank" color="neutral" variant="subtle" icon="i-simple-icons-github">GitHub</UButton>
+		</div>
 		<USeparator />
 		<UContainer class="py-10">
 			<div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
