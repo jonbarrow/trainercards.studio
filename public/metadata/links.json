@@ -1,0 +1,58 @@
+[
+	{
+		"label": "None",
+		"src": ""
+	},
+	{
+		"label": "Link",
+		"src": "/images/brand-logos/link.png"
+	},
+	{
+		"label": "Nintendo Switch Online",
+		"src": "/images/brand-logos/nintendo-switch-online.png"
+	},
+	{
+		"label": "Nintendo Network",
+		"src": "/images/brand-logos/nintendo-network.png"
+	},
+	{
+		"label": "Pretendo Network",
+		"src": "/images/brand-logos/pretendo-network.png"
+	},
+	{
+		"label": "Discord",
+		"src": "/images/brand-logos/discord.png"
+	},
+	{
+		"label": "Twitter",
+		"src": "/images/brand-logos/twitter.png"
+	},
+	{
+		"label": "Twitch",
+		"src": "/images/brand-logos/twitch.png"
+	},
+	{
+		"label": "YouTube",
+		"src": "/images/brand-logos/youtube.png"
+	},
+	{
+		"label": "TikTok",
+		"src": "/images/brand-logos/tiktok.png"
+	},
+	{
+		"label": "Patreon",
+		"src": "/images/brand-logos/patreon.png"
+	},
+	{
+		"label": "Facebook",
+		"src": "/images/brand-logos/facebook.png"
+	},
+	{
+		"label": "Instagram",
+		"src": "/images/brand-logos/instagram.png"
+	},
+	{
+		"label": "Pinterest",
+		"src": "/images/brand-logos/pinterest.png"
+	}
+]

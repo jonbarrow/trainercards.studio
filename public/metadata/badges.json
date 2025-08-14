@@ -1,0 +1,75 @@
+[
+	{
+		"label": "Red / Blue / Green / Yellow",
+		"images": [
+			"/images/badges/gen-1/brock.png",
+			"/images/badges/gen-1/misty.png",
+			"/images/badges/gen-1/lt-surge.png",
+			"/images/badges/gen-1/erika.png",
+			"/images/badges/gen-1/koga.png",
+			"/images/badges/gen-1/sabrina.png",
+			"/images/badges/gen-1/blaine.png",
+			"/images/badges/gen-1/giovanni.png",
+			"/images/badges/gen-1/brock-color.png",
+			"/images/badges/gen-1/misty-color.png",
+			"/images/badges/gen-1/lt-surge-color.png",
+			"/images/badges/gen-1/erika-color.png",
+			"/images/badges/gen-1/koga-color.png",
+			"/images/badges/gen-1/sabrina-color.png",
+			"/images/badges/gen-1/blaine-color.png",
+			"/images/badges/gen-1/giovanni-color.png"
+		]
+	},
+	{
+		"label": "Gold / Silver",
+		"images": [
+			"/images/badges/gen-2/falkner.png",
+			"/images/badges/gen-2/bugsy.png",
+			"/images/badges/gen-2/whitney.png",
+			"/images/badges/gen-2/morty.png",
+			"/images/badges/gen-2/chuck.png",
+			"/images/badges/gen-2/jasmine.png",
+			"/images/badges/gen-2/pryce.png",
+			"/images/badges/gen-2/clair.png"
+		]
+	},
+	{
+		"label": "Ruby / Sapphire",
+		"images": [
+			"/images/badges/gen-3/roxanne.png",
+			"/images/badges/gen-3/brawly.png",
+			"/images/badges/gen-3/wattson.png",
+			"/images/badges/gen-3/flannery.png",
+			"/images/badges/gen-3/norman.png",
+			"/images/badges/gen-3/winona.png",
+			"/images/badges/gen-3/tate-and-liza.png",
+			"/images/badges/gen-3/wallace.png"
+		]
+	},
+	{
+		"label": "Fire Red / Leaf Green",
+		"images": [
+			"/images/badges/gen-1/brock-frlg.png",
+			"/images/badges/gen-1/misty-frlg.png",
+			"/images/badges/gen-1/lt-surge-frlg.png",
+			"/images/badges/gen-1/erika-frlg.png",
+			"/images/badges/gen-1/koga-frlg.png",
+			"/images/badges/gen-1/sabrina-frlg.png",
+			"/images/badges/gen-1/blaine-frlg.png",
+			"/images/badges/gen-1/giovanni-frlg.png"
+		]
+	},
+	{
+		"label": "Diamond / Pearl / Platinum",
+		"images": [
+			"/images/badges/gen-4/roark.png",
+			"/images/badges/gen-4/gardenia.png",
+			"/images/badges/gen-4/maylene.png",
+			"/images/badges/gen-4/crasher-wake.png",
+			"/images/badges/gen-4/fantina.png",
+			"/images/badges/gen-4/byron.png",
+			"/images/badges/gen-4/candice.png",
+			"/images/badges/gen-4/volkner.png"
+		]
+	}
+]

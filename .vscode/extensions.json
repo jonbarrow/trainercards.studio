@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+		"EditorConfig.EditorConfig",
+		"dbaeumer.vscode-eslint",
+		"Vue.volar",
+		"EdwinHuiSH.better-comments-next"
+	]
+}
