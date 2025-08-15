@@ -321,7 +321,7 @@ onMounted(() => {
 									<div class="p-4 grid grid-cols-3 gap-3">
 										<div v-for="(template, index) in templates" :key="index" class="relative cursor-pointer" @click="selectTemplate(index)">
 											<div :class="[ 'border-2 rounded-lg p-2 transition-colors', selectedTrainer?.name === template.name ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-gray-300' ]" >
-												<img :src="template.previewURL" :alt="template.name" class="max-w-full max-h-full object-contain pixelated" loading="lazy" >
+												<NuxtImg loading="lazy" :src="template.previewURL" :alt="template.name" class="max-w-full max-h-full object-contain pixelated" />
 												<p class="text-xs text-center mt-2 truncate">{{ template.name }}</p>
 											</div>
 										</div>
@@ -380,7 +380,7 @@ onMounted(() => {
 											<div v-for="(trainer, index) in allTrainerData" :key="index" class="relative cursor-pointer" @click="selectTrainer(trainer)">
 												<div :class="[ 'border-2 rounded-lg p-2 transition-colors', selectedTrainer?.name === trainer.name ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-gray-300' ]" >
 													<div class="aspect-square flex items-center justify-center bg-gray-50 rounded">
-														<img v-if="trainer.preview_url" :src="trainer.preview_url" :alt="trainer.name" :class="['max-w-full', 'max-h-full', 'object-contain', { 'pixelated': trainer.style === 'pixel_art' }]" loading="lazy" >
+														<NuxtImg loading="lazy" v-if="trainer.preview_url" :src="trainer.preview_url" :alt="trainer.name" :class="['max-w-full', 'max-h-full', 'object-contain', { 'pixelated': trainer.style === 'pixel_art' }]" />
 														<div v-else class="text-gray-400 text-xs text-center">
 															{{ trainer.name }}
 														</div>
@@ -450,7 +450,7 @@ onMounted(() => {
 												<h3>{{ pokemon.display_name }}</h3>
 												<div class="grid grid-cols-4 gap-2 mb-4">
 													<div v-for="image in pokemon.images" :key="`${pokemon.name}-${image.platform}-${image.type}`" class="w-16 h-16 flex items-center justify-center overflow-hidden" @click="selectPokemon(pokemon, image)">
-														<img :src="image.url" alt="" :style="getPokemonPreviewScaleStyle(image)" :class="['max-w-full', 'max-h-full', 'object-contain', { 'pixelated': image.style === 'pixel_art' }]" @load="loadImage(image.url)">
+														<NuxtImg loading="lazy" :src="image.url" alt="" :style="getPokemonPreviewScaleStyle(image)" :class="['max-w-full', 'max-h-full', 'object-contain', { 'pixelated': image.style === 'pixel_art' }]" @load="loadImage(image.url)" />
 													</div>
 												</div>
 												<USeparator class="py-5" />
@@ -471,7 +471,7 @@ onMounted(() => {
 							<UAccordion :items="allBadgeData" type="multiple">
 								<template #content="{ item }">
 								<div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
-									<img v-for="(image, index) in item.images" :key="index" :src="image" :alt="`${item.label} image ${index + 1}`" :class="[ 'w-10 h-10 object-contain pixelated cursor-pointer border-2 rounded transition-colors', badges.includes(image) ? 'border-primary bg-primary/10' : 'border-transparent hover:border-gray-300' ]" @click="toggleBadge(image)">
+									<NuxtImg loading="lazy" v-for="(image, index) in item.images" :key="index" :src="image" :alt="`${item.label} image ${index + 1}`" :class="[ 'w-10 h-10 object-contain pixelated cursor-pointer border-2 rounded transition-colors', badges.includes(image) ? 'border-primary bg-primary/10' : 'border-transparent hover:border-gray-300' ]" @click="toggleBadge(image)" />
 								</div>
 								</template>
 							</UAccordion>
