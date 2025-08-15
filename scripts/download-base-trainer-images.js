@@ -15,6 +15,7 @@ const spriteCategories = [
 	'Generation_III_Trainer_sprites',
 	'Generation_IV_Trainer_sprites',
 	'Generation_V_Trainer_sprites',
+	'Trainer_class_artwork',
 	'Pokémon_Masters_Trainer_sprites'
 ];
 
@@ -215,6 +216,7 @@ function normalizeMemberFileName(title) {
 			break;
 
 		case 'GS':
+		case 'Gold':
 			platform = 'gold_silver';
 			platformDisplayName = 'Gold / Silver';
 			style = 'pixel_art';
@@ -227,12 +229,14 @@ function normalizeMemberFileName(title) {
 			break;
 
 		case 'RS':
+		case 'Ruby':
 			platform = 'ruby_sapphire';
 			platformDisplayName = 'Ruby / Sapphire';
 			style = 'pixel_art';
 			break;
 
 		case 'E':
+		case 'Emerald':
 			platform = 'emerald';
 			platformDisplayName = 'Emerald';
 			style = 'pixel_art';
@@ -245,6 +249,7 @@ function normalizeMemberFileName(title) {
 			break;
 
 		case 'DP':
+		case 'Diamond':
 			platform = 'diamond_pearl';
 			platformDisplayName = 'Diamond / Pearl';
 			style = 'pixel_art';
@@ -275,6 +280,25 @@ function normalizeMemberFileName(title) {
 			style = 'pixel_art';
 			break;
 
+		case 'XY':
+			platform = 'x_y';
+			platformDisplayName = 'X / Y';
+			//style = 'pixel_art'; // TODO - Figure this out, there's a mix of model renders and artwork
+			break;
+
+		case 'ORAS':
+		case 'Omega':
+			platform = 'omegaruby_alphasapphire';
+			platformDisplayName = 'Omega Ruby / Alpha Sapphire';
+			//style = 'pixel_art'; // TODO - Figure this out, there's a mix of model renders and artwork
+			break;
+
+		case 'SM':
+			platform = 'sun_moon';
+			platformDisplayName = 'Sun / Moon';
+			//style = 'pixel_art'; // TODO - Figure this out, there's a mix of model renders and artwork
+			break;
+
 		case 'Masters':
 			platform = 'masters';
 			platformDisplayName = 'Masters';
@@ -283,8 +307,9 @@ function normalizeMemberFileName(title) {
 	}
 
 	if (!platform) {
-		console.log('unknown platform', title);
-		process.exit(0);
+		//console.log('unknown platform', title);
+		//process.exit(0);
+		return null;
 	}
 
 	const data = {
@@ -320,6 +345,10 @@ async function main() {
 		for (const image of imageURLs) {
 			const fileExtension = image.url.split('.').pop();
 			const normalizedName = normalizeMemberFileName(image.title);
+			if (!normalizedName) {
+				continue;
+			}
+
 			const style = normalizedName.style;
 			let localPath = `/images/trainers/${normalizedName.platform}/${normalizedName.name}`;
 

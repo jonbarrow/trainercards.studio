@@ -4,6 +4,7 @@ Credits for assets/data taken from other sources in no specific order. Some data
 
 - Seed data for Pokemon and sprites: https://pokeapi.co/
 - Seed data for trainer images: https://archives.bulbagarden.net/wiki/Category:Trainer_sprites
+- Seed data for trainer images: https://archives.bulbagarden.net/wiki/Category:Trainer_class_artwork
 - Trainer card template, gen 1 badges and gen 1 font: https://www.spriters-resource.com/game_boy_gbc/pokemonredblue/
 - Trainer card template, gen 2 badges and gen 2 font: https://www.spriters-resource.com/game_boy_gbc/pokemongoldsilver/
 - Trainer card template, gen 3 badges and gen 3 font: https://www.spriters-resource.com/game_boy_advance/pokemonrubysapphire/
