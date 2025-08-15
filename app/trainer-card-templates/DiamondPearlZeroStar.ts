@@ -134,7 +134,7 @@ export default class DiamondPearlRed extends TrainerCard {
 			const char = name[i]!.toUpperCase();
 
 			if (char === ' ' || !characterImageMap[char]) {
-				x += characterWidth * this.trainerNameScale;
+				x -= characterWidth * this.trainerNameScale;
 				continue;
 			}
 
