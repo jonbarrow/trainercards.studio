@@ -254,6 +254,7 @@ async function main() {
 
 				await downloadImage(url, `${__dirname}/../public/${localPath}`);
 
+				image.creator = 'GameFreak';
 				image.url = localPath;
 				image.dimensions = await getImageDimensions(`${__dirname}/../public/${localPath}`);
 			}

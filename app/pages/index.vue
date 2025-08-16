@@ -16,6 +16,9 @@ const trainerName = ref('');
 const selectedTrainer = ref<TrainerImage>({
 	style: 'pixel_art',
 	name: 'None',
+	platform: '',
+	platform_display_name: '',
+	creator: '',
 	image_url: '',
 	preview_url: ''
 });
@@ -376,11 +379,16 @@ onMounted(() => {
 												<div :class="['border-2 rounded-lg p-2 transition-colors', selectedTrainer?.name === trainer.name ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-gray-300']">
 													<div class="aspect-square flex items-center justify-center bg-gray-50 rounded">
 														<img v-if="trainer.preview_url" loading="lazy" :src="trainer.preview_url" :alt="trainer.name" :class="['max-w-full', 'max-h-full', 'object-contain', { pixelated: trainer.style === 'pixel_art' }]">
-														<div v-else class="text-gray-400 text-xs text-center">
-															{{ trainer.name }}
-														</div>
+														<div v-else class="text-gray-400 text-xs text-center">{{ trainer.name }}</div>
 													</div>
 													<p class="text-xs text-center mt-2 truncate">{{ trainer.name }}</p>
+													<div class="text-xs text-center mt-1">
+														<div>{{ trainer.platform_display_name }}</div>
+														<div>
+															<UButton v-if="trainer.creator_url" :to="trainer.creator_url" target="_blank" color="neutral" variant="subtle" @click.stop>{{ trainer.creator }}</UButton>
+															<span v-else>{{ trainer.creator }}</span>
+														</div>
+													</div>
 												</div>
 											</div>
 										</div>
@@ -444,8 +452,17 @@ onMounted(() => {
 											<div v-for="pokemon in filteredPokemon" :key="pokemon.name">
 												<h3>{{ pokemon.display_name }}</h3>
 												<div class="grid grid-cols-4 gap-2 mb-4">
-													<div v-for="image in pokemon.images" :key="`${pokemon.name}-${image.platform}-${image.type}`" class="w-16 h-16 flex items-center justify-center overflow-hidden" @click="selectPokemon(pokemon, image)">
-														<img loading="lazy" :src="image.url" alt="" :style="getPokemonPreviewScaleStyle(image)" :class="['max-w-full', 'max-h-full', 'object-contain', { pixelated: image.style === 'pixel_art' }]" @load="loadImage(image.url)">
+													<div v-for="image in pokemon.images" :key="`${pokemon.name}-${image.platform}-${image.gender}`" class="flex flex-col items-center" @click="selectPokemon(pokemon, image)">
+														<div class="w-16 h-16 flex items-center justify-center overflow-hidden cursor-pointer">
+															<img loading="lazy" :src="image.url" alt="" :style="getPokemonPreviewScaleStyle(image)" :class="['max-w-full', 'max-h-full', 'object-contain', { pixelated: image.style === 'pixel_art' }]" @load="loadImage(image.url)">
+														</div>
+														<div class="text-xs text-center mt-1">
+															<div>{{ image.platform_display_name }}</div>
+															<div>
+																<UButton v-if="image.creator_url" :to="image.creator_url"target="_blank" color="neutral" variant="subtle">{{ image.creator }}</UButton>
+																<span v-else>{{ image.creator }}</span>
+															</div>
+														</div>
 													</div>
 												</div>
 												<USeparator class="py-5" />

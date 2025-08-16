@@ -293,7 +293,6 @@ async function main() {
 				continue;
 			}
 
-			const style = normalizedName.style;
 			let localPath = `/images/trainers/${normalizedName.platform}/${normalizedName.name}`;
 
 			if (normalizedName.gender) {
@@ -305,11 +304,13 @@ async function main() {
 			await downloadImage(image.url, `${__dirname}/../public/${localPath}`);
 
 			const dimensions = await getImageDimensions(`${__dirname}/../public/${localPath}`);
-			delete normalizedName.style; // * Just hijacking the normalize function for this, it's not a name thing
 
 			trainers.push({
-				style,
-				name: normalizedName.displayName,
+				style: normalizedName.style, // * Just hijacking the normalize function for this, it's not a name thing
+				name: normalizedName.display_name,
+				platform: normalizedName.platform,
+				platform_display_name: normalizedName.platform_display_name,
+				creator: 'GameFreak',
 				image_url: localPath,
 				preview_url: localPath,
 				dimensions
