@@ -22,8 +22,6 @@ export default class ModernBase extends TrainerCard {
 	async drawBackground() {
 		this.rescaleCanvas();
 
-		console.log()
-
 		const displayWidth = this.backgroundOriginalWidth * this.backgroundScale;
 		const displayHeight = this.backgroundOriginalHeight * this.backgroundScale;
 		const backgroundImage = await loadImage(this.backgroundURL);
@@ -138,7 +136,6 @@ export default class ModernBase extends TrainerCard {
 		this.drawPokemonNameArea(nameAreaCenterX, nameAreaY);
 	}
 
-
 	private drawPokemonNameArea(x: number, y: number): void {
 		const width = 120 * this.backgroundScale;
 		const height = 21 * this.backgroundScale;
@@ -191,7 +188,6 @@ export default class ModernBase extends TrainerCard {
 
 		let scaledWidth = (trainer.dimensions!.content.width * this.trainerImageScale) * this.backgroundScale;
 		let scaledHeight = (trainer.dimensions!.content.height * this.trainerImageScale) * this.backgroundScale;
-
 
 		const maxSize = 360 * this.backgroundScale;
 

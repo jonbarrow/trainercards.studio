@@ -1,4 +1,4 @@
-export default interface ImageDimensions {
+interface ImageDimensions {
 	content: {
 		width: number;
 		height: number;
@@ -13,4 +13,6 @@ export default interface ImageDimensions {
 		bottom: number;
 		right: number;
 	};
-};
+}
+
+export default ImageDimensions;

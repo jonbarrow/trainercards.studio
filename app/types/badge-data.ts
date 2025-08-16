@@ -1,4 +1,6 @@
-export default interface BadgeData {
+interface BadgeData {
 	label: string;
 	images: string[];
-};
+}
+
+export default BadgeData;
