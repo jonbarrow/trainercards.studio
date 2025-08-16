@@ -27,6 +27,7 @@ const trainerModalOpen = ref(false);
 const pokemonModalOpen = ref(false);
 const selectedTeamIndex = ref<number | null>(null);
 const pokemonSearchQuery = ref('');
+const trainerSearchQuery = ref('');
 const selectedTeam = reactive<PokemonTeam>({});
 const socialIcon1 = ref({
 	image_url: '',
@@ -52,6 +53,16 @@ const filteredPokemon = computed(() => {
 });
 
 const allTrainerData = ref<TrainerImage[]>([]);
+const filteredTrainers = computed(() => {
+	if (!trainerSearchQuery.value.trim()) {
+		return allTrainerData.value;
+	}
+
+	const query = trainerSearchQuery.value.toLowerCase().trim();
+
+	return allTrainerData.value.filter(trainer => trainer.name.toLowerCase().includes(query));
+});
+
 const allBadgeData = ref<BadgeData[]>([]);
 const allModernIconData = ref<ModernIconData[]>([]);
 
@@ -191,6 +202,7 @@ function toggleTemplateModal() {
 
 function toggleTrainerModal() {
 	trainerModalOpen.value = !trainerModalOpen.value;
+	trainerSearchQuery.value = '';
 }
 
 function toggleBadge(url: string) {
@@ -374,19 +386,26 @@ onMounted(() => {
 								<UButton label="Select Trainer" color="neutral" variant="subtle" @click="toggleTrainerModal" />
 								<UModal v-model:open="trainerModalOpen">
 									<template #content>
-										<div class="p-4 grid grid-cols-3 gap-3 max-h-96 overflow-y-auto">
-											<div v-for="(trainer, index) in allTrainerData" :key="index" class="relative cursor-pointer" @click="selectTrainer(trainer)">
-												<div :class="['border-2 rounded-lg p-2 transition-colors', selectedTrainer?.name === trainer.name ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-gray-300']">
-													<div class="aspect-square flex items-center justify-center bg-gray-50 rounded">
-														<img v-if="trainer.preview_url" loading="lazy" :src="trainer.preview_url" :alt="trainer.name" :class="['max-w-full', 'max-h-full', 'object-contain', { pixelated: trainer.style === 'pixel_art' }]">
-														<div v-else class="text-gray-400 text-xs text-center">{{ trainer.name }}</div>
-													</div>
-													<p class="text-xs text-center mt-2 truncate">{{ trainer.name }}</p>
-													<div class="text-xs text-center mt-1">
-														<div>{{ trainer.platform_display_name }}</div>
-														<div>
-															<UButton v-if="trainer.creator_url" :to="trainer.creator_url" target="_blank" color="neutral" variant="subtle" @click.stop>{{ trainer.creator }}</UButton>
-															<span v-else>{{ trainer.creator }}</span>
+										<div class="p-4 w-full max-w-4xl">
+											<h3 class="text-lg font-semibold mb-4">Select Trainer</h3>
+
+											<div class="mb-4">
+												<UInput v-model="trainerSearchQuery" placeholder="Search trainer by name..." class="w-full" />
+											</div>
+											<div class="p-4 grid grid-cols-3 gap-3 max-h-96 overflow-y-auto">
+												<div v-for="(trainer, index) in filteredTrainers" :key="index" class="relative cursor-pointer" @click="selectTrainer(trainer)">
+													<div :class="['border-2 rounded-lg p-2 transition-colors', selectedTrainer?.name === trainer.name ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-gray-300']">
+														<div class="aspect-square flex items-center justify-center bg-gray-50 rounded">
+															<img v-if="trainer.preview_url" loading="lazy" :src="trainer.preview_url" :alt="trainer.name" :class="['max-w-full', 'max-h-full', 'object-contain', { pixelated: trainer.style === 'pixel_art' }]">
+															<div v-else class="text-gray-400 text-xs text-center">{{ trainer.name }}</div>
+														</div>
+														<p class="text-xs text-center mt-2 truncate">{{ trainer.name }}</p>
+														<div class="text-xs text-center mt-1">
+															<div>{{ trainer.platform_display_name }}</div>
+															<div>
+																<UButton v-if="trainer.creator_url" :to="trainer.creator_url" target="_blank" color="neutral" variant="subtle" @click.stop>{{ trainer.creator }}</UButton>
+																<span v-else>{{ trainer.creator }}</span>
+															</div>
 														</div>
 													</div>
 												</div>
@@ -441,9 +460,7 @@ onMounted(() => {
 							<UModal v-model:open="pokemonModalOpen">
 								<template #content>
 									<div class="p-4 w-full max-w-4xl">
-										<h3 class="text-lg font-semibold mb-4">
-											Select Pokemon for Slot {{ selectedTeamIndex }}
-										</h3>
+										<h3 class="text-lg font-semibold mb-4">Select Pokemon for Slot {{ selectedTeamIndex }}</h3>
 
 										<div class="mb-4">
 											<UInput v-model="pokemonSearchQuery" placeholder="Search Pokemon by name..." class="w-full" />
