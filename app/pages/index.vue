@@ -120,11 +120,11 @@ async function updateCanvas() {
 	await card.drawBackground();
 
 	if (selectedTrainer.value.image_url) {
-		await card.drawTrainerImage(selectedTrainer.value)
+		await card.drawTrainerImage(selectedTrainer.value);
 	}
 
 	if (trainerName.value) {
-		await card.drawTrainerName(trainerName.value)
+		await card.drawTrainerName(trainerName.value);
 	}
 
 	await card.drawPokemonTeam(selectedTeam);
@@ -245,14 +245,9 @@ function updatePokemonGender(slot: number, gender: string) {
 }
 
 function getPokemonPreviewScaleStyle(image: PokemonImage) {
-	const {
-		content,
-		original
-	} = image.dimensions;
-
-	const contentRatio = Math.min(content.width / original.width, content.height / original.height);
-
-	const scale = Math.min(2.0, Math.max(0.5, 1 / contentRatio));
+	const { content, original } = image.dimensions;
+	const contentRatio = Math.max(content.width, content.height) / Math.max(original.width, original.height);
+	const scale = Math.min(4.0, Math.max(0.3, 1 / contentRatio));
 
 	return {
 		transform: `scale(${scale})`,
@@ -449,9 +444,9 @@ onMounted(() => {
 											<div v-for="pokemon in filteredPokemon" :key="pokemon.name">
 												<h3>{{ pokemon.display_name }}</h3>
 												<div class="grid grid-cols-4 gap-2 mb-4">
-													<div v-for="image in pokemon.images" :key="`${pokemon.name}-${image.platform}-${image.type}`" class="w-16 h-16 flex items-center justify-center overflow-hidden" @click="selectPokemon(pokemon, image)">
-														<img loading="lazy" :src="image.url" alt="" :style="getPokemonPreviewScaleStyle(image)" :class="['max-w-full', 'max-h-full', 'object-contain', { 'pixelated': image.style === 'pixel_art' }]" @load="loadImage(image.url)" />
-													</div>
+												<div v-for="image in pokemon.images" :key="`${pokemon.name}-${image.platform}-${image.type}`" class="w-16 h-16 flex items-center justify-center overflow-hidden" @click="selectPokemon(pokemon, image)">
+													<img loading="lazy" :src="image.url" alt="" :style="getPokemonPreviewScaleStyle(image)" :class="['max-w-full', 'max-h-full', 'object-contain', { 'pixelated': image.style === 'pixel_art' }]" @load="loadImage(image.url)" />
+												</div>
 												</div>
 												<USeparator class="py-5" />
 											</div>

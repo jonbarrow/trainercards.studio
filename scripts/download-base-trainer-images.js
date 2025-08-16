@@ -1,13 +1,11 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
 import axios from 'axios';
 import fs from 'fs-extra';
+import getImageDimensions from './get-image-dimensions.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const execAsync = promisify(exec);
 
 const spriteCategories = [
 	'Generation_I_Trainer_sprites',
@@ -35,60 +33,6 @@ async function downloadImage(url, output) {
 		writer.on('finish', resolve);
 		writer.on('error', reject);
 	});
-}
-
-export async function getImageDimensions(imagePath) {
-	try {
-		const cmd = `magick "${imagePath}[0]" -format "%wx%h %g" -trim info:`;
-		const { stdout } = await execAsync(cmd);
-		const result = stdout.trim();
-
-		const parts = result.split(/\s+/);
-		if (parts.length < 2) {
-			return null;
-		}
-
-		const contentDims = parts[0];
-		const geometry = parts[1];
-
-		const [contentWStr, contentHStr] = contentDims.split('x');
-		const contentWidth = Number(contentWStr);
-		const contentHeight = Number(contentHStr);
-		if (!Number.isFinite(contentWidth) || !Number.isFinite(contentHeight)) {
-			return null;
-		}
-
-		const geometryMatch = geometry.match(/^(\d+)x(\d+)\+(\d+)\+(\d+)$/);
-		if (!geometryMatch) {
-			return null;
-		}
-
-		const [, origWStr, origHStr, xOffStr, yOffStr] = geometryMatch;
-		const originalWidth = Number(origWStr);
-		const originalHeight = Number(origHStr);
-		const xOffset = Number(xOffStr);
-		const yOffset = Number(yOffStr);
-
-		return {
-			content: {
-				width: contentWidth,
-				height: contentHeight
-			},
-			original: {
-				width: originalWidth,
-				height: originalHeight
-			},
-			padding: {
-				top: yOffset,
-				left: xOffset,
-				bottom: originalHeight - contentHeight - yOffset,
-				right: originalWidth - contentWidth - xOffset
-			}
-		};
-	} catch (error) {
-		console.error(`Error calculating padding for ${imagePath}:`, error?.message ?? error);
-		return null;
-	}
 }
 
 async function getCategoryMembers(category) {
@@ -283,20 +227,20 @@ function normalizeMemberFileName(title) {
 		case 'XY':
 			platform = 'x_y';
 			platformDisplayName = 'X / Y';
-			//style = 'pixel_art'; // TODO - Figure this out, there's a mix of model renders and artwork
+			// style = 'pixel_art'; // TODO - Figure this out, there's a mix of model renders and artwork
 			break;
 
 		case 'ORAS':
 		case 'Omega':
 			platform = 'omegaruby_alphasapphire';
 			platformDisplayName = 'Omega Ruby / Alpha Sapphire';
-			//style = 'pixel_art'; // TODO - Figure this out, there's a mix of model renders and artwork
+			// style = 'pixel_art'; // TODO - Figure this out, there's a mix of model renders and artwork
 			break;
 
 		case 'SM':
 			platform = 'sun_moon';
 			platformDisplayName = 'Sun / Moon';
-			//style = 'pixel_art'; // TODO - Figure this out, there's a mix of model renders and artwork
+			// style = 'pixel_art'; // TODO - Figure this out, there's a mix of model renders and artwork
 			break;
 
 		case 'Masters':
@@ -307,8 +251,8 @@ function normalizeMemberFileName(title) {
 	}
 
 	if (!platform) {
-		//console.log('unknown platform', title);
-		//process.exit(0);
+		// console.log('unknown platform', title);
+		// process.exit(0);
 		return null;
 	}
 
@@ -316,7 +260,7 @@ function normalizeMemberFileName(title) {
 		style,
 		platform,
 		platform_display_name: platformDisplayName
-	}
+	};
 
 	if (name.endsWith(' M')) {
 		data.gender = 'male';
@@ -339,7 +283,7 @@ async function main() {
 		const categoryMembers = await getCategoryMembers(category);
 		let imageURLs = await getImageURLs(categoryMembers);
 
-		 // * Remove back sprites
+		// * Remove back sprites
 		imageURLs = imageURLs.filter(image => !image.title.includes(' Back') && !image.title.includes('Back ') && !image.title.includes(' back') && !image.title.includes('back '));
 
 		for (const image of imageURLs) {
