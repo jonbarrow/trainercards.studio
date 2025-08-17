@@ -7,266 +7,190 @@ import getImageDimensions from './get-image-dimensions.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function downloadImage(url, output) {
-	const response = await axios({
-		method: 'GET',
-		url: url,
-		responseType: 'stream'
-	});
+function buildPokemonImages(pokemon, form) {
+	// * PokeAPI only exposes all image URLs for the default forms of Pokemon. Alternate forms
+	// * only expose the "default" sprites, but not for other platforms, despite the images
+	// * being present in the GitHub repo. This means we have to hand-craft the URLs and
+	// * just hope for the best. This might require special cases in the future if not all
+	// * Pokemon work with this implementation
+	// *
+	// * See https://github.com/PokeAPI/pokeapi/issues/1281 for details
+	const fileName = form.is_default ? `${pokemon.id}` : `${pokemon.id}-${form.form_name}`;
 
-	await fs.ensureDir(path.dirname(output));
+	return [
+		{ style: 'pixel_art', platform: 'default', platform_display_name: 'Default', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'default', platform_display_name: 'Default', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/female/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'default', platform_display_name: 'Default', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/shiny/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'default', platform_display_name: 'Default', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/shiny/female/${fileName}.png` },
 
-	const writer = fs.createWriteStream(output);
-	response.data.pipe(writer);
+		{ style: 'artwork', platform: 'dream_world', platform_display_name: 'Dream World', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/dream-world/${fileName}.svg` },
+		{ style: 'artwork', platform: 'dream_world', platform_display_name: 'Dream World', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/dream-world/female/${fileName}.svg` },
 
-	return new Promise((resolve, reject) => {
-		writer.on('finish', resolve);
-		writer.on('error', reject);
-	});
+		{ style: 'model_render', platform: 'home', platform_display_name: 'Pokemon Home', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/home/${fileName}.png` },
+		{ style: 'model_render', platform: 'home', platform_display_name: 'Pokemon Home', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/home/female/${fileName}.png` },
+		{ style: 'model_render', platform: 'home', platform_display_name: 'Pokemon Home', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/home/shiny/${fileName}.png` },
+		{ style: 'model_render', platform: 'home', platform_display_name: 'Pokemon Home', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/home/shiny/female/${fileName}.png` },
+
+		{ style: 'artwork', platform: 'official_artwork', platform_display_name: 'Official Artwork', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/official-artwork/${fileName}.png` },
+		{ style: 'artwork', platform: 'official_artwork', platform_display_name: 'Official Artwork', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/official-artwork/female/${fileName}.png` },
+		{ style: 'artwork', platform: 'official_artwork', platform_display_name: 'Official Artwork', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/official-artwork/shiny/${fileName}.png` },
+		{ style: 'artwork', platform: 'official_artwork', platform_display_name: 'Official Artwork', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/official-artwork/shiny/female/${fileName}.png` },
+
+		{ style: 'pixel_art', platform: 'red_blue', platform_display_name: 'Red / Blue', gender: 'male', gender_display_name: 'Male', shiny: false, gray: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-i/red-blue/gray/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'red_blue', platform_display_name: 'Red / Blue', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-i/red-blue/transparent/${fileName}.png` },
+
+		{ style: 'pixel_art', platform: 'yellow', platform_display_name: 'Yellow', gender: 'male', gender_display_name: 'Male', shiny: false, gray: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-i/yellow/gray/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'yellow', platform_display_name: 'Yellow', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-i/yellow/transparent/${fileName}.png` },
+
+		{ style: 'pixel_art', platform: 'crystal', platform_display_name: 'Crystal', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-ii/crystal/transparent/shiny/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'crystal', platform_display_name: 'Crystal', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-ii/crystal/transparent/${fileName}.png` },
+
+		{ style: 'pixel_art', platform: 'gold', platform_display_name: 'Gold', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-ii/gold/shiny/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'gold', platform_display_name: 'Gold', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-ii/gold/transparent/${fileName}.png` },
+
+		{ style: 'pixel_art', platform: 'silver', platform_display_name: 'Silver', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-ii/silver/shiny/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'silver', platform_display_name: 'Silver', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-ii/silver/transparent/${fileName}.png` },
+
+		{ style: 'pixel_art', platform: 'emerald', platform_display_name: 'Emerald', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iii/emerald/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'emerald', platform_display_name: 'Emerald', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iii/emerald/shiny/${fileName}.png` },
+
+		{ style: 'pixel_art', platform: 'firered_leafgreen', platform_display_name: 'Fire Red / Leaf Green', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iii/firered-leafgreen/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'firered_leafgreen', platform_display_name: 'Fire Red / Leaf Green', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iii/firered-leafgreen/shiny/${fileName}.png` },
+
+		{ style: 'pixel_art', platform: 'ruby_sapphire', platform_display_name: 'Ruby / Sapphire', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iii/ruby-sapphire/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'ruby_sapphire', platform_display_name: 'Ruby / Sapphire', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iii/ruby-sapphire/shiny/${fileName}.png` },
+
+		{ style: 'pixel_art', platform: 'diamond_pearl', platform_display_name: 'Diamond / Pearl', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iv/diamond-pearl/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'diamond_pearl', platform_display_name: 'Diamond / Pearl', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iv/diamond-pearl/female/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'diamond_pearl', platform_display_name: 'Diamond / Pearl', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iv/diamond-pearl/shiny/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'diamond_pearl', platform_display_name: 'Diamond / Pearl', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iv/diamond-pearl/shiny/female/${fileName}.png` },
+
+		{ style: 'pixel_art', platform: 'heartgold_soulsilver', platform_display_name: 'Heart Gold / Soul Silver', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iv/heartgold-soulsilver/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'heartgold_soulsilver', platform_display_name: 'Heart Gold / Soul Silver', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iv/heartgold-soulsilver/female/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'heartgold_soulsilver', platform_display_name: 'Heart Gold / Soul Silver', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iv/heartgold-soulsilver/shiny/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'heartgold_soulsilver', platform_display_name: 'Heart Gold / Soul Silver', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iv/heartgold-soulsilver/shiny/female/${fileName}.png` },
+
+		{ style: 'pixel_art', platform: 'platinum', platform_display_name: 'Platinum', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iv/platinum/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'platinum', platform_display_name: 'Platinum', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iv/platinum/female/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'platinum', platform_display_name: 'Platinum', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iv/platinum/shiny/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'platinum', platform_display_name: 'Platinum', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-iv/platinum/shiny/female/${fileName}.png` },
+
+		{ style: 'pixel_art', platform: 'black_white', platform_display_name: 'Black / White', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-v/black-white/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'black_white', platform_display_name: 'Black / White', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-v/black-white/female/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'black_white', platform_display_name: 'Black / White', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-v/black-white/shiny/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'black_white', platform_display_name: 'Black / White', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-v/black-white/shiny/female/${fileName}.png` },
+
+		{ style: 'model_render', platform: 'omegaruby_alphasapphire', platform_display_name: 'Omega Ruby / Alpha Sapphire', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vi/omegaruby-alphasapphire/${fileName}.png` },
+		{ style: 'model_render', platform: 'omegaruby_alphasapphire', platform_display_name: 'Omega Ruby / Alpha Sapphire', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vi/omegaruby-alphasapphire/female/${fileName}.png` },
+		{ style: 'model_render', platform: 'omegaruby_alphasapphire', platform_display_name: 'Omega Ruby / Alpha Sapphire', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vi/omegaruby-alphasapphire/shiny/${fileName}.png` },
+		{ style: 'model_render', platform: 'omegaruby_alphasapphire', platform_display_name: 'Omega Ruby / Alpha Sapphire', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vi/omegaruby-alphasapphire/shiny/female/${fileName}.png` },
+
+		{ style: 'model_render', platform: 'x_y', platform_display_name: 'X / Y', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vi/x-y/${fileName}.png` },
+		{ style: 'model_render', platform: 'x_y', platform_display_name: 'X / Y', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vi/x-y/female/${fileName}.png` },
+		{ style: 'model_render', platform: 'x_y', platform_display_name: 'X / Y', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vi/x-y/shiny/${fileName}.png` },
+		{ style: 'model_render', platform: 'x_y', platform_display_name: 'X / Y', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vi/x-y/shiny/female/${fileName}.png` },
+
+		{ style: 'pixel_art', platform: 'generation_vii_icons', platform_display_name: 'Generation VII Icons', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vii/icons/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'generation_vii_icons', platform_display_name: 'Generation VII Icons', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vii/icons/female/${fileName}.png` },
+
+		{ style: 'model_render', platform: 'ultra_sun_ultra_moon', platform_display_name: 'Ultra Sun / Ultra Noon', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/${fileName}.png` },
+		{ style: 'model_render', platform: 'ultra_sun_ultra_moon', platform_display_name: 'Ultra Sun / Ultra Noon', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/female/${fileName}.png` },
+		{ style: 'model_render', platform: 'ultra_sun_ultra_moon', platform_display_name: 'Ultra Sun / Ultra Noon', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/shiny/${fileName}.png` },
+		{ style: 'model_render', platform: 'ultra_sun_ultra_moon', platform_display_name: 'Ultra Sun / Ultra Noon', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/shiny/female/${fileName}.png` },
+
+		{ style: 'pixel_art', platform: 'generation_viii_icons', platform_display_name: 'Generation VIII Icons', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-viii/icons/${fileName}.png` },
+		{ style: 'pixel_art', platform: 'generation_viii_icons', platform_display_name: 'Generation VIII Icons', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-viii/icons/female/${fileName}.png` }
+	];
 }
 
 async function main() {
 	const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0');
 	const pokemonData = [];
+	const seen = {};
 
 	for (const { url } of response.data.results) {
 		try {
 			const { data: pokemon } = await axios.get(url);
-			const formURL = pokemon.forms[0].url;
-			const speciesURL = pokemon.species.url;
-
-			const { data: form } = await axios.get(formURL);
-			const { data: species } = await axios.get(speciesURL);
-
+			const { data: species } = await axios.get(pokemon.species.url);
 			const speciesTranslation = species.names.find(translation => translation.language.name === 'en');
-			let displayName = speciesTranslation.name;
 
-			if (form.names.length !== 0) {
-				// * See https://github.com/jonbarrow/trainercards.studio/issues/25
-				// * for details
-				let formTranslation = form.names.find(translation => translation.language.name === 'en');
-				if (formTranslation) {
-					displayName = formTranslation.name;
-				} else if (form.form_names.length !== 0) {
-					formTranslation = form.form_names.find(translation => translation.language.name === 'en');
+			for (const formData of pokemon.forms) {
+				const formURL = formData.url;
+				const { data: form } = await axios.get(formURL);
+				let displayName = speciesTranslation.name;
 
-					// * Prevent results like "Kyogre (Kyogre)"
-					if (displayName !== formTranslation.name) {
-						displayName = `${displayName} ${formTranslation.name}`;
+				if (form.names.length !== 0) {
+					// * See https://github.com/jonbarrow/trainercards.studio/issues/25
+					// * for details
+					let formTranslation = form.names.find(translation => translation.language.name === 'en');
+					if (formTranslation) {
+						displayName = formTranslation.name;
+					} else if (form.form_names.length !== 0) {
+						formTranslation = form.form_names.find(translation => translation.language.name === 'en');
+
+						// * Prevent results like "Kyogre (Kyogre)"
+						if (displayName !== formTranslation.name) {
+							displayName = `${displayName} ${formTranslation.name}`;
+						}
 					}
 				}
-			}
 
-			const sprites = pokemon.sprites;
-			const images = [];
+				const images = buildPokemonImages(pokemon, form).filter((image) => {
+					// * See https://github.com/PokeAPI/sprites/issues/174
+					// * for details
+					if (fs.pathExistsSync(image.path)) {
+						return true;
+					}
 
-			if (sprites.front_default) {
-				images.push({ style: 'pixel_art', platform: 'default', platform_display_name: 'Default', gender: 'male', gender_display_name: 'Male', shiny: false, url: sprites.front_default });
-			}
-			if (sprites.front_female) {
-				images.push({ style: 'pixel_art', platform: 'default', platform_display_name: 'Default', gender: 'female', gender_display_name: 'Female', shiny: false, url: sprites.front_female });
-			}
-			if (sprites.front_shiny) {
-				images.push({ style: 'pixel_art', platform: 'default', platform_display_name: 'Default', gender: 'male', gender_display_name: 'Male', shiny: true, url: sprites.front_shiny });
-			}
-			if (sprites.front_shiny_female) {
-				images.push({ style: 'pixel_art', platform: 'default', platform_display_name: 'Default', gender: 'female', gender_display_name: 'Female', shiny: true, url: sprites.front_shiny_female });
-			}
+					const extension = image.path.split('/').pop().split('.').pop();
+					const newPath = `${path.dirname(image.path)}/${species.id}-${form.form_name}.${extension}`;
 
-			if (sprites.other.dream_world.front_default) {
-				images.push({ style: 'artwork', platform: 'dream_world', platform_display_name: 'Dream World', gender: 'male', gender_display_name: 'Male', shiny: false, url: sprites.other.dream_world.front_default });
-			}
-			if (sprites.other.dream_world.front_female) {
-				images.push({ style: 'artwork', platform: 'dream_world', platform_display_name: 'Dream World', gender: 'female', gender_display_name: 'Female', shiny: false, url: sprites.other.dream_world.front_female });
-			}
+					if (fs.pathExistsSync(newPath)) {
+						image.path = newPath;
+						return true;
+					}
 
-			if (sprites.other.home.front_default) {
-				images.push({ style: 'model_render', platform: 'home', platform_display_name: 'Home', gender: 'male', gender_display_name: 'Male', shiny: false, url: sprites.other.home.front_default });
-			}
-			if (sprites.other.home.front_female) {
-				images.push({ style: 'model_render', platform: 'home', platform_display_name: 'Home', gender: 'female', gender_display_name: 'Female', shiny: false, url: sprites.other.home.front_female });
-			}
-			if (sprites.other.home.front_shiny) {
-				images.push({ style: 'model_render', platform: 'home', platform_display_name: 'Home', gender: 'male', gender_display_name: 'Male', shiny: true, url: sprites.other.home.front_shiny });
-			}
-			if (sprites.other.home.front_shiny_female) {
-				images.push({ style: 'model_render', platform: 'home', platform_display_name: 'Home', gender: 'female', gender_display_name: 'Female', shiny: true, url: sprites.other.home.front_shiny_female });
-			}
+					return false;
+				});
 
-			if (sprites.other['official-artwork'].front_default) {
-				images.push({ style: 'artwork', platform: 'official_artwork', platform_display_name: 'Official Artwork', gender: 'male', gender_display_name: 'male', shiny: false, url: sprites.other['official-artwork'].front_default });
-			}
-			if (sprites.other['official-artwork'].front_shiny) {
-				images.push({ style: 'artwork', platform: 'official_artwork', platform_display_name: 'Official Artwork', gender: 'male', gender_display_name: 'male', shiny: true, url: sprites.other['official-artwork'].front_shiny });
-			}
+				for (const image of images) {
+					const extension = image.path.split('/').pop().split('.').pop();
+					let localPath = `/images/pokemon/${formData.name}/${image.platform}_${image.gender}`;
 
-			if (sprites.versions['generation-i']['red-blue'].front_transparent) {
-				images.push({ style: 'pixel_art', platform: 'red_blue', platform_display_name: 'Red / Blue', gender: 'male', gender_display_name: 'male', shiny: false, url: sprites.versions['generation-i']['red-blue'].front_transparent });
-			}
-			if (sprites.versions['generation-i']['red-blue'].front_gray) {
-				images.push({ style: 'pixel_art', platform: 'red_blue_gray', platform_display_name: 'Red / Blue (Gray)', gender: 'male', gender_display_name: 'male', shiny: false, url: sprites.versions['generation-i']['red-blue'].front_gray });
-			}
+					if (image.shiny) {
+						localPath = `${localPath}_shiny`;
+					}
 
-			if (sprites.versions['generation-i'].yellow.front_transparent) {
-				images.push({ style: 'pixel_art', platform: 'yellow', platform_display_name: 'Yellow', gender: 'male', gender_display_name: 'male', shiny: false, url: sprites.versions['generation-i'].yellow.front_transparent });
-			}
-			if (sprites.versions['generation-i'].yellow.front_gray) {
-				images.push({ style: 'pixel_art', platform: 'yellow_gray', platform_display_name: 'Yellow (Gray)', gender: 'male', gender_display_name: 'male', shiny: false, url: sprites.versions['generation-i'].yellow.front_gray });
-			}
+					if (image.gray) {
+						localPath = `${localPath}_gray`;
+					}
 
-			if (sprites.versions['generation-ii'].gold.front_transparent) {
-				images.push({ style: 'pixel_art', platform: 'gold', platform_display_name: 'Gold', gender: 'male', gender_display_name: 'male', shiny: false, url: sprites.versions['generation-ii'].gold.front_transparent });
-			}
-			if (sprites.versions['generation-ii'].gold.front_shiny_transparent || sprites.versions['generation-ii'].gold.front_shiny) {
-				images.push({ style: 'pixel_art', platform: 'gold', platform_display_name: 'Gold', gender: 'male', gender_display_name: 'male', shiny: true, url: sprites.versions['generation-ii'].gold.front_shiny_transparent || sprites.versions['generation-ii'].gold.front_shiny });
-			}
+					localPath = `${localPath}.${extension}`;
 
-			if (sprites.versions['generation-ii'].silver.front_transparent) {
-				images.push({ style: 'pixel_art', platform: 'silver', platform_display_name: 'Silver', gender: 'male', gender_display_name: 'male', shiny: false, url: sprites.versions['generation-ii'].silver.front_transparent });
-			}
-			if (sprites.versions['generation-ii'].silver.front_shiny_transparent || sprites.versions['generation-ii'].silver.front_shiny) {
-				images.push({ style: 'pixel_art', platform: 'silver', platform_display_name: 'Silver', gender: 'male', gender_display_name: 'male', shiny: true, url: sprites.versions['generation-ii'].silver.front_shiny_transparent || sprites.versions['generation-ii'].silver.front_shiny });
-			}
+					if (seen[localPath]) {
+						console.log('FOUND DUPED PATH', localPath, seen[localPath], image);
+						process.exit();
+					} else {
+						seen[localPath] = image;
+					}
 
-			if (sprites.versions['generation-ii'].crystal.front_transparent) {
-				images.push({ style: 'pixel_art', platform: 'crystal', platform_display_name: 'Crystal', gender: 'male', gender_display_name: 'male', shiny: false, url: sprites.versions['generation-ii'].crystal.front_transparent });
-			}
-			if (sprites.versions['generation-ii'].crystal.front_shiny_transparent || sprites.versions['generation-ii'].crystal.front_shiny) {
-				images.push({ style: 'pixel_art', platform: 'crystal', platform_display_name: 'Crystal', gender: 'male', gender_display_name: 'male', shiny: true, url: sprites.versions['generation-ii'].crystal.front_shiny_transparent || sprites.versions['generation-ii'].crystal.front_shiny });
-			}
+					await fs.ensureDir(path.dirname(`${__dirname}/../public${localPath}`));
+					await fs.copyFile(image.path, `${__dirname}/../public${localPath}`);
 
-			if (sprites.versions['generation-iii']['ruby-sapphire'].front_default) {
-				images.push({ style: 'pixel_art', platform: 'ruby_sapphire', platform_display_name: 'Ruby / Sapphire', gender: 'male', gender_display_name: 'male', shiny: false, url: sprites.versions['generation-iii']['ruby-sapphire'].front_default });
-			}
-			if (sprites.versions['generation-iii']['ruby-sapphire'].front_shiny) {
-				images.push({ style: 'pixel_art', platform: 'ruby_sapphire', platform_display_name: 'Ruby / Sapphire', gender: 'male', gender_display_name: 'male', shiny: true, url: sprites.versions['generation-iii']['ruby-sapphire'].front_shiny });
-			}
+					image.creator = 'GameFreak';
+					image.url = localPath;
+					image.dimensions = await getImageDimensions(`${__dirname}/../public${localPath}`);
 
-			if (sprites.versions['generation-iii'].emerald.front_default) {
-				images.push({ style: 'pixel_art', platform: 'emerald', platform_display_name: 'Emerald', gender: 'male', gender_display_name: 'male', shiny: false, url: sprites.versions['generation-iii'].emerald.front_default });
-			}
-			if (sprites.versions['generation-iii'].emerald.front_shiny) {
-				images.push({ style: 'pixel_art', platform: 'emerald', platform_display_name: 'Emerald', gender: 'male', gender_display_name: 'male', shiny: true, url: sprites.versions['generation-iii'].emerald.front_shiny });
-			}
-
-			if (sprites.versions['generation-iii']['firered-leafgreen'].front_default) {
-				images.push({ style: 'pixel_art', platform: 'firered_leafgreen', platform_display_name: 'FireRed / LeafGreen', gender: 'male', gender_display_name: 'male', shiny: false, url: sprites.versions['generation-iii']['firered-leafgreen'].front_default });
-			}
-			if (sprites.versions['generation-iii']['firered-leafgreen'].front_shiny) {
-				images.push({ style: 'pixel_art', platform: 'firered_leafgreen', platform_display_name: 'FireRed / LeafGreen', gender: 'male', gender_display_name: 'male', shiny: true, url: sprites.versions['generation-iii']['firered-leafgreen'].front_shiny });
-			}
-
-			if (sprites.versions['generation-iv']['diamond-pearl'].front_default) {
-				images.push({ style: 'pixel_art', platform: 'diamond_pearl', platform_display_name: 'Diamond / Pearl', gender: 'male', gender_display_name: 'Male', shiny: false, url: sprites.versions['generation-iv']['diamond-pearl'].front_default });
-			}
-			if (sprites.versions['generation-iv']['diamond-pearl'].front_female) {
-				images.push({ style: 'pixel_art', platform: 'diamond_pearl', platform_display_name: 'Diamond / Pearl', gender: 'female', gender_display_name: 'Female', shiny: false, url: sprites.versions['generation-iv']['diamond-pearl'].front_female });
-			}
-			if (sprites.versions['generation-iv']['diamond-pearl'].front_shiny) {
-				images.push({ style: 'pixel_art', platform: 'diamond_pearl', platform_display_name: 'Diamond / Pearl', gender: 'male', gender_display_name: 'Male', shiny: true, url: sprites.versions['generation-iv']['diamond-pearl'].front_shiny });
-			}
-			if (sprites.versions['generation-iv']['diamond-pearl'].front_shiny_female) {
-				images.push({ style: 'pixel_art', platform: 'diamond_pearl', platform_display_name: 'Diamond / Pearl', gender: 'female', gender_display_name: 'Female', shiny: true, url: sprites.versions['generation-iv']['diamond-pearl'].front_shiny_female });
-			}
-
-			if (sprites.versions['generation-iv'].platinum.front_default) {
-				images.push({ style: 'pixel_art', platform: 'platinum', platform_display_name: 'Platinum', gender: 'male', gender_display_name: 'Male', shiny: false, url: sprites.versions['generation-iv'].platinum.front_default });
-			}
-			if (sprites.versions['generation-iv'].platinum.front_female) {
-				images.push({ style: 'pixel_art', platform: 'platinum', platform_display_name: 'Platinum', gender: 'female', gender_display_name: 'Female', shiny: false, url: sprites.versions['generation-iv'].platinum.front_female });
-			}
-			if (sprites.versions['generation-iv'].platinum.front_shiny) {
-				images.push({ style: 'pixel_art', platform: 'platinum', platform_display_name: 'Platinum', gender: 'male', gender_display_name: 'Male', shiny: true, url: sprites.versions['generation-iv'].platinum.front_shiny });
-			}
-			if (sprites.versions['generation-iv'].platinum.front_shiny_female) {
-				images.push({ style: 'pixel_art', platform: 'platinum', platform_display_name: 'Platinum', gender: 'female', gender_display_name: 'Female', shiny: true, url: sprites.versions['generation-iv'].platinum.front_shiny_female });
-			}
-
-			if (sprites.versions['generation-iv']['heartgold-soulsilver'].front_default) {
-				images.push({ style: 'pixel_art', platform: 'heartgold_soulsilver', platform_display_name: 'HeartGold / SoulSilver', gender: 'male', gender_display_name: 'Male', shiny: false, url: sprites.versions['generation-iv']['heartgold-soulsilver'].front_default });
-			}
-			if (sprites.versions['generation-iv']['heartgold-soulsilver'].front_female) {
-				images.push({ style: 'pixel_art', platform: 'heartgold_soulsilver', platform_display_name: 'HeartGold / SoulSilver', gender: 'female', gender_display_name: 'Female', shiny: false, url: sprites.versions['generation-iv']['heartgold-soulsilver'].front_female });
-			}
-			if (sprites.versions['generation-iv']['heartgold-soulsilver'].front_shiny) {
-				images.push({ style: 'pixel_art', platform: 'heartgold_soulsilver', platform_display_name: 'HeartGold / SoulSilver', gender: 'male', gender_display_name: 'Male', shiny: true, url: sprites.versions['generation-iv']['heartgold-soulsilver'].front_shiny });
-			}
-			if (sprites.versions['generation-iv']['heartgold-soulsilver'].front_shiny_female) {
-				images.push({ style: 'pixel_art', platform: 'heartgold_soulsilver', platform_display_name: 'HeartGold / SoulSilver', gender: 'female', gender_display_name: 'Female', shiny: true, url: sprites.versions['generation-iv']['heartgold-soulsilver'].front_shiny_female });
-			}
-
-			if (sprites.versions['generation-v']['black-white'].front_default) {
-				images.push({ style: 'pixel_art', platform: 'black_white', platform_display_name: 'Black / White', gender: 'male', gender_display_name: 'Male', shiny: false, url: sprites.versions['generation-v']['black-white'].front_default });
-			}
-			if (sprites.versions['generation-v']['black-white'].front_female) {
-				images.push({ style: 'pixel_art', platform: 'black_white', platform_display_name: 'Black / White', gender: 'female', gender_display_name: 'Female', shiny: false, url: sprites.versions['generation-v']['black-white'].front_female });
-			}
-			if (sprites.versions['generation-v']['black-white'].front_shiny) {
-				images.push({ style: 'pixel_art', platform: 'black_white', platform_display_name: 'Black / White', gender: 'male', gender_display_name: 'Male', shiny: true, url: sprites.versions['generation-v']['black-white'].front_shiny });
-			}
-			if (sprites.versions['generation-v']['black-white'].front_shiny_female) {
-				images.push({ style: 'pixel_art', platform: 'black_white', platform_display_name: 'Black / White', gender: 'female', gender_display_name: 'Female', shiny: true, url: sprites.versions['generation-v']['black-white'].front_shiny_female });
-			}
-
-			if (sprites.versions['generation-vi']['omegaruby-alphasapphire'].front_default) {
-				images.push({ style: 'model_render', platform: 'omegaruby_alphasapphire', platform_display_name: 'Omega Ruby / Alpha Sapphire', gender: 'male', gender_display_name: 'Male', shiny: false, url: sprites.versions['generation-vi']['omegaruby-alphasapphire'].front_default });
-			}
-			if (sprites.versions['generation-vi']['omegaruby-alphasapphire'].front_female) {
-				images.push({ style: 'model_render', platform: 'omegaruby_alphasapphire', platform_display_name: 'Omega Ruby / Alpha Sapphire', gender: 'female', gender_display_name: 'Female', shiny: false, url: sprites.versions['generation-vi']['omegaruby-alphasapphire'].front_female });
-			}
-			if (sprites.versions['generation-vi']['omegaruby-alphasapphire'].front_shiny) {
-				images.push({ style: 'model_render', platform: 'omegaruby_alphasapphire', platform_display_name: 'Omega Ruby / Alpha Sapphire', gender: 'male', gender_display_name: 'Male', shiny: true, url: sprites.versions['generation-vi']['omegaruby-alphasapphire'].front_shiny });
-			}
-			if (sprites.versions['generation-vi']['omegaruby-alphasapphire'].front_shiny_female) {
-				images.push({ style: 'model_render', platform: 'omegaruby_alphasapphire', platform_display_name: 'Omega Ruby / Alpha Sapphire', gender: 'female', gender_display_name: 'Female', shiny: true, url: sprites.versions['generation-vi']['omegaruby-alphasapphire'].front_shiny_female });
-			}
-
-			if (sprites.versions['generation-vi']['x-y'].front_default) {
-				images.push({ style: 'model_render', platform: 'x_y', platform_display_name: 'X / Y', gender: 'male', gender_display_name: 'Male', shiny: false, url: sprites.versions['generation-vi']['x-y'].front_default });
-			}
-			if (sprites.versions['generation-vi']['x-y'].front_female) {
-				images.push({ style: 'model_render', platform: 'x_y', platform_display_name: 'X / Y', gender: 'female', gender_display_name: 'Female', shiny: false, url: sprites.versions['generation-vi']['x-y'].front_female });
-			}
-			if (sprites.versions['generation-vi']['x-y'].front_shiny) {
-				images.push({ style: 'model_render', platform: 'x_y', platform_display_name: 'X / Y', gender: 'male', gender_display_name: 'Male', shiny: true, url: sprites.versions['generation-vi']['x-y'].front_shiny });
-			}
-			if (sprites.versions['generation-vi']['x-y'].front_shiny_female) {
-				images.push({ style: 'model_render', platform: 'x_y', platform_display_name: 'X / Y', gender: 'female', gender_display_name: 'Female', shiny: true, url: sprites.versions['generation-vi']['x-y'].front_shiny_female });
-			}
-
-			if (sprites.versions['generation-vii']['ultra-sun-ultra-moon'].front_default) {
-				images.push({ style: 'model_render', platform: 'ultra_sun_ultra_moon', platform_display_name: 'Ultra Sun / Ultra Moon', gender: 'male', gender_display_name: 'Male', shiny: false, url: sprites.versions['generation-vii']['ultra-sun-ultra-moon'].front_default });
-			}
-			if (sprites.versions['generation-vii']['ultra-sun-ultra-moon'].front_female) {
-				images.push({ style: 'model_render', platform: 'ultra_sun_ultra_moon', platform_display_name: 'Ultra Sun / Ultra Moon', gender: 'female', gender_display_name: 'Female', shiny: false, url: sprites.versions['generation-vii']['ultra-sun-ultra-moon'].front_female });
-			}
-			if (sprites.versions['generation-vii']['ultra-sun-ultra-moon'].front_shiny) {
-				images.push({ style: 'model_render', platform: 'ultra_sun_ultra_moon', platform_display_name: 'Ultra Sun / Ultra Moon', gender: 'male', gender_display_name: 'Male', shiny: true, url: sprites.versions['generation-vii']['ultra-sun-ultra-moon'].front_shiny });
-			}
-			if (sprites.versions['generation-vii']['ultra-sun-ultra-moon'].front_shiny_female) {
-				images.push({ style: 'model_render', platform: 'ultra_sun_ultra_moon', platform_display_name: 'Ultra Sun / Ultra Moon', gender: 'female', gender_display_name: 'Female', shiny: true, url: sprites.versions['generation-vii']['ultra-sun-ultra-moon'].front_shiny_female });
-			}
-
-			for (const image of images) {
-				const url = image.url;
-				const extension = url.split('/').pop().split('.').pop();
-				let localPath = `/images/pokemon/${pokemon.name}/${image.platform}_${image.gender}.${extension}`;
-				if (image.shiny) {
-					localPath = `/images/pokemon/${pokemon.name}/${image.platform}_${image.gender}_shiny.${extension}`;
+					delete image.path;
+					delete image.gray;
 				}
 
-				//await downloadImage(url, `${__dirname}/../public/${localPath}`);
-
-				image.creator = 'GameFreak';
-				image.url = localPath;
-				image.dimensions = await getImageDimensions(`${__dirname}/../public/${localPath}`);
+				pokemonData.push({
+					name: formData.name,
+					display_name: displayName,
+					images
+				});
 			}
-
-			pokemonData.push({
-				name: pokemon.name,
-				display_name: displayName,
-				images
-			});
 		} catch (error) {
 			console.log(error);
 			console.log(url);
@@ -274,8 +198,8 @@ async function main() {
 		}
 	}
 
-	fs.ensureDirSync(`${__dirname}/../public/metadata`);
-	fs.writeJSONSync(`${__dirname}/../public/metadata/pokemon.json`, pokemonData);
+	await fs.ensureDir(`${__dirname}/../public/metadata`);
+	await fs.writeJSON(`${__dirname}/../public/metadata/pokemon.json`, pokemonData);
 }
 
 main();

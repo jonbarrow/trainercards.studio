@@ -476,7 +476,7 @@ onMounted(() => {
 														<div class="text-xs text-center mt-1">
 															<div>{{ image.platform_display_name }}</div>
 															<div>
-																<UButton v-if="image.creator_url" :to="image.creator_url"target="_blank" color="neutral" variant="subtle">{{ image.creator }}</UButton>
+																<UButton v-if="image.creator_url" :to="image.creator_url" target="_blank" color="neutral" variant="subtle">{{ image.creator }}</UButton>
 																<span v-else>{{ image.creator }}</span>
 															</div>
 														</div>
