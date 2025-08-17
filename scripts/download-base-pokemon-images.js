@@ -41,16 +41,19 @@ async function main() {
 			const speciesTranslation = species.names.find(translation => translation.language.name === 'en');
 			let displayName = speciesTranslation.name;
 
-			if (form.form_names.length !== 0) {
-				// * Handle some edge cases like https://pokeapi.co/api/v2/pokemon-form/10195/
-				// * where the form doesn't have an English translation in `form_names`
-				let formTranslation = form.form_names.find(translation => translation.language.name === 'en');
-				if (!formTranslation) {
-					formTranslation = form.names.find(translation => translation.language.name === 'en');
-				}
-
+			if (form.names.length !== 0) {
+				// * See https://github.com/jonbarrow/trainercards.studio/issues/25
+				// * for details
+				let formTranslation = form.names.find(translation => translation.language.name === 'en');
 				if (formTranslation) {
 					displayName = formTranslation.name;
+				} else if (form.form_names.length !== 0) {
+					formTranslation = form.form_names.find(translation => translation.language.name === 'en');
+
+					// * Prevent results like "Kyogre (Kyogre)"
+					if (displayName !== formTranslation.name) {
+						displayName = `${displayName} ${formTranslation.name}`;
+					}
 				}
 			}
 
@@ -252,7 +255,7 @@ async function main() {
 					localPath = `/images/pokemon/${pokemon.name}/${image.platform}_${image.gender}_shiny.${extension}`;
 				}
 
-				await downloadImage(url, `${__dirname}/../public/${localPath}`);
+				//await downloadImage(url, `${__dirname}/../public/${localPath}`);
 
 				image.creator = 'GameFreak';
 				image.url = localPath;
