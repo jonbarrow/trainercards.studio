@@ -16,6 +16,9 @@ function buildPokemonImages(pokemon, form) {
 	// * Pokemon work with this implementation
 	// *
 	// * See https://github.com/PokeAPI/pokeapi/issues/1281 for details
+	// *
+	// * Dream World art is skipped here, taken from https://archives.bulbagarden.net/wiki/Category:Pok%C3%A9mon_Dream_World_artwork
+	// * instead later down
 	const fileName = form.is_default ? `${pokemon.id}` : `${pokemon.id}-${form.form_name}`;
 
 	return [
@@ -23,9 +26,6 @@ function buildPokemonImages(pokemon, form) {
 		{ style: 'artwork', platform: 'official_artwork', platform_display_name: 'Official Artwork', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/official-artwork/female/${fileName}.png` },
 		{ style: 'artwork', platform: 'official_artwork', platform_display_name: 'Official Artwork', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/official-artwork/shiny/${fileName}.png` },
 		{ style: 'artwork', platform: 'official_artwork', platform_display_name: 'Official Artwork', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/official-artwork/shiny/female/${fileName}.png` },
-
-		{ style: 'artwork', platform: 'dream_world', platform_display_name: 'Dream World', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/dream-world/${fileName}.svg` },
-		{ style: 'artwork', platform: 'dream_world', platform_display_name: 'Dream World', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/dream-world/female/${fileName}.svg` },
 
 		{ style: 'pixel_art', platform: 'generation_vii_icons', platform_display_name: 'Generation VII Icons', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vii/icons/${fileName}.png` },
 		{ style: 'pixel_art', platform: 'generation_vii_icons', platform_display_name: 'Generation VII Icons', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vii/icons/female/${fileName}.png` },
@@ -104,7 +104,112 @@ function buildPokemonImages(pokemon, form) {
 	];
 }
 
+async function getCategoryMembers(category) {
+	const baseUrl = 'https://archives.bulbagarden.net/w/api.php';
+	let allMembers = [];
+	let continueToken = null;
+
+	do {
+		const params = new URLSearchParams({
+			action: 'query',
+			list: 'categorymembers',
+			cmtitle: `Category:${category}`,
+			cmtype: 'file',
+			cmlimit: '500',
+			format: 'json',
+			origin: '*'
+		});
+
+		if (continueToken) {
+			params.append('cmcontinue', continueToken);
+		}
+
+		const response = await axios.get(`${baseUrl}?${params}`);
+		const { data } = response;
+
+		if (data.query && data.query.categorymembers) {
+			allMembers.push(...data.query.categorymembers);
+		}
+
+		continueToken = data.continue ? data.continue.cmcontinue : null;
+	} while (continueToken);
+
+	return allMembers;
+}
+
+async function getDreamWorldImageURLs(categoryMembers) {
+	const baseUrl = 'https://archives.bulbagarden.net/w/api.php';
+	const allFiles = [];
+	const batchSize = 50;
+
+	for (let i = 0; i < categoryMembers.length; i += batchSize) {
+		const batch = categoryMembers.slice(i, i + batchSize);
+		const titles = batch.map(member => member.title).join('|');
+
+		const params = new URLSearchParams({
+			action: 'query',
+			titles: titles,
+			prop: 'imageinfo',
+			iiprop: 'url|size|timestamp',
+			format: 'json',
+			origin: '*'
+		});
+
+		const response = await axios.get(`${baseUrl}?${params}`);
+		const { data } = response;
+
+		if (data.query && data.query.pages) {
+			const files = Object.values(data.query.pages).map(page => ({
+				title: page.title,
+				url: page.imageinfo[0].url,
+				size: page.imageinfo[0].size,
+				timestamp: page.imageinfo[0].timestamp
+			}));
+
+			allFiles.push(...files);
+		}
+
+		await new Promise(resolve => setTimeout(resolve, 100));
+	}
+
+	return allFiles;
+}
+
+async function getAllDreamWorldArt() {
+	const pokedexNumberRegex = /^File:\d{3,}/;
+	let categoryMembers = await getCategoryMembers('Pokémon_Dream_World_artwork');
+	categoryMembers = categoryMembers.filter(({ title }) => pokedexNumberRegex.test(title));
+
+	const imageURLs = await getDreamWorldImageURLs(categoryMembers);
+
+	return imageURLs.map(({ title, url }) => ({
+		id: parseInt(title.match(/^File:(\d{3,})/)[1]),
+		title,
+		url
+	}));
+}
+
+async function downloadImage(url, output) {
+	const response = await axios({
+		method: 'GET',
+		url: url,
+		responseType: 'stream'
+	});
+
+	await fs.ensureDir(path.dirname(output));
+
+	const writer = fs.createWriteStream(output);
+	response.data.pipe(writer);
+
+	return new Promise((resolve, reject) => {
+		writer.on('finish', resolve);
+		writer.on('error', reject);
+	});
+}
+
 async function main() {
+	const dreamWorldArt = await getAllDreamWorldArt();
+
 	const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0');
 	const pokemonData = [];
 
@@ -173,10 +278,44 @@ async function main() {
 
 					image.creator = 'GameFreak';
 					image.url = localPath;
+					image.preview_url = localPreviewPath;
 					image.dimensions = await getImageDimensions(`${__dirname}/../public${localPath}`);
 
-					// * SVGs don't play nice with this, so fuck 'em
-					if (extension !== 'svg') {
+					await sharp(`${__dirname}/../public${localPath}`).extract({
+						left: image.dimensions.padding.left,
+						top: image.dimensions.padding.top,
+						width: image.dimensions.content.width,
+						height: image.dimensions.content.height
+					}).png().toFile(`${__dirname}/../public${localPreviewPath}`);
+
+					delete image.path;
+					delete image.gray;
+				}
+
+				if (form.is_default) {
+					const dreamWorldImages = dreamWorldArt.filter(({ id }) => id === pokemon.id);
+
+					for (let i = 0; i < dreamWorldImages.length; i++) {
+						const dreamWorldImage = dreamWorldImages[i];
+						const extension = dreamWorldImage.url.split('/').pop().split('.').pop();
+						const localPath = `/images/pokemon/${formData.name}/dream_world_${i + 1}.${extension}`;
+						const localPreviewPath = `/images/pokemon/${formData.name}/dream_world_${i + 1}_preview.${extension}`;
+
+						await downloadImage(dreamWorldImage.url, `${__dirname}/../public${localPath}`);
+
+						const image = {
+							style: 'artwork',
+							platform: 'dream_world',
+							platform_display_name: 'Dream World',
+							gender: dreamWorldImage.title.includes('_Female') ? 'female' : 'male',
+							gender_display_name: dreamWorldImage.title.includes('_Female') ? 'Female' : 'Male',
+							shiny: false,
+							creator: 'GameFreak',
+							url: localPath,
+							preview_url: localPreviewPath,
+							dimensions: await getImageDimensions(`${__dirname}/../public${localPath}`)
+						};
+
 						await sharp(`${__dirname}/../public${localPath}`).extract({
 							left: image.dimensions.padding.left,
 							top: image.dimensions.padding.top,
@@ -184,13 +323,8 @@ async function main() {
 							height: image.dimensions.content.height
 						}).png().toFile(`${__dirname}/../public${localPreviewPath}`);
 
-						image.preview_url = localPreviewPath;
-					} else {
-						image.preview_url = image.url;
+						images.push(image);
 					}
-
-					delete image.path;
-					delete image.gray;
 				}
 
 				pokemonData.push({
