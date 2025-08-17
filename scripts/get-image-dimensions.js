@@ -33,15 +33,14 @@ function countLeftPadding(info, data) {
 	for (let row = 0; row < height; row++) {
 		let transparentCount = 0;
 
-		for (let col = 0; col < width * channels; col += channels) {
-			const i = (row * width * channels) + col;
+		for (let col = 0; col < width; col++) {
+			const i = (row * width * channels) + (col * channels);
 			const alpha = data[i + 3];
 
 			if (alpha !== 0) {
 				if (transparentCount < padding) {
 					padding = transparentCount;
 				}
-
 				break;
 			}
 
@@ -59,15 +58,14 @@ function countRightPadding(info, data) {
 	for (let row = 0; row < height; row++) {
 		let transparentCount = 0;
 
-		for (let col = (width - 1) * channels; col >= 0; col -= channels) {
-			const i = (row * width * channels) + col;
+		for (let col = width - 1; col >= 0; col--) {
+			const i = (row * width * channels) + (col * channels);
 			const alpha = data[i + 3];
 
 			if (alpha !== 0) {
 				if (transparentCount < padding) {
 					padding = transparentCount;
 				}
-
 				break;
 			}
 
@@ -93,7 +91,6 @@ function countTopPadding(info, data) {
 				if (transparentCount < padding) {
 					padding = transparentCount;
 				}
-
 				break;
 			}
 
@@ -119,7 +116,6 @@ function countBottomPadding(info, data) {
 				if (transparentCount < padding) {
 					padding = transparentCount;
 				}
-
 				break;
 			}
 
