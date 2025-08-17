@@ -10,6 +10,7 @@ interface PokemonImage {
 	creator: string;
 	creator_url?: string;
 	url: string;
+	preview_url: string;
 	dimensions: ImageDimensions;
 }
 

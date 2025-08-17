@@ -2,6 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import axios from 'axios';
 import fs from 'fs-extra';
+import sharp from 'sharp';
 import getImageDimensions from './get-image-dimensions.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -106,7 +107,6 @@ function buildPokemonImages(pokemon, form) {
 async function main() {
 	const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0');
 	const pokemonData = [];
-	const seen = {};
 
 	for (const { url } of response.data.results) {
 		try {
@@ -165,14 +165,8 @@ async function main() {
 						localPath = `${localPath}_gray`;
 					}
 
+					const localPreviewPath = `${localPath}_preview.${extension}`;
 					localPath = `${localPath}.${extension}`;
-
-					if (seen[localPath]) {
-						console.log('FOUND DUPED PATH', localPath, seen[localPath], image);
-						process.exit();
-					} else {
-						seen[localPath] = image;
-					}
 
 					await fs.ensureDir(path.dirname(`${__dirname}/../public${localPath}`));
 					await fs.copyFile(image.path, `${__dirname}/../public${localPath}`);
@@ -180,6 +174,20 @@ async function main() {
 					image.creator = 'GameFreak';
 					image.url = localPath;
 					image.dimensions = await getImageDimensions(`${__dirname}/../public${localPath}`);
+
+					// * SVGs don't play nice with this, so fuck 'em
+					if (extension !== 'svg') {
+						await sharp(`${__dirname}/../public${localPath}`).extract({
+							left: image.dimensions.padding.left,
+							top: image.dimensions.padding.top,
+							width: image.dimensions.content.width,
+							height: image.dimensions.content.height
+						}).png().toFile(`${__dirname}/../public${localPreviewPath}`);
+
+						image.preview_url = localPreviewPath;
+					} else {
+						image.preview_url = image.url;
+					}
 
 					delete image.path;
 					delete image.gray;

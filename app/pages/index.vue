@@ -259,17 +259,6 @@ function updatePokemonGender(slot: number, gender: string) {
 	}
 }
 
-function getPokemonPreviewScaleStyle(image: PokemonImage) {
-	const { content, original } = image.dimensions;
-	const contentRatio = Math.max(content.width, content.height) / Math.max(original.width, original.height);
-	const scale = Math.min(4.0, Math.max(0.3, 1 / contentRatio));
-
-	return {
-		transform: `scale(${scale})`,
-		transformOrigin: 'center'
-	};
-}
-
 function exportCard() {
 	const canvas = trainerCardCanvas.value;
 	if (!canvas) {
@@ -471,7 +460,7 @@ onMounted(() => {
 												<div class="grid grid-cols-4 gap-2 mb-4">
 													<div v-for="image in pokemon.images" :key="`${pokemon.name}-${image.platform}-${image.gender}`" class="flex flex-col items-center" @click="selectPokemon(pokemon, image)">
 														<div class="w-16 h-16 flex items-center justify-center overflow-hidden cursor-pointer">
-															<img loading="lazy" :src="image.url" alt="" :style="getPokemonPreviewScaleStyle(image)" :class="['max-w-full', 'max-h-full', 'object-contain', { pixelated: image.style === 'pixel_art' }]" @load="loadImage(image.url)">
+															<img loading="lazy" :src="image.preview_url" alt="" :class="['w-full', 'h-full', 'object-contain', { pixelated: image.style === 'pixel_art' }]" @load="loadImage(image.url)">
 														</div>
 														<div class="text-xs text-center mt-1">
 															<div>{{ image.platform_display_name }}</div>
