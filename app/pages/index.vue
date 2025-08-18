@@ -24,6 +24,7 @@ const selectedTrainer = ref<TrainerImage>({
 });
 const templateModalOpen = ref(false);
 const trainerModalOpen = ref(false);
+const isTrainersLoading = ref(false);
 const pokemonModalOpen = ref(false);
 const selectedTeamIndex = ref<number | null>(null);
 const pokemonSearchQuery = ref('');
@@ -205,6 +206,15 @@ function toggleTemplateModal() {
 function toggleTrainerModal() {
 	trainerModalOpen.value = !trainerModalOpen.value;
 	trainerSearchQuery.value = '';
+
+	if (trainerModalOpen.value) {
+		isTrainersLoading.value = true;
+		nextTick(() => {
+			setTimeout(() => {
+				isTrainersLoading.value = false;
+			}, 100);
+		});
+	}
 }
 
 function toggleBadge(url: string) {
@@ -383,7 +393,13 @@ onMounted(() => {
 											<div class="mb-4">
 												<UInput v-model="trainerSearchQuery" placeholder="Search trainer by name..." class="w-full" />
 											</div>
-											<div class="p-4 grid grid-cols-3 gap-3 max-h-96 overflow-y-auto">
+											<div v-if="isTrainersLoading" class="flex items-center justify-center h-96">
+												<div class="text-center">
+													<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
+													<p class="text-sm text-gray-500">Loading trainers...</p>
+												</div>
+											</div>
+											<div v-else class="p-4 grid grid-cols-3 gap-3 max-h-96 overflow-y-auto">
 												<div v-for="(trainer, index) in filteredTrainers" :key="index" class="relative cursor-pointer" @click="selectTrainer(trainer)">
 													<div :class="['border-2 rounded-lg p-2 transition-colors', selectedTrainer?.name === trainer.name ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-gray-300']">
 														<div class="aspect-square flex items-center justify-center bg-gray-50 rounded">
