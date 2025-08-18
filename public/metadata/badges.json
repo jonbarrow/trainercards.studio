@@ -71,5 +71,26 @@
 			"/images/badges/sinnoh/icicle.png",
 			"/images/badges/sinnoh/beacon.png"
 		]
+	},
+	{
+		"label": "Heart Gold / Soul Silver",
+		"images": [
+			"/images/badges/johto/zephyr-hgss.png",
+			"/images/badges/johto/hive-hgss.png",
+			"/images/badges/johto/plain-hgss.png",
+			"/images/badges/johto/fog-hgss.png",
+			"/images/badges/johto/storm-hgss.png",
+			"/images/badges/johto/mineral-hgss.png",
+			"/images/badges/johto/glacier-hgss.png",
+			"/images/badges/johto/rising-hgss.png",
+			"/images/badges/kanto/boulder-hgss.png",
+			"/images/badges/kanto/cascade-hgss.png",
+			"/images/badges/kanto/thunder-hgss.png",
+			"/images/badges/kanto/rainbow-hgss.png",
+			"/images/badges/kanto/soul-hgss.png",
+			"/images/badges/kanto/marsh-hgss.png",
+			"/images/badges/kanto/volcano-hgss.png",
+			"/images/badges/kanto/earth-hgss.png"
+		]
 	}
 ]
