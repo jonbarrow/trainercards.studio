@@ -2,74 +2,74 @@
 	{
 		"label": "Red / Blue / Green / Yellow",
 		"images": [
-			"/images/badges/gen-1/boulder.png",
-			"/images/badges/gen-1/cascade.png",
-			"/images/badges/gen-1/thunder.png",
-			"/images/badges/gen-1/rainbow.png",
-			"/images/badges/gen-1/soul.png",
-			"/images/badges/gen-1/marsh.png",
-			"/images/badges/gen-1/volcano.png",
-			"/images/badges/gen-1/earth.png",
-			"/images/badges/gen-1/boulder-color.png",
-			"/images/badges/gen-1/cascade-color.png",
-			"/images/badges/gen-1/thunder-color.png",
-			"/images/badges/gen-1/rainbow-color.png",
-			"/images/badges/gen-1/soul-color.png",
-			"/images/badges/gen-1/marsh-color.png",
-			"/images/badges/gen-1/volcano-color.png",
-			"/images/badges/gen-1/earth-color.png"
+			"/images/badges/kanto/boulder.png",
+			"/images/badges/kanto/cascade.png",
+			"/images/badges/kanto/thunder.png",
+			"/images/badges/kanto/rainbow.png",
+			"/images/badges/kanto/soul.png",
+			"/images/badges/kanto/marsh.png",
+			"/images/badges/kanto/volcano.png",
+			"/images/badges/kanto/earth.png",
+			"/images/badges/kanto/boulder-color.png",
+			"/images/badges/kanto/cascade-color.png",
+			"/images/badges/kanto/thunder-color.png",
+			"/images/badges/kanto/rainbow-color.png",
+			"/images/badges/kanto/soul-color.png",
+			"/images/badges/kanto/marsh-color.png",
+			"/images/badges/kanto/volcano-color.png",
+			"/images/badges/kanto/earth-color.png"
 		]
 	},
 	{
 		"label": "Gold / Silver",
 		"images": [
-			"/images/badges/gen-2/zephyr.png",
-			"/images/badges/gen-2/hive.png",
-			"/images/badges/gen-2/plain.png",
-			"/images/badges/gen-2/fog.png",
-			"/images/badges/gen-2/storm.png",
-			"/images/badges/gen-2/mineral.png",
-			"/images/badges/gen-2/glacier.png",
-			"/images/badges/gen-2/rising.png"
+			"/images/badges/johto/zephyr.png",
+			"/images/badges/johto/hive.png",
+			"/images/badges/johto/plain.png",
+			"/images/badges/johto/fog.png",
+			"/images/badges/johto/storm.png",
+			"/images/badges/johto/mineral.png",
+			"/images/badges/johto/glacier.png",
+			"/images/badges/johto/rising.png"
 		]
 	},
 	{
 		"label": "Ruby / Sapphire",
 		"images": [
-			"/images/badges/gen-3/stone.png",
-			"/images/badges/gen-3/knuckle.png",
-			"/images/badges/gen-3/dynamo.png",
-			"/images/badges/gen-3/heat.png",
-			"/images/badges/gen-3/balance.png",
-			"/images/badges/gen-3/feather.png",
-			"/images/badges/gen-3/mind.png",
-			"/images/badges/gen-3/rain.png"
+			"/images/badges/hoenn/stone.png",
+			"/images/badges/hoenn/knuckle.png",
+			"/images/badges/hoenn/dynamo.png",
+			"/images/badges/hoenn/heat.png",
+			"/images/badges/hoenn/balance.png",
+			"/images/badges/hoenn/feather.png",
+			"/images/badges/hoenn/mind.png",
+			"/images/badges/hoenn/rain.png"
 		]
 	},
 	{
 		"label": "Fire Red / Leaf Green",
 		"images": [
-			"/images/badges/gen-1/boulder-frlg.png",
-			"/images/badges/gen-1/cascade-frlg.png",
-			"/images/badges/gen-1/thunder-frlg.png",
-			"/images/badges/gen-1/rainbow-frlg.png",
-			"/images/badges/gen-1/soul-frlg.png",
-			"/images/badges/gen-1/marsh-frlg.png",
-			"/images/badges/gen-1/volcano-frlg.png",
-			"/images/badges/gen-1/earth-frlg.png"
+			"/images/badges/kanto/boulder-frlg.png",
+			"/images/badges/kanto/cascade-frlg.png",
+			"/images/badges/kanto/thunder-frlg.png",
+			"/images/badges/kanto/rainbow-frlg.png",
+			"/images/badges/kanto/soul-frlg.png",
+			"/images/badges/kanto/marsh-frlg.png",
+			"/images/badges/kanto/volcano-frlg.png",
+			"/images/badges/kanto/earth-frlg.png"
 		]
 	},
 	{
 		"label": "Diamond / Pearl / Platinum",
 		"images": [
-			"/images/badges/gen-4/coal.png",
-			"/images/badges/gen-4/forest.png",
-			"/images/badges/gen-4/cobble.png",
-			"/images/badges/gen-4/fen.png",
-			"/images/badges/gen-4/relic.png",
-			"/images/badges/gen-4/mine.png",
-			"/images/badges/gen-4/icicle.png",
-			"/images/badges/gen-4/beacon.png"
+			"/images/badges/sinnoh/coal.png",
+			"/images/badges/sinnoh/forest.png",
+			"/images/badges/sinnoh/cobble.png",
+			"/images/badges/sinnoh/fen.png",
+			"/images/badges/sinnoh/relic.png",
+			"/images/badges/sinnoh/mine.png",
+			"/images/badges/sinnoh/icicle.png",
+			"/images/badges/sinnoh/beacon.png"
 		]
 	}
 ]
