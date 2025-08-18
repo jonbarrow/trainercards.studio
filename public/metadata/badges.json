@@ -105,5 +105,18 @@
 			"/images/badges/unova/freeze.png",
 			"/images/badges/unova/legend.png"
 		]
+	},
+	{
+		"label": "Black 2 / White 2",
+		"images": [
+			"/images/badges/unova/basic-b2w2.png",
+			"/images/badges/unova/toxic.png",
+			"/images/badges/unova/insect-b2w2.png",
+			"/images/badges/unova/bolt-b2w2.png",
+			"/images/badges/unova/quake-b2w2.png",
+			"/images/badges/unova/jet-b2w2.png",
+			"/images/badges/unova/legend-b2w2.png",
+			"/images/badges/unova/wave.png"
+		]
 	}
 ]
