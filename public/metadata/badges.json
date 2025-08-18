@@ -92,5 +92,18 @@
 			"/images/badges/kanto/volcano-hgss.png",
 			"/images/badges/kanto/earth-hgss.png"
 		]
+	},
+	{
+		"label": "Black / White",
+		"images": [
+			"/images/badges/unova/trio.png",
+			"/images/badges/unova/basic.png",
+			"/images/badges/unova/insect.png",
+			"/images/badges/unova/bolt.png",
+			"/images/badges/unova/quake.png",
+			"/images/badges/unova/jet.png",
+			"/images/badges/unova/freeze.png",
+			"/images/badges/unova/legend.png"
+		]
 	}
 ]
