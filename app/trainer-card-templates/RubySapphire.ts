@@ -246,8 +246,12 @@ export default class RubySapphire extends TrainerCard {
 				const slotY = startY * this.backgroundScale;
 				const scaledSlotSize = slotSize * this.backgroundScale;
 
-				const badgeWidth = image.width * this.backgroundScale;
-				const badgeHeight = image.height * this.backgroundScale;
+				const scaleX = scaledSlotSize / (image.width * this.backgroundScale);
+				const scaleY = scaledSlotSize / (image.height * this.backgroundScale);
+				const fitScale = Math.min(1, scaleX, scaleY);
+
+				const badgeWidth = image.width * this.backgroundScale * fitScale;
+				const badgeHeight = image.height * this.backgroundScale * fitScale;
 
 				const badgeX = slotX + (scaledSlotSize - badgeWidth) / 2 - this.backgroundScale;
 				const badgeY = slotY + (scaledSlotSize - badgeHeight) / 2 - this.backgroundScale;

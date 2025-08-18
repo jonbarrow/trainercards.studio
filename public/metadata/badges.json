@@ -2,74 +2,121 @@
 	{
 		"label": "Red / Blue / Green / Yellow",
 		"images": [
-			"/images/badges/gen-1/brock.png",
-			"/images/badges/gen-1/misty.png",
-			"/images/badges/gen-1/lt-surge.png",
-			"/images/badges/gen-1/erika.png",
-			"/images/badges/gen-1/koga.png",
-			"/images/badges/gen-1/sabrina.png",
-			"/images/badges/gen-1/blaine.png",
-			"/images/badges/gen-1/giovanni.png",
-			"/images/badges/gen-1/brock-color.png",
-			"/images/badges/gen-1/misty-color.png",
-			"/images/badges/gen-1/lt-surge-color.png",
-			"/images/badges/gen-1/erika-color.png",
-			"/images/badges/gen-1/koga-color.png",
-			"/images/badges/gen-1/sabrina-color.png",
-			"/images/badges/gen-1/blaine-color.png",
-			"/images/badges/gen-1/giovanni-color.png"
+			"/images/badges/kanto/boulder.png",
+			"/images/badges/kanto/cascade.png",
+			"/images/badges/kanto/thunder.png",
+			"/images/badges/kanto/rainbow.png",
+			"/images/badges/kanto/soul.png",
+			"/images/badges/kanto/marsh.png",
+			"/images/badges/kanto/volcano.png",
+			"/images/badges/kanto/earth.png",
+			"/images/badges/kanto/boulder-color.png",
+			"/images/badges/kanto/cascade-color.png",
+			"/images/badges/kanto/thunder-color.png",
+			"/images/badges/kanto/rainbow-color.png",
+			"/images/badges/kanto/soul-color.png",
+			"/images/badges/kanto/marsh-color.png",
+			"/images/badges/kanto/volcano-color.png",
+			"/images/badges/kanto/earth-color.png"
 		]
 	},
 	{
 		"label": "Gold / Silver",
 		"images": [
-			"/images/badges/gen-2/falkner.png",
-			"/images/badges/gen-2/bugsy.png",
-			"/images/badges/gen-2/whitney.png",
-			"/images/badges/gen-2/morty.png",
-			"/images/badges/gen-2/chuck.png",
-			"/images/badges/gen-2/jasmine.png",
-			"/images/badges/gen-2/pryce.png",
-			"/images/badges/gen-2/clair.png"
+			"/images/badges/johto/zephyr.png",
+			"/images/badges/johto/hive.png",
+			"/images/badges/johto/plain.png",
+			"/images/badges/johto/fog.png",
+			"/images/badges/johto/storm.png",
+			"/images/badges/johto/mineral.png",
+			"/images/badges/johto/glacier.png",
+			"/images/badges/johto/rising.png"
 		]
 	},
 	{
 		"label": "Ruby / Sapphire",
 		"images": [
-			"/images/badges/gen-3/roxanne.png",
-			"/images/badges/gen-3/brawly.png",
-			"/images/badges/gen-3/wattson.png",
-			"/images/badges/gen-3/flannery.png",
-			"/images/badges/gen-3/norman.png",
-			"/images/badges/gen-3/winona.png",
-			"/images/badges/gen-3/tate-and-liza.png",
-			"/images/badges/gen-3/wallace.png"
+			"/images/badges/hoenn/stone.png",
+			"/images/badges/hoenn/knuckle.png",
+			"/images/badges/hoenn/dynamo.png",
+			"/images/badges/hoenn/heat.png",
+			"/images/badges/hoenn/balance.png",
+			"/images/badges/hoenn/feather.png",
+			"/images/badges/hoenn/mind.png",
+			"/images/badges/hoenn/rain.png"
 		]
 	},
 	{
 		"label": "Fire Red / Leaf Green",
 		"images": [
-			"/images/badges/gen-1/brock-frlg.png",
-			"/images/badges/gen-1/misty-frlg.png",
-			"/images/badges/gen-1/lt-surge-frlg.png",
-			"/images/badges/gen-1/erika-frlg.png",
-			"/images/badges/gen-1/koga-frlg.png",
-			"/images/badges/gen-1/sabrina-frlg.png",
-			"/images/badges/gen-1/blaine-frlg.png",
-			"/images/badges/gen-1/giovanni-frlg.png"
+			"/images/badges/kanto/boulder-frlg.png",
+			"/images/badges/kanto/cascade-frlg.png",
+			"/images/badges/kanto/thunder-frlg.png",
+			"/images/badges/kanto/rainbow-frlg.png",
+			"/images/badges/kanto/soul-frlg.png",
+			"/images/badges/kanto/marsh-frlg.png",
+			"/images/badges/kanto/volcano-frlg.png",
+			"/images/badges/kanto/earth-frlg.png"
 		]
 	},
 	{
 		"label": "Diamond / Pearl / Platinum",
 		"images": [
-			"/images/badges/gen-4/roark.png",
-			"/images/badges/gen-4/gardenia.png",
-			"/images/badges/gen-4/maylene.png",
-			"/images/badges/gen-4/crasher-wake.png",
-			"/images/badges/gen-4/fantina.png",
-			"/images/badges/gen-4/byron.png",
-			"/images/badges/gen-4/candice.png",
-			"/images/badges/gen-4/volkner.png"
+			"/images/badges/sinnoh/coal.png",
+			"/images/badges/sinnoh/forest.png",
+			"/images/badges/sinnoh/cobble.png",
+			"/images/badges/sinnoh/fen.png",
+			"/images/badges/sinnoh/relic.png",
+			"/images/badges/sinnoh/mine.png",
+			"/images/badges/sinnoh/icicle.png",
+			"/images/badges/sinnoh/beacon.png"
+		]
+	},
+	{
+		"label": "Heart Gold / Soul Silver",
+		"images": [
+			"/images/badges/johto/zephyr-hgss.png",
+			"/images/badges/johto/hive-hgss.png",
+			"/images/badges/johto/plain-hgss.png",
+			"/images/badges/johto/fog-hgss.png",
+			"/images/badges/johto/storm-hgss.png",
+			"/images/badges/johto/mineral-hgss.png",
+			"/images/badges/johto/glacier-hgss.png",
+			"/images/badges/johto/rising-hgss.png",
+			"/images/badges/kanto/boulder-hgss.png",
+			"/images/badges/kanto/cascade-hgss.png",
+			"/images/badges/kanto/thunder-hgss.png",
+			"/images/badges/kanto/rainbow-hgss.png",
+			"/images/badges/kanto/soul-hgss.png",
+			"/images/badges/kanto/marsh-hgss.png",
+			"/images/badges/kanto/volcano-hgss.png",
+			"/images/badges/kanto/earth-hgss.png"
+		]
+	},
+	{
+		"label": "Black / White",
+		"images": [
+			"/images/badges/unova/trio.png",
+			"/images/badges/unova/basic.png",
+			"/images/badges/unova/insect.png",
+			"/images/badges/unova/bolt.png",
+			"/images/badges/unova/quake.png",
+			"/images/badges/unova/jet.png",
+			"/images/badges/unova/freeze.png",
+			"/images/badges/unova/legend.png"
+		]
+	},
+	{
+		"label": "Black 2 / White 2",
+		"images": [
+			"/images/badges/unova/basic-b2w2.png",
+			"/images/badges/unova/toxic.png",
+			"/images/badges/unova/insect-b2w2.png",
+			"/images/badges/unova/bolt-b2w2.png",
+			"/images/badges/unova/quake-b2w2.png",
+			"/images/badges/unova/jet-b2w2.png",
+			"/images/badges/unova/legend-b2w2.png",
+			"/images/badges/unova/wave.png"
 		]
 	}
 ]
