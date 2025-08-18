@@ -27,7 +27,9 @@ const trainerModalOpen = ref(false);
 const pokemonModalOpen = ref(false);
 const selectedTeamIndex = ref<number | null>(null);
 const pokemonSearchQuery = ref('');
+const debouncedPokemonSearchQuery = useDebounce(pokemonSearchQuery);
 const trainerSearchQuery = ref('');
+const debouncedTrainerSearchQuery = useDebounce(trainerSearchQuery);
 const selectedTeam = reactive<PokemonTeam>({});
 const socialIcon1 = ref({
 	image_url: '',
@@ -43,22 +45,22 @@ const badges = ref<string[]>([]);
 
 const allPokemonData = ref<Pokemon[]>([]);
 const filteredPokemon = computed(() => {
-	if (!pokemonSearchQuery.value.trim()) {
+	if (!debouncedPokemonSearchQuery.value.trim()) {
 		return [];
 	}
 
-	const query = pokemonSearchQuery.value.toLowerCase().trim();
+	const query = debouncedPokemonSearchQuery.value.toLowerCase().trim();
 
 	return allPokemonData.value.filter(pokemon => pokemon.display_name.toLowerCase().includes(query) || pokemon.name.toLowerCase().includes(query));
 });
 
 const allTrainerData = ref<TrainerImage[]>([]);
 const filteredTrainers = computed(() => {
-	if (!trainerSearchQuery.value.trim()) {
+	if (!debouncedTrainerSearchQuery.value.trim()) {
 		return allTrainerData.value;
 	}
 
-	const query = trainerSearchQuery.value.toLowerCase().trim();
+	const query = debouncedTrainerSearchQuery.value.toLowerCase().trim();
 
 	return allTrainerData.value.filter(trainer => trainer.name.toLowerCase().includes(query));
 });
