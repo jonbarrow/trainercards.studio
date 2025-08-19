@@ -6,6 +6,15 @@ Custom Pokémon trainer card creator featuring 30,452 Pokémon sprites, 2,198 tr
 
 Fill this out more
 
+## Configuration
+
+| Name                     | Description                                                                                                                                                                                                                 |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TCS_IMAGE_HOST`         | Changes the hostname used for serving all images. Can be overridden. If not set, images will be served either from one of the below hostnames or from the local server. Only changes the host, image paths remain the same. |
+| `TCS_POKEMON_IMAGE_HOST` | Changes the hostname used for serving Pokemon images. Overrides `TCS_IMAGE_HOST` if set. If not set, images will be served from the local server. Only changes the host, image paths remain the same.                       |
+| `TCS_TRAINER_IMAGE_HOST` | Changes the hostname used for serving trainer images. Overrides `TCS_IMAGE_HOST` if set. If not set, images will be served from the local server. Only changes the host, image paths remain the same.                       |
+| `TCS_BADGE_IMAGE_HOST`   | Changes the hostname used for serving badge images. Overrides `TCS_IMAGE_HOST` if set. If not set, images will be served from the local server. Only changes the host, image paths remain the same.                         |
+
 ## Contributing
 
 See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details on how to contribute.

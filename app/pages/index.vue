@@ -86,7 +86,7 @@ const modernIcon2Options = computed(() => [
 
 async function loadPokemonData() {
 	try {
-		const response = await fetch('/metadata/pokemon.json');
+		const response = await fetch('/api/pokemon');
 		allPokemonData.value = await response.json();
 	} catch (error) {
 		console.error('Failed to load Pokemon data:', error);
@@ -95,7 +95,7 @@ async function loadPokemonData() {
 
 async function loadTrainerData() {
 	try {
-		const response = await fetch('/metadata/trainers.json');
+		const response = await fetch('/api/trainers');
 		allTrainerData.value = await response.json();
 	} catch (error) {
 		console.error('Failed to load Pokemon data:', error);
@@ -104,7 +104,7 @@ async function loadTrainerData() {
 
 async function loadBadgeData() {
 	try {
-		const response = await fetch('/metadata/badges.json');
+		const response = await fetch('/api/badges');
 		allBadgeData.value = await response.json();
 	} catch (error) {
 		console.error('Failed to load Pokemon data:', error);
