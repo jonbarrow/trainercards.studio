@@ -6,7 +6,7 @@
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
 		"build": "NODE_OPTIONS='--max-old-space-size=6144' nuxt build",
-		"dev": "nuxt dev",
+		"dev": "NODE_OPTIONS='--max-old-space-size=6144' nuxt dev",
 		"generate": "nuxt generate",
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare"
@@ -16,6 +16,7 @@
 		"@nuxt/scripts": "^0.11.10",
 		"@nuxt/ui": "^3.3.0",
 		"@unhead/vue": "^2.0.14",
+		"fs-extra": "^11.3.1",
 		"nuxt": "^4.0.3",
 		"typescript": "^5.9.2",
 		"vue": "^3.5.18",
@@ -23,9 +24,9 @@
 	},
 	"devDependencies": {
 		"@nuxt/eslint": "^1.8.0",
+		"@types/fs-extra": "^11.0.4",
 		"axios": "^1.11.0",
 		"eslint": "^9.33.0",
-		"fs-extra": "^11.3.1",
 		"sharp": "^0.34.3"
 	}
 }
