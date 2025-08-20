@@ -8,6 +8,7 @@ import type PokemonTeam from '@/types/pokemon-team';
 import type BadgeData from '@/types/badge-data';
 import type ModernIconData from '@/types/modern-icon-data';
 import type TrainerCard from '@/trainer-card-templates/TrainerCard';
+import type PokeballData from '@/types/pokeball-data';
 
 const { loadImage } = useImageCache();
 
@@ -86,6 +87,19 @@ const modernIcon2Options = computed(() => [
 	}))
 ]);
 
+const allPokeballData = ref<PokeballData[]>([]);
+const pokeballOptions = computed(() => (slot: number) => [
+	{
+		label: 'None',
+		onSelect: () => updatePokemonPokeball(slot)
+	},
+	...allPokeballData.value.map(pokeball => ({
+		label: pokeball.display_name,
+		avatar: { src: pokeball.image.preview_url },
+		onSelect: () => updatePokemonPokeball(slot, pokeball)
+	}))
+]);
+
 let card: TrainerCard = new templates[0]!();
 
 async function loadPokemonData() {
@@ -121,6 +135,15 @@ async function loadLinksData() {
 		allModernIconData.value = await response.json();
 	} catch (error) {
 		console.error('Failed to load Pokemon data:', error);
+	}
+}
+
+async function loadPokeballData() {
+	try {
+		const response = await fetch('/metadata/pokeballs.json');
+		allPokeballData.value = await response.json();
+	} catch (error) {
+		console.error('Failed to load Pokeball data:', error);
 	}
 }
 
@@ -280,6 +303,13 @@ function updatePokemonGender(slot: number, gender: string) {
 	}
 }
 
+function updatePokemonPokeball(slot: number, pokeball?: PokeballData) {
+	if (selectedTeam[slot]) {
+		selectedTeam[slot].pokeball = pokeball;
+		updateCanvas();
+	}
+}
+
 function exportCard() {
 	const canvas = trainerCardCanvas.value;
 	if (!canvas) {
@@ -312,6 +342,7 @@ onMounted(() => {
 	loadTrainerData();
 	loadBadgeData();
 	loadLinksData();
+	loadPokeballData();
 	updateCanvas();
 });
 </script>
@@ -437,43 +468,122 @@ onMounted(() => {
 
 						<h1 class="pt-5">Team</h1>
 						<USeparator class="py-5" />
-						<div class="grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
-							<div v-for="item in 6" :key="item" class="bg-card border border-border rounded-lg p-4 flex flex-col items-center justify-center h-40 cursor-pointer hover:bg-muted transition-all duration-200 shadow-sm hover:shadow-md" @click="togglePokemonModal(item)">
-								<div v-if="selectedTeam[item]" class="text-center w-full flex flex-col justify-between">
-									<div class="flex-1 flex items-center justify-center">
-										<img :src="selectedTeam[item].image.url" :alt="selectedTeam[item].pokemon.display_name" :class="['w-16', 'h-16', 'object-contain', { pixelated: selectedTeam[item].image.style === 'pixel_art' }]">
-									</div>
+						<div class="space-y-4">
+							<div v-for="item in 6" :key="item" class="bg-card border border-border rounded-lg p-4 min-h-24 md:min-h-20 cursor-pointer hover:bg-muted transition-all duration-200 shadow-sm hover:shadow-md" @click="togglePokemonModal(item)">
+								<div v-if="selectedTeam[item]" class="w-full">
+									<div class="flex flex-col space-y-3 md:hidden">
+										<div class="flex items-center space-x-4">
+											<div class="flex-shrink-0">
+												<img :src="selectedTeam[item].image.url" :alt="selectedTeam[item].pokemon.display_name" :class="['w-12', 'h-12', 'object-contain', { pixelated: selectedTeam[item].image.style === 'pixel_art' }]">
+											</div>
+											<div class="flex flex-col">
+												<span class="text-sm font-semibold text-foreground">{{ selectedTeam[item].pokemon.display_name }}</span>
+												<span class="text-xs text-muted-foreground">Slot {{ item }}</span>
+											</div>
+										</div>
 
-									<div class="space-y-1">
-										<span class="text-sm font-semibold text-foreground">{{ selectedTeam[item].pokemon.display_name }}</span>
+										<div class="flex items-end space-x-4" @click.stop>
+											<div class="flex flex-col flex-1">
+												<label class="text-xs text-muted-foreground mb-1">Gender</label>
+												<UDropdownMenu :items="genderOptions(item)" size="xs">
+													<UButton color="neutral" variant="outline" size="xs" class="w-full justify-center">
+														<div class="flex items-center gap-1">
+															<span v-if="selectedTeam[item].gender === 'male'" class="text-blue-500">♂</span>
+															<span v-else-if="selectedTeam[item].gender === 'female'" class="text-pink-500">♀</span>
+															<span v-else class="text-muted-foreground">None</span>
+															<UIcon name="i-lucide-chevron-down" class="w-3 h-3" />
+														</div>
+													</UButton>
+												</UDropdownMenu>
+											</div>
+
+											<div class="flex flex-col flex-1">
+												<label class="text-xs text-muted-foreground mb-1">Pokeball</label>
+												<UDropdownMenu :items="pokeballOptions(item)" size="xs">
+													<UButton color="neutral" variant="outline" size="xs" class="w-full justify-center">
+														<div class="flex items-center gap-2">
+															<div class="w-4 h-4 flex items-center justify-center flex-shrink-0">
+																<img v-if="selectedTeam[item].pokeball" :src="selectedTeam[item].pokeball.image.preview_url" class="w-4 h-4 object-contain block pixelated" alt="Selected pokeball">
+																<UIcon v-else name="i-lucide-circle" class="w-4 h-4 text-gray-400 block" />
+															</div>
+															<UIcon name="i-lucide-chevron-down" class="w-3 h-3 flex-shrink-0" />
+														</div>
+													</UButton>
+												</UDropdownMenu>
+											</div>
+										</div>
 
 										<div @click.stop>
-											<UDropdownMenu :items="genderOptions(item)" size="xs">
-												<UButton color="neutral" variant="outline" size="xs">
-													<div class="flex items-center gap-1">
-														<span v-if="selectedTeam[item].gender === 'male'" class="text-blue-500">♂</span>
-														<span v-else-if="selectedTeam[item].gender === 'female'" class="text-pink-500">♀</span>
-														<span v-else class="text-muted-foreground">-</span>
-														<UIcon name="i-lucide-chevron-down" class="w-3 h-3" />
-													</div>
-												</UButton>
-											</UDropdownMenu>
+											<label class="text-xs text-muted-foreground mb-1 block">Nickname</label>
+											<input type="text" class="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background" :value="selectedTeam[item].nickname ?? selectedTeam[item].pokemon.display_name" :placeholder="selectedTeam[item].pokemon.display_name" @input="updatePokemonNickname(item, ($event.target as HTMLInputElement).value)">
 										</div>
 									</div>
 
-									<div class="w-full">
-										<input type="text" class="w-full px-2 py-1 text-xs border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-center bg-background" :value="selectedTeam[item].nickname ?? selectedTeam[item].pokemon.display_name" :placeholder="selectedTeam[item].pokemon.display_name" @input="updatePokemonNickname(item, ($event.target as HTMLInputElement).value)" @click.stop>
+									<div class="hidden md:flex md:items-center md:justify-between md:w-full">
+										<div class="flex items-center space-x-4">
+											<div class="flex-shrink-0">
+												<img :src="selectedTeam[item].image.url" :alt="selectedTeam[item].pokemon.display_name" :class="['w-12', 'h-12', 'object-contain', { pixelated: selectedTeam[item].image.style === 'pixel_art' }]">
+											</div>
+											<div class="flex flex-col">
+												<span class="text-sm font-semibold text-foreground">{{ selectedTeam[item].pokemon.display_name }}</span>
+												<span class="text-xs text-muted-foreground">Slot {{ item }}</span>
+											</div>
+										</div>
+
+										<div class="flex items-center space-x-4" @click.stop>
+											<div class="flex flex-col items-center">
+												<label class="text-xs text-muted-foreground mb-1">Gender</label>
+												<UDropdownMenu :items="genderOptions(item)" size="xs">
+													<UButton color="neutral" variant="outline" size="xs">
+														<div class="flex items-center gap-1">
+															<span v-if="selectedTeam[item].gender === 'male'" class="text-blue-500">♂</span>
+															<span v-else-if="selectedTeam[item].gender === 'female'" class="text-pink-500">♀</span>
+															<span v-else class="text-muted-foreground">-</span>
+															<UIcon name="i-lucide-chevron-down" class="w-3 h-3" />
+														</div>
+													</UButton>
+												</UDropdownMenu>
+											</div>
+
+											<div class="flex flex-col items-center">
+												<label class="text-xs text-muted-foreground mb-1">Pokeball</label>
+												<UDropdownMenu :items="pokeballOptions(item)" size="xs">
+													<UButton color="neutral" variant="outline" size="xs">
+														<div class="flex items-center gap-2">
+															<div class="w-4 h-4 flex items-center justify-center flex-shrink-0">
+																<img v-if="selectedTeam[item].pokeball" :src="selectedTeam[item].pokeball.image.preview_url" class="w-4 h-4 object-contain block pixelated" alt="Selected pokeball">
+																<UIcon v-else name="i-lucide-minus" class="w-4 h-4 text-gray-400 block" />
+															</div>
+															<UIcon name="i-lucide-chevron-down" class="w-3 h-3 flex-shrink-0" />
+														</div>
+													</UButton>
+												</UDropdownMenu>
+											</div>
+
+											<div class="flex flex-col">
+												<label class="text-xs text-muted-foreground mb-1">Nickname</label>
+												<div class="w-32">
+													<input type="text" class="w-full px-2 py-1 text-xs border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-center bg-background" :value="selectedTeam[item].nickname ?? selectedTeam[item].pokemon.display_name" :placeholder="selectedTeam[item].pokemon.display_name" @input="updatePokemonNickname(item, ($event.target as HTMLInputElement).value)">
+												</div>
+											</div>
+										</div>
 									</div>
 								</div>
 
-								<div v-else class="text-center w-full h-full flex flex-col items-center justify-center space-y-3">
-									<div class="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
-										<svg class="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-										</svg>
+								<div v-else class="flex items-center justify-between w-full h-12">
+									<div class="flex items-center space-x-4">
+										<div class="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+											<svg class="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+											</svg>
+										</div>
+										<div class="flex flex-col">
+											<span class="text-sm font-medium text-foreground">Add Pokemon</span>
+											<span class="text-xs text-muted-foreground">Slot {{ item }}</span>
+										</div>
 									</div>
-									<span class="text-sm font-medium text-foreground">Add Pokemon</span>
-									<span class="text-xs text-muted-foreground">Slot {{ item }}</span>
+
+									<div class="text-xs text-muted-foreground hidden sm:block">Click to select</div>
 								</div>
 							</div>
 							<UModal v-model:open="pokemonModalOpen">

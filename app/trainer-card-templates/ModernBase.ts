@@ -1,7 +1,7 @@
 import TrainerCard from '@/trainer-card-templates/TrainerCard';
 import type TrainerImage from '@/types/trainer-image';
 import type PokemonTeam from '@/types/pokemon-team';
-import type PokemonImage from '@/types/pokemon-image';
+import type { PokemonInTeam } from '@/types/pokemon-team';
 
 const { loadImage } = useImageCache();
 
@@ -263,45 +263,46 @@ export default class ModernBase extends TrainerCard {
 		const nameX3 = ((30 + 98 + 45 + 98 + 45) * this.backgroundScale) + pokeballSize / 2;
 
 		if (team[1]) {
-			await this.drawPokemon(team[1].image, column1X, row1Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[1], column1X, row1Y, pokemonSize, pokemonSize);
 			this.drawPokemonNickname(team[1].nickname, nameX1, nameY1);
 			await this.drawPokemonGender(team[1].gender, nameX1, nameY1);
 		}
 
 		if (team[2]) {
-			await this.drawPokemon(team[2].image, column2X, row1Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[2], column2X, row1Y, pokemonSize, pokemonSize);
 			this.drawPokemonNickname(team[2].nickname, nameX2, nameY1);
 			await this.drawPokemonGender(team[2].gender, nameX2, nameY1);
 		}
 
 		if (team[3]) {
-			await this.drawPokemon(team[3].image, column3X, row1Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[3], column3X, row1Y, pokemonSize, pokemonSize);
 			this.drawPokemonNickname(team[3].nickname, nameX3, nameY1);
 			await this.drawPokemonGender(team[3].gender, nameX3, nameY1);
 		}
 
 		if (team[4]) {
-			await this.drawPokemon(team[4].image, column1X, row2Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[4], column1X, row2Y, pokemonSize, pokemonSize);
 			this.drawPokemonNickname(team[4].nickname, nameX1, nameY2);
 			await this.drawPokemonGender(team[4].gender, nameX1, nameY2);
 		}
 
 		if (team[5]) {
-			await this.drawPokemon(team[5].image, column2X, row2Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[5], column2X, row2Y, pokemonSize, pokemonSize);
 			this.drawPokemonNickname(team[5].nickname, nameX2, nameY2);
 			await this.drawPokemonGender(team[5].gender, nameX2, nameY2);
 		}
 
 		if (team[6]) {
-			await this.drawPokemon(team[6].image, column3X, row2Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[6], column3X, row2Y, pokemonSize, pokemonSize);
 			this.drawPokemonNickname(team[6].nickname, nameX3, nameY2);
 			await this.drawPokemonGender(team[6].gender, nameX3, nameY2);
 		}
 	}
 
-	private async drawPokemon(image: PokemonImage, x: number, y: number, width: number, height: number) {
+	private async drawPokemon(pokemon: PokemonInTeam, x: number, y: number, width: number, height: number) {
 		// * Fuck it, we ball.
 		// * This works well enough. Monkey-slamming the keyboard ftw.
+		const image = pokemon.image;
 		const padding = image.dimensions.padding;
 		const pokemonImage = await loadImage(image.url);
 
@@ -329,6 +330,36 @@ export default class ModernBase extends TrainerCard {
 			drawWidth,
 			drawHeight
 		);
+
+		if (pokemon.pokeball) {
+			const pokeballImage = await loadImage(pokemon.pokeball.image.url);
+			const pokeballPadding = pokemon.pokeball.image.dimensions.padding;
+			const pokeballContentWidth = pokemon.pokeball.image.dimensions.content.width;
+			const pokeballContentHeight = pokemon.pokeball.image.dimensions.content.height;
+
+			const pokeballTargetSize = Math.min(drawWidth, drawHeight) * 0.3;
+			const pokeballScaleX = pokeballTargetSize / pokeballContentWidth;
+			const pokeballScaleY = pokeballTargetSize / pokeballContentHeight;
+			const pokeballScale = Math.min(pokeballScaleX, pokeballScaleY);
+
+			const pokeballDrawWidth = pokeballContentWidth * pokeballScale;
+			const pokeballDrawHeight = pokeballContentHeight * pokeballScale;
+
+			const pokeballX = x + offsetX + drawWidth - pokeballDrawWidth;
+			const pokeballY = y + offsetY + drawHeight - pokeballDrawHeight;
+
+			this.ctx.drawImage(
+				pokeballImage,
+				pokeballPadding.left,
+				pokeballPadding.top,
+				pokeballContentWidth,
+				pokeballContentHeight,
+				pokeballX,
+				pokeballY,
+				pokeballDrawWidth,
+				pokeballDrawHeight
+			);
+		}
 	}
 
 	private drawPokemonNickname(name: string, x: number, y: number): void {
