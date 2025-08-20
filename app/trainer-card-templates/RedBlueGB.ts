@@ -2,6 +2,7 @@ import TrainerCard from '@/trainer-card-templates/TrainerCard';
 import type TrainerImage from '@/types/trainer-image';
 import type PokemonTeam from '@/types/pokemon-team';
 import type PokemonImage from '@/types/pokemon-image';
+import type FontCharacterImage from '@/types/font-character-image';
 
 const { loadImage } = useImageCache();
 
@@ -15,6 +16,8 @@ export default class RedBlueGB extends TrainerCard {
 	protected override pokemonScale = 20;
 	protected override trainerImageScale = 20;
 	protected override trainerNameScale = 20;
+
+	private font?: FontCharacterImage[];
 
 	async drawBackground() {
 		this.rescaleCanvas();
@@ -163,84 +166,40 @@ export default class RedBlueGB extends TrainerCard {
 		// * https://www.spriters-resource.com/game_boy_gbc/pokemonredblue/sheet/8734/
 		// *
 		// * Draw it image-by-image like a caveman I guess
-		const characterWidth = 8;
-		const characterHeight = 8;
-
 		// TODO - Support lowercase letters and other characters
-		const characterImageMap: Record<string, string> = {
-			'A': 'A.png',
-			'B': 'B.png',
-			'C': 'C.png',
-			'D': 'D.png',
-			'E': 'E.png',
-			'F': 'F.png',
-			'G': 'G.png',
-			'H': 'H.png',
-			'I': 'I.png',
-			'J': 'J.png',
-			'K': 'K.png',
-			'L': 'L.png',
-			'M': 'M.png',
-			'N': 'N.png',
-			'O': 'O.png',
-			'P': 'P.png',
-			'Q': 'Q.png',
-			'R': 'R.png',
-			'S': 'S.png',
-			'T': 'T.png',
-			'U': 'U.png',
-			'V': 'V.png',
-			'W': 'W.png',
-			'X': 'X.png',
-			'Y': 'Y.png',
-			'Z': 'Z.png',
-			'0': '0.png',
-			'1': '1.png',
-			'2': '2.png',
-			'3': '3.png',
-			'4': '4.png',
-			'5': '5.png',
-			'6': '6.png',
-			'7': '7.png',
-			'8': '8.png',
-			'9': '9.png',
-			':': 'colon.png',
-			',': 'comma.png',
-			'-': 'dash.png',
-			// '': 'double-dot.png', // TODO - How to handle this?
-			// '': 'double-quote-backward.png', // TODO - How to handle this?
-			// '': 'double-quote-forward.png', // TODO - How to handle this?
-			'!': 'exclamation.png',
-			'.': 'period.png',
-			'?': 'question.png',
-			// '': 'single-quote-backward.png',  // TODO - How to handle this?
-			// '': 'single-quote-forward.png',  // TODO - How to handle this?
-			'/': 'slash.png'
-		};
+		if (!this.font) {
+			const response = await fetch('/api/font/gen1');
+			this.font = await response.json();
+		}
 
 		for (let i = 0; i < text.length; i++) {
-			const char = text[i]!.toUpperCase();
+			const symbol = text[i]!.toUpperCase();
+			const character = this.font!.find(char => char.symbol === symbol);
 
-			if (char === ' ' || !characterImageMap[char]) {
-				x += characterWidth * scale;
+			if (symbol === ' ') {
+				x += 8 * scale; // TODO - Should this default size go inside the font response?
 				continue;
 			}
 
-			const image = await loadImage(`/images/fonts/red-blue/${characterImageMap[char]}`);
+			if (!character) {
+				continue;
+			}
+
+			const image = await loadImage(character.url);
 
 			this.ctx.drawImage(
 				image,
 				0,
 				0,
-				characterWidth,
-				characterHeight,
+				character.dimensions.original.width,
+				character.dimensions.original.height,
 				x,
 				y,
-				characterWidth * scale,
-				characterHeight * scale
+				character.dimensions.original.width * scale,
+				character.dimensions.original.height * scale
 			);
 
-			x += characterWidth * scale;
+			x += character.dimensions.original.width * scale;
 		}
 	}
 

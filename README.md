@@ -14,6 +14,7 @@ Fill this out more
 | `TCS_POKEMON_IMAGE_HOST` | Changes the hostname used for serving Pokemon images. Overrides `TCS_IMAGE_HOST` if set. If not set, images will be served from the local server. Only changes the host, image paths remain the same.                       |
 | `TCS_TRAINER_IMAGE_HOST` | Changes the hostname used for serving trainer images. Overrides `TCS_IMAGE_HOST` if set. If not set, images will be served from the local server. Only changes the host, image paths remain the same.                       |
 | `TCS_BADGE_IMAGE_HOST`   | Changes the hostname used for serving badge images. Overrides `TCS_IMAGE_HOST` if set. If not set, images will be served from the local server. Only changes the host, image paths remain the same.                         |
+| `TCS_FONT_IMAGE_HOST`    | Changes the hostname used for serving font images. Overrides `TCS_IMAGE_HOST` if set. If not set, images will be served from the local server. Only changes the host, image paths remain the same.                          |
 
 ## Contributing
 

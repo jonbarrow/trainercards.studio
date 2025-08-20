@@ -2,6 +2,7 @@ import TrainerCard from '@/trainer-card-templates/TrainerCard';
 import type TrainerImage from '@/types/trainer-image';
 import type PokemonTeam from '@/types/pokemon-team';
 import type PokemonImage from '@/types/pokemon-image';
+import type FontCharacterImage from '@/types/font-character-image';
 
 const { loadImage } = useImageCache();
 
@@ -15,6 +16,8 @@ export default class DiamondPearlRed extends TrainerCard {
 	protected override pokemonScale = 10;
 	protected override trainerImageScale = 10;
 	protected override trainerNameScale = 10;
+
+	private font?: FontCharacterImage[];
 
 	async drawBackground() {
 		this.rescaleCanvas();
@@ -69,7 +72,7 @@ export default class DiamondPearlRed extends TrainerCard {
 	}
 
 	override async drawTrainerName(name: string): Promise<void> {
-		const x = 137 * this.trainerNameScale;
+		const x = 144 * this.trainerNameScale; // * This is offset by 7 from the real position to account for some jank math in this.drawText
 		const y = 26 * this.trainerNameScale;
 
 		await this.drawText(name, x, y, this.trainerNameScale);
@@ -199,85 +202,57 @@ export default class DiamondPearlRed extends TrainerCard {
 		// * has the wrong font. You can see this at https://archives.bulbagarden.net/media/upload/8/84/Trainer_Card_Pt.png
 		// * where clearly the "N" and other characters are different.
 		// *
-		// * I can't find any source for these sprites, so I just used the wrong font and recolored it. Sue me
-		const characterWidth = 7;
-		const characterHeight = 11;
-
 		// TODO - Support lowercase letters and other characters
-		const characterImageMap: Record<string, string> = {
-			'A': 'A.png',
-			'B': 'B.png',
-			'C': 'C.png',
-			'D': 'D.png',
-			'E': 'E.png',
-			'F': 'F.png',
-			'G': 'G.png',
-			'H': 'H.png',
-			'I': 'I.png',
-			'J': 'J.png',
-			'K': 'K.png',
-			'L': 'L.png',
-			'M': 'M.png',
-			'N': 'N.png',
-			'O': 'O.png',
-			'P': 'P.png',
-			'Q': 'Q.png',
-			'R': 'R.png',
-			'S': 'S.png',
-			'T': 'T.png',
-			'U': 'U.png',
-			'V': 'V.png',
-			'W': 'W.png',
-			'X': 'X.png',
-			'Y': 'Y.png',
-			'Z': 'Z.png',
-			'0': '0.png',
-			'1': '1.png',
-			'2': '2.png',
-			'3': '3.png',
-			'4': '4.png',
-			'5': '5.png',
-			'6': '6.png',
-			'7': '7.png',
-			'8': '8.png',
-			'9': '9.png',
-			':': 'colon.png',
-			',': 'comma.png',
-			'-': 'dash.png',
-			// '': 'double-dot.png', // TODO - How to handle this?
-			// '': 'double-quote-backward.png', // TODO - How to handle this?
-			// '': 'double-quote-forward.png', // TODO - How to handle this?
-			'!': 'exclamation.png',
-			'.': 'period.png', // TODO - Font seems to have multiple period characters?
-			'?': 'question.png',
-			// '': 'single-quote-backward.png',  // TODO - How to handle this?
-			// '': 'single-quote-forward.png',  // TODO - How to handle this?
-			'/': 'slash.png'
-		};
+		if (!this.font) {
+			const response = await fetch('/api/font/gen4');
+			this.font = await response.json();
+		}
 
-		for (let i = text.length - 1; i >= 0; i--) {
-			const char = text[i]!.toUpperCase();
+		// * Since we're writing text backwards, we need to do some extra handling here
+		// * to make sure variable-width characters are positioned correctly
+		let totalWidth = 0;
+		for (let i = 0; i < text.length; i++) {
+			const symbol = text[i]!.toUpperCase();
+			if (symbol === ' ') {
+				totalWidth += 7 * scale; // TODO - Should this default size go inside the font response?
+			} else {
+				const character = this.font!.find(char => char.symbol === symbol);
+				if (character) {
+					totalWidth += character.dimensions.original.width * scale;
+				}
+			}
+		}
 
-			if (char === ' ' || !characterImageMap[char]) {
-				x -= characterWidth * scale;
+		x = x - totalWidth;
+
+		for (let i = 0; i < text.length; i++) {
+			const symbol = text[i]!.toUpperCase();
+
+			if (symbol === ' ') {
+				x += 7 * scale; // TODO - Should this default size go inside the font response?
 				continue;
 			}
 
-			const image = await loadImage(`/images/fonts/diamond-pearl/${characterImageMap[char]}`);
+			const character = this.font!.find(char => char.symbol === symbol);
+			if (!character) {
+				continue;
+			}
+
+			const image = await loadImage(character.url);
 
 			this.ctx.drawImage(
 				image,
 				0,
 				0,
-				characterWidth,
-				characterHeight,
+				character.dimensions.original.width,
+				character.dimensions.original.height,
 				x,
 				y,
-				characterWidth * scale,
-				characterHeight * scale
+				character.dimensions.original.width * scale,
+				character.dimensions.original.height * scale
 			);
 
-			x -= characterWidth * scale;
+			x += character.dimensions.original.width * scale;
 		}
 	}
 

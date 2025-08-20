@@ -7,6 +7,7 @@ import type PokemonImage from '@/types/pokemon-image';
 import type PokemonTeam from '@/types/pokemon-team';
 import type BadgeData from '@/types/badge-data';
 import type ModernIconData from '@/types/modern-icon-data';
+import type TrainerCard from '@/trainer-card-templates/TrainerCard';
 
 const { loadImage } = useImageCache();
 
@@ -85,6 +86,8 @@ const modernIcon2Options = computed(() => [
 	}))
 ]);
 
+let card: TrainerCard = new templates[0]!();
+
 async function loadPokemonData() {
 	try {
 		const response = await fetch('/api/pokemon');
@@ -132,8 +135,8 @@ async function updateCanvas() {
 		return;
 	}
 
-	const template = templates[selectedTemplateIndex.value]!;
-	const card = new template(canvas, ctx);
+	card.canvas = canvas;
+	card.ctx = ctx;
 
 	await card.drawBackground();
 
@@ -167,6 +170,7 @@ async function updateCanvas() {
 function selectTemplate(index: number) {
 	if (selectedTemplateIndex.value !== index) {
 		selectedTemplateIndex.value = index;
+		card = new templates[index]!();
 		updateCanvas();
 	}
 

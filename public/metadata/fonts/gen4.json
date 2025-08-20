@@ -1,0 +1,842 @@
+[
+  {
+    "symbol": "A",
+    "url": "/images/fonts/diamond-pearl/A.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "B",
+    "url": "/images/fonts/diamond-pearl/B.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "C",
+    "url": "/images/fonts/diamond-pearl/C.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "D",
+    "url": "/images/fonts/diamond-pearl/D.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "E",
+    "url": "/images/fonts/diamond-pearl/E.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "F",
+    "url": "/images/fonts/diamond-pearl/F.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "G",
+    "url": "/images/fonts/diamond-pearl/G.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "H",
+    "url": "/images/fonts/diamond-pearl/H.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "I",
+    "url": "/images/fonts/diamond-pearl/I.png",
+    "dimensions": {
+      "content": {
+        "width": 4,
+        "height": 11
+      },
+      "original": {
+        "width": 4,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "J",
+    "url": "/images/fonts/diamond-pearl/J.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "K",
+    "url": "/images/fonts/diamond-pearl/K.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "L",
+    "url": "/images/fonts/diamond-pearl/L.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "M",
+    "url": "/images/fonts/diamond-pearl/M.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "N",
+    "url": "/images/fonts/diamond-pearl/N.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "O",
+    "url": "/images/fonts/diamond-pearl/O.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "P",
+    "url": "/images/fonts/diamond-pearl/P.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "Q",
+    "url": "/images/fonts/diamond-pearl/Q.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "R",
+    "url": "/images/fonts/diamond-pearl/R.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "S",
+    "url": "/images/fonts/diamond-pearl/S.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "T",
+    "url": "/images/fonts/diamond-pearl/T.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "U",
+    "url": "/images/fonts/diamond-pearl/U.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "V",
+    "url": "/images/fonts/diamond-pearl/V.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "W",
+    "url": "/images/fonts/diamond-pearl/W.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "X",
+    "url": "/images/fonts/diamond-pearl/X.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "Y",
+    "url": "/images/fonts/diamond-pearl/Y.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "Z",
+    "url": "/images/fonts/diamond-pearl/Z.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "0",
+    "url": "/images/fonts/diamond-pearl/0.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "1",
+    "url": "/images/fonts/diamond-pearl/1.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "2",
+    "url": "/images/fonts/diamond-pearl/2.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "3",
+    "url": "/images/fonts/diamond-pearl/3.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "4",
+    "url": "/images/fonts/diamond-pearl/4.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "5",
+    "url": "/images/fonts/diamond-pearl/5.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "6",
+    "url": "/images/fonts/diamond-pearl/6.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "7",
+    "url": "/images/fonts/diamond-pearl/7.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "8",
+    "url": "/images/fonts/diamond-pearl/8.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "9",
+    "url": "/images/fonts/diamond-pearl/9.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": ".",
+    "url": "/images/fonts/diamond-pearl/period.png",
+    "dimensions": {
+      "content": {
+        "width": 5,
+        "height": 11
+      },
+      "original": {
+        "width": 5,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "!",
+    "url": "/images/fonts/diamond-pearl/exclamation.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "?",
+    "url": "/images/fonts/diamond-pearl/question.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": ":",
+    "url": "/images/fonts/diamond-pearl/colon.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": ",",
+    "url": "/images/fonts/diamond-pearl/comma.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "/",
+    "url": "/images/fonts/diamond-pearl/slash.png",
+    "dimensions": {
+      "content": {
+        "width": 7,
+        "height": 11
+      },
+      "original": {
+        "width": 7,
+        "height": 11
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  }
+]

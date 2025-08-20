@@ -77,6 +77,7 @@ export default defineNuxtConfig({
 	runtimeConfig: {
 		pokemonImagesHost: process.env.TCS_IMAGE_HOST || process.env.TCS_POKEMON_IMAGE_HOST,
 		trainerImagesHost: process.env.TCS_IMAGE_HOST || process.env.TCS_TRAINER_IMAGE_HOST,
-		badgeImagesHost: process.env.TCS_IMAGE_HOST || process.env.TCS_BADGE_IMAGE_HOST
+		badgeImagesHost: process.env.TCS_IMAGE_HOST || process.env.TCS_BADGE_IMAGE_HOST,
+		fontImagesHost: process.env.TCS_IMAGE_HOST || process.env.TCS_FONT_IMAGE_HOST
 	}
 });
