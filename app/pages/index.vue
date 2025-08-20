@@ -43,6 +43,7 @@ const socialIcon2 = ref({
 const socialText1 = ref('');
 const socialText2 = ref('');
 const badges = ref<string[]>([]);
+const watermarkEnabled = ref(true);
 
 const allPokemonData = ref<Pokemon[]>([]);
 const filteredPokemon = computed(() => {
@@ -156,6 +157,10 @@ async function updateCanvas() {
 
 	if (badges.value.length !== 0) {
 		await card.drawBadges(badges.value);
+	}
+
+	if (watermarkEnabled.value) {
+		await card.drawWatermark();
 	}
 }
 
@@ -373,6 +378,9 @@ onMounted(() => {
 
 								<UInput v-model="socialText2" color="neutral" variant="outline" @input="updateCanvas" />
 							</UButtonGroup>
+							<br>
+							<br>
+							<UCheckbox v-model="watermarkEnabled" color="secondary" label="Enable Watermark" @change="updateCanvas" />
 						</div>
 
 						<h1 class="pt-5">Trainer Settings</h1>

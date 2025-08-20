@@ -444,6 +444,48 @@ export default class ModernBase extends TrainerCard {
 		this.ctx.globalAlpha = 1.0;
 	}
 
+	override async drawWatermark(): Promise<void> {
+		const gradientWidth = 340 * this.backgroundScale;
+		const gradientHeight = 45 * this.backgroundScale;
+		const gradientX = this.canvas.width - gradientWidth;
+		const gradientY = this.canvas.height - gradientHeight;
+
+		const gradient = this.ctx.createLinearGradient(gradientX, 0, gradientY + gradientWidth, 0);
+		gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+		gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.2)');
+		gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.3)');
+		gradient.addColorStop(1, 'rgba(0, 0, 0, 0.6)');
+
+		this.ctx.fillStyle = gradient;
+		this.ctx.fillRect(gradientX, gradientY, gradientWidth, gradientHeight);
+
+		const textX = 450 * this.backgroundScale;
+		const textY = 410 * this.backgroundScale;
+		const text = 'Made with https://trainercards.studio';
+
+		const baseFontSize = 18;
+		const scaledFontSize = baseFontSize * this.backgroundScale;
+
+		this.ctx.font = `bold ${scaledFontSize}px "Varela Round", sans-serif`;
+		this.ctx.textAlign = 'left';
+		this.ctx.textBaseline = 'top';
+
+		this.ctx.save();
+
+		const shadowOffsetX = 2 * this.backgroundScale;
+		const shadowOffsetY = 2 * this.backgroundScale;
+
+		this.ctx.fillStyle = 'black';
+		this.ctx.globalAlpha = 0.6;
+		this.ctx.fillText(text, textX + shadowOffsetX, textY + shadowOffsetY);
+
+		this.ctx.restore();
+
+		this.ctx.fillStyle = 'white';
+		this.ctx.globalAlpha = 1;
+		this.ctx.fillText(text, textX, textY);
+	}
+
 	// * Not supported
 	override async drawBadges(_urls: string[]) {}
 }

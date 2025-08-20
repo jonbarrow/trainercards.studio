@@ -42,4 +42,5 @@ export default abstract class TrainerCard {
 	abstract drawTrainerName(name: string): Promise<void>;
 	abstract drawPokemonTeam(team: PokemonTeam): Promise<void>;
 	abstract drawBadges(images: string[]): Promise<void>;
+	abstract drawWatermark(): Promise<void>;
 }

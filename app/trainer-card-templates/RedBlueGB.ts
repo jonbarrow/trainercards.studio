@@ -72,90 +72,10 @@ export default class RedBlueGB extends TrainerCard {
 	}
 
 	override async drawTrainerName(name: string): Promise<void> {
-		// * There is no font for this, we just have raster images
-		// * https://www.spriters-resource.com/game_boy_gbc/pokemonredblue/sheet/8734/
-		// *
-		// * Draw it image-by-image like a caveman I guess
-		const characterWidth = 8;
-		const characterHeight = 8;
+		const x = 56 * this.trainerNameScale;
+		const y = 16 * this.trainerNameScale;
 
-		// TODO - Support lowercase letters and other characters
-		const characterImageMap: Record<string, string> = {
-			'A': 'A.png',
-			'B': 'B.png',
-			'C': 'C.png',
-			'D': 'D.png',
-			'E': 'E.png',
-			'F': 'F.png',
-			'G': 'G.png',
-			'H': 'H.png',
-			'I': 'I.png',
-			'J': 'J.png',
-			'K': 'K.png',
-			'L': 'L.png',
-			'M': 'M.png',
-			'N': 'N.png',
-			'O': 'O.png',
-			'P': 'P.png',
-			'Q': 'Q.png',
-			'R': 'R.png',
-			'S': 'S.png',
-			'T': 'T.png',
-			'U': 'U.png',
-			'V': 'V.png',
-			'W': 'W.png',
-			'X': 'X.png',
-			'Y': 'Y.png',
-			'Z': 'Z.png',
-			'0': '0.png',
-			'1': '1.png',
-			'2': '2.png',
-			'3': '3.png',
-			'4': '4.png',
-			'5': '5.png',
-			'6': '6.png',
-			'7': '7.png',
-			'8': '8.png',
-			'9': '9.png',
-			':': 'colon.png',
-			',': 'comma.png',
-			'-': 'dash.png',
-			// '': 'double-dot.png', // TODO - How to handle this?
-			// '': 'double-quote-backward.png', // TODO - How to handle this?
-			// '': 'double-quote-forward.png', // TODO - How to handle this?
-			'!': 'exclamation.png',
-			// '.': 'period.png', // TODO - Font seems to have multiple period characters?
-			'?': 'question.png',
-			// '': 'single-quote-backward.png',  // TODO - How to handle this?
-			// '': 'single-quote-forward.png',  // TODO - How to handle this?
-			'/': 'slash.png'
-		};
-		let x = 56 * this.trainerNameScale;
-
-		for (let i = 0; i < name.length; i++) {
-			const char = name[i]!.toUpperCase();
-
-			if (char === ' ' || !characterImageMap[char]) {
-				x += characterWidth * this.trainerNameScale;
-				continue;
-			}
-
-			const image = await loadImage(`/images/fonts/red-blue/${characterImageMap[char]}`);
-
-			this.ctx.drawImage(
-				image,
-				0,
-				0,
-				characterWidth,
-				characterHeight,
-				x,
-				(24 - characterHeight) * this.trainerNameScale,
-				characterWidth * this.trainerNameScale,
-				characterHeight * this.trainerNameScale
-			);
-
-			x += characterWidth * this.trainerNameScale;
-		}
+		await this.drawText(name, x, y, this.trainerNameScale);
 	}
 
 	override async drawPokemonTeam(team: PokemonTeam) {
@@ -228,6 +148,100 @@ export default class RedBlueGB extends TrainerCard {
 			drawWidth,
 			drawHeight
 		);
+	}
+
+	override async drawWatermark(): Promise<void> {
+		const x = 8 * this.backgroundScale;
+		const y = 8 * this.backgroundScale;
+		const scale = 7;
+
+		await this.drawText('Made with https://trainercards.studio', x, y, scale);
+	}
+
+	private async drawText(text: string, x: number, y: number, scale: number) {
+		// * There is no font for this, we just have raster images
+		// * https://www.spriters-resource.com/game_boy_gbc/pokemonredblue/sheet/8734/
+		// *
+		// * Draw it image-by-image like a caveman I guess
+		const characterWidth = 8;
+		const characterHeight = 8;
+
+		// TODO - Support lowercase letters and other characters
+		const characterImageMap: Record<string, string> = {
+			'A': 'A.png',
+			'B': 'B.png',
+			'C': 'C.png',
+			'D': 'D.png',
+			'E': 'E.png',
+			'F': 'F.png',
+			'G': 'G.png',
+			'H': 'H.png',
+			'I': 'I.png',
+			'J': 'J.png',
+			'K': 'K.png',
+			'L': 'L.png',
+			'M': 'M.png',
+			'N': 'N.png',
+			'O': 'O.png',
+			'P': 'P.png',
+			'Q': 'Q.png',
+			'R': 'R.png',
+			'S': 'S.png',
+			'T': 'T.png',
+			'U': 'U.png',
+			'V': 'V.png',
+			'W': 'W.png',
+			'X': 'X.png',
+			'Y': 'Y.png',
+			'Z': 'Z.png',
+			'0': '0.png',
+			'1': '1.png',
+			'2': '2.png',
+			'3': '3.png',
+			'4': '4.png',
+			'5': '5.png',
+			'6': '6.png',
+			'7': '7.png',
+			'8': '8.png',
+			'9': '9.png',
+			':': 'colon.png',
+			',': 'comma.png',
+			'-': 'dash.png',
+			// '': 'double-dot.png', // TODO - How to handle this?
+			// '': 'double-quote-backward.png', // TODO - How to handle this?
+			// '': 'double-quote-forward.png', // TODO - How to handle this?
+			'!': 'exclamation.png',
+			'.': 'period.png',
+			'?': 'question.png',
+			// '': 'single-quote-backward.png',  // TODO - How to handle this?
+			// '': 'single-quote-forward.png',  // TODO - How to handle this?
+			'/': 'slash.png'
+		};
+
+		for (let i = 0; i < text.length; i++) {
+			const char = text[i]!.toUpperCase();
+
+			if (char === ' ' || !characterImageMap[char]) {
+				x += characterWidth * scale;
+				continue;
+			}
+
+			const image = await loadImage(`/images/fonts/red-blue/${characterImageMap[char]}`);
+
+			this.ctx.drawImage(
+				image,
+				0,
+				0,
+				characterWidth,
+				characterHeight,
+				x,
+				y,
+				characterWidth * scale,
+				characterHeight * scale
+			);
+
+			x += characterWidth * scale;
+		}
 	}
 
 	// * Not supported

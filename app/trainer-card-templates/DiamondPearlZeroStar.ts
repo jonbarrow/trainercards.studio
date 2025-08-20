@@ -69,91 +69,10 @@ export default class DiamondPearlRed extends TrainerCard {
 	}
 
 	override async drawTrainerName(name: string): Promise<void> {
-		// * The sprite sheet https://www.spriters-resource.com/ds_dsi/pokemondiamondpearl/sheet/6963/
-		// * has the wrong font. You can see this at https://archives.bulbagarden.net/media/upload/8/84/Trainer_Card_Pt.png
-		// * where clearly the "N" and other characters are different.
-		// *
-		// * I can't find any source for these sprites, so I just used the wrong font and recolored it. Sue me
-		const characterWidth = 7;
-		const characterHeight = 11;
+		const x = 137 * this.trainerNameScale;
+		const y = 26 * this.trainerNameScale;
 
-		// TODO - Support lowercase letters and other characters
-		const characterImageMap: Record<string, string> = {
-			'A': 'A.png',
-			'B': 'B.png',
-			'C': 'C.png',
-			'D': 'D.png',
-			'E': 'E.png',
-			'F': 'F.png',
-			'G': 'G.png',
-			'H': 'H.png',
-			'I': 'I.png',
-			'J': 'J.png',
-			'K': 'K.png',
-			'L': 'L.png',
-			'M': 'M.png',
-			'N': 'N.png',
-			'O': 'O.png',
-			'P': 'P.png',
-			'Q': 'Q.png',
-			'R': 'R.png',
-			'S': 'S.png',
-			'T': 'T.png',
-			'U': 'U.png',
-			'V': 'V.png',
-			'W': 'W.png',
-			'X': 'X.png',
-			'Y': 'Y.png',
-			'Z': 'Z.png',
-			'0': '0.png',
-			'1': '1.png',
-			'2': '2.png',
-			'3': '3.png',
-			'4': '4.png',
-			'5': '5.png',
-			'6': '6.png',
-			'7': '7.png',
-			'8': '8.png',
-			'9': '9.png',
-			':': 'colon.png',
-			',': 'comma.png',
-			'-': 'dash.png',
-			// '': 'double-dot.png', // TODO - How to handle this?
-			// '': 'double-quote-backward.png', // TODO - How to handle this?
-			// '': 'double-quote-forward.png', // TODO - How to handle this?
-			'!': 'exclamation.png',
-			// '.': 'period.png', // TODO - Font seems to have multiple period characters?
-			'?': 'question.png',
-			// '': 'single-quote-backward.png',  // TODO - How to handle this?
-			// '': 'single-quote-forward.png',  // TODO - How to handle this?
-			'/': 'slash.png'
-		};
-		let x = (144 - characterWidth) * this.trainerNameScale;
-
-		for (let i = name.length - 1; i >= 0; i--) {
-			const char = name[i]!.toUpperCase();
-
-			if (char === ' ' || !characterImageMap[char]) {
-				x -= characterWidth * this.trainerNameScale;
-				continue;
-			}
-
-			const image = await loadImage(`/images/fonts/diamond-pearl/${characterImageMap[char]}`);
-
-			this.ctx.drawImage(
-				image,
-				0,
-				0,
-				characterWidth,
-				characterHeight,
-				x,
-				(37 - characterHeight) * this.trainerNameScale,
-				characterWidth * this.trainerNameScale,
-				characterHeight * this.trainerNameScale
-			);
-
-			x -= characterWidth * this.trainerNameScale;
-		}
+		await this.drawText(name, x, y, this.trainerNameScale);
 	}
 
 	override async drawPokemonTeam(team: PokemonTeam) {
@@ -264,6 +183,101 @@ export default class DiamondPearlRed extends TrainerCard {
 					badgeHeight
 				);
 			}
+		}
+	}
+
+	override async drawWatermark(): Promise<void> {
+		const x = 222 * this.backgroundScale;
+		const y = 12 * this.backgroundScale;
+		const scale = 5;
+
+		await this.drawText('https://trainercards.studio', x, y, scale);
+	}
+
+	private async drawText(text: string, x: number, y: number, scale: number) {
+		// * The sprite sheet https://www.spriters-resource.com/ds_dsi/pokemondiamondpearl/sheet/6963/
+		// * has the wrong font. You can see this at https://archives.bulbagarden.net/media/upload/8/84/Trainer_Card_Pt.png
+		// * where clearly the "N" and other characters are different.
+		// *
+		// * I can't find any source for these sprites, so I just used the wrong font and recolored it. Sue me
+		const characterWidth = 7;
+		const characterHeight = 11;
+
+		// TODO - Support lowercase letters and other characters
+		const characterImageMap: Record<string, string> = {
+			'A': 'A.png',
+			'B': 'B.png',
+			'C': 'C.png',
+			'D': 'D.png',
+			'E': 'E.png',
+			'F': 'F.png',
+			'G': 'G.png',
+			'H': 'H.png',
+			'I': 'I.png',
+			'J': 'J.png',
+			'K': 'K.png',
+			'L': 'L.png',
+			'M': 'M.png',
+			'N': 'N.png',
+			'O': 'O.png',
+			'P': 'P.png',
+			'Q': 'Q.png',
+			'R': 'R.png',
+			'S': 'S.png',
+			'T': 'T.png',
+			'U': 'U.png',
+			'V': 'V.png',
+			'W': 'W.png',
+			'X': 'X.png',
+			'Y': 'Y.png',
+			'Z': 'Z.png',
+			'0': '0.png',
+			'1': '1.png',
+			'2': '2.png',
+			'3': '3.png',
+			'4': '4.png',
+			'5': '5.png',
+			'6': '6.png',
+			'7': '7.png',
+			'8': '8.png',
+			'9': '9.png',
+			':': 'colon.png',
+			',': 'comma.png',
+			'-': 'dash.png',
+			// '': 'double-dot.png', // TODO - How to handle this?
+			// '': 'double-quote-backward.png', // TODO - How to handle this?
+			// '': 'double-quote-forward.png', // TODO - How to handle this?
+			'!': 'exclamation.png',
+			'.': 'period.png', // TODO - Font seems to have multiple period characters?
+			'?': 'question.png',
+			// '': 'single-quote-backward.png',  // TODO - How to handle this?
+			// '': 'single-quote-forward.png',  // TODO - How to handle this?
+			'/': 'slash.png'
+		};
+
+		for (let i = text.length - 1; i >= 0; i--) {
+			const char = text[i]!.toUpperCase();
+
+			if (char === ' ' || !characterImageMap[char]) {
+				x -= characterWidth * scale;
+				continue;
+			}
+
+			const image = await loadImage(`/images/fonts/diamond-pearl/${characterImageMap[char]}`);
+
+			this.ctx.drawImage(
+				image,
+				0,
+				0,
+				characterWidth,
+				characterHeight,
+				x,
+				y,
+				characterWidth * scale,
+				characterHeight * scale
+			);
+
+			x -= characterWidth * scale;
 		}
 	}
 
