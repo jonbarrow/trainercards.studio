@@ -1,10 +1,15 @@
 # Trainer Cards Studio
 
-Custom Pokémon trainer card creator featuring 30,452 Pokémon sprites, 2,198 trainer images, and card templates in both classic and "modern" (pokecharms) styles
+Custom Pokémon trainer card creator
 
-## TODO
+## Features
 
-Fill this out more
+- 30,452 Pokémon sprites
+- 2,198 trainer images
+- 13 card templates in both classic and "modern" (pokecharms) styles
+- Each image can be in any style and on any card, allowing you to mix and match any combination
+- Support for showing what Pokéball each Pokémon is in
+- Support for giving each Pokémon a held item
 
 ## Configuration
 
