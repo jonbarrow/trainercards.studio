@@ -1,12 +1,13 @@
 import type Pokemon from '@/types/pokemon';
-import type PokeballData from '@/types/pokeball-data';
+import type ItemData from '@/types/item-data';
 import type PokemonImage from '@/types/pokemon-image';
 
 export interface PokemonInTeam {
 	pokemon: Pokemon;
 	nickname: string;
 	gender: string;
-	pokeball?: PokeballData;
+	pokeball?: ItemData;
+	held_item?: ItemData;
 	image: PokemonImage;
 }
 

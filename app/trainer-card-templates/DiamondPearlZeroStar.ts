@@ -179,6 +179,36 @@ export default class DiamondPearlRed extends TrainerCard {
 				pokeballDrawHeight
 			);
 		}
+
+		if (pokemon.held_item) {
+			const heldItemImage = await loadImage(pokemon.held_item.image.url);
+			const heldItemPadding = pokemon.held_item.image.dimensions.padding;
+			const heldItemContentWidth = pokemon.held_item.image.dimensions.content.width;
+			const heldItemContentHeight = pokemon.held_item.image.dimensions.content.height;
+
+			const heldItemTargetSize = Math.min(drawWidth, drawHeight) * 0.3;
+			const heldItemScaleX = heldItemTargetSize / heldItemContentWidth;
+			const heldItemScaleY = heldItemTargetSize / heldItemContentHeight;
+			const heldItemScale = Math.min(heldItemScaleX, heldItemScaleY);
+
+			const heldItemDrawWidth = heldItemContentWidth * heldItemScale;
+			const heldItemDrawHeight = heldItemContentHeight * heldItemScale;
+
+			const heldItemX = x + offsetX;
+			const heldItemY = y + offsetY + drawHeight - heldItemDrawHeight;
+
+			this.ctx.drawImage(
+				heldItemImage,
+				heldItemPadding.left,
+				heldItemPadding.top,
+				heldItemContentWidth,
+				heldItemContentHeight,
+				heldItemX,
+				heldItemY,
+				heldItemDrawWidth,
+				heldItemDrawHeight
+			);
+		}
 	}
 
 	override async drawBadges(urls: string[]) {

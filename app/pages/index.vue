@@ -8,7 +8,7 @@ import type PokemonTeam from '@/types/pokemon-team';
 import type BadgeData from '@/types/badge-data';
 import type ModernIconData from '@/types/modern-icon-data';
 import type TrainerCard from '@/trainer-card-templates/TrainerCard';
-import type PokeballData from '@/types/pokeball-data';
+import type ItemData from '@/types/item-data';
 
 const { loadImage } = useImageCache();
 
@@ -28,11 +28,15 @@ const templateModalOpen = ref(false);
 const trainerModalOpen = ref(false);
 const isTrainersLoading = ref(false);
 const pokemonModalOpen = ref(false);
+const heldItemModalOpen = ref(false);
+const isHeldItemsLoading = ref(false);
 const selectedTeamIndex = ref<number | null>(null);
 const pokemonSearchQuery = ref('');
 const debouncedPokemonSearchQuery = useDebounce(pokemonSearchQuery);
 const trainerSearchQuery = ref('');
 const debouncedTrainerSearchQuery = useDebounce(trainerSearchQuery);
+const heldItemSearchQuery = ref('');
+const debouncedHeldItemSearchQuery = useDebounce(heldItemSearchQuery);
 const selectedTeam = reactive<PokemonTeam>({});
 const socialIcon1 = ref({
 	image_url: '',
@@ -87,7 +91,7 @@ const modernIcon2Options = computed(() => [
 	}))
 ]);
 
-const allPokeballData = ref<PokeballData[]>([]);
+const allPokeballData = ref<ItemData[]>([]);
 const pokeballOptions = computed(() => (slot: number) => [
 	{
 		label: 'None',
@@ -99,6 +103,17 @@ const pokeballOptions = computed(() => (slot: number) => [
 		onSelect: () => updatePokemonPokeball(slot, pokeball)
 	}))
 ]);
+
+const allHeldItemsData = ref<ItemData[]>([]);
+const filteredHeldItems = computed(() => {
+	if (!debouncedHeldItemSearchQuery.value.trim()) {
+		return allHeldItemsData.value;
+	}
+
+	const query = debouncedHeldItemSearchQuery.value.toLowerCase().trim();
+
+	return allHeldItemsData.value.filter(item => item.name.toLowerCase().includes(query) || item.display_name.toLowerCase().includes(query));
+});
 
 let card: TrainerCard = new templates[0]!();
 
@@ -142,6 +157,15 @@ async function loadPokeballData() {
 	try {
 		const response = await fetch('/metadata/pokeballs.json');
 		allPokeballData.value = await response.json();
+	} catch (error) {
+		console.error('Failed to load Pokeball data:', error);
+	}
+}
+
+async function loadHeldItemData() {
+	try {
+		const response = await fetch('/metadata/items.json');
+		allHeldItemsData.value = await response.json();
 	} catch (error) {
 		console.error('Failed to load Pokeball data:', error);
 	}
@@ -202,22 +226,42 @@ function selectTemplate(index: number) {
 
 function selectTrainer(trainer: TrainerImage) {
 	selectedTrainer.value = trainer;
+	trainerSearchQuery.value = '';
 	updateCanvas();
 	toggleTrainerModal();
 }
 
 function selectPokemon(pokemon: Pokemon, image: PokemonImage) {
 	if (selectedTeamIndex.value !== null) {
-		selectedTeam[selectedTeamIndex.value] = {
-			pokemon,
-			image,
-			nickname: pokemon.display_name,
-			gender: ''
-		};
+		const oldPokemon = selectedTeam[selectedTeamIndex.value];
+		if (oldPokemon) {
+			oldPokemon.pokemon = pokemon;
+			oldPokemon.image = image;
+		} else {
+			selectedTeam[selectedTeamIndex.value] = {
+				pokemon,
+				image,
+				nickname: pokemon.display_name,
+				gender: ''
+			};
+		}
 
+		pokemonSearchQuery.value = '';
 		pokemonModalOpen.value = false;
 
 		updateCanvas();
+	}
+}
+
+function selectHeldItem(item: ItemData) {
+	if (selectedTeamIndex.value !== null) {
+		const pokemon = selectedTeam[selectedTeamIndex.value];
+		if (pokemon) {
+			pokemon.held_item = item;
+			heldItemSearchQuery.value = '';
+			heldItemModalOpen.value = false;
+			updateCanvas();
+		}
 	}
 }
 
@@ -271,6 +315,21 @@ function togglePokemonModal(i: number) {
 	pokemonSearchQuery.value = '';
 }
 
+function toggleHeldItemModal(i: number) {
+	heldItemModalOpen.value = !heldItemModalOpen.value;
+	selectedTeamIndex.value = i;
+	heldItemSearchQuery.value = '';
+
+	if (heldItemModalOpen.value) {
+		isTrainersLoading.value = true;
+		nextTick(() => {
+			setTimeout(() => {
+				isHeldItemsLoading.value = false;
+			}, 100);
+		});
+	}
+}
+
 function updatePokemonNickname(slot: number, nickname: string) {
 	if (selectedTeam[slot]) {
 		selectedTeam[slot].nickname = nickname;
@@ -303,7 +362,7 @@ function updatePokemonGender(slot: number, gender: string) {
 	}
 }
 
-function updatePokemonPokeball(slot: number, pokeball?: PokeballData) {
+function updatePokemonPokeball(slot: number, pokeball?: ItemData) {
 	if (selectedTeam[slot]) {
 		selectedTeam[slot].pokeball = pokeball;
 		updateCanvas();
@@ -343,6 +402,7 @@ onMounted(() => {
 	loadBadgeData();
 	loadLinksData();
 	loadPokeballData();
+	loadHeldItemData();
 	updateCanvas();
 });
 </script>
@@ -474,7 +534,7 @@ onMounted(() => {
 									<div class="flex flex-col space-y-3 md:hidden">
 										<div class="flex items-center space-x-4">
 											<div class="flex-shrink-0">
-												<img :src="selectedTeam[item].image.url" :alt="selectedTeam[item].pokemon.display_name" :class="['w-12', 'h-12', 'object-contain', { pixelated: selectedTeam[item].image.style === 'pixel_art' }]">
+												<img :src="selectedTeam[item].image.preview_url" :alt="selectedTeam[item].pokemon.display_name" :class="['w-12', 'h-12', 'object-contain', { pixelated: selectedTeam[item].image.style === 'pixel_art' }]">
 											</div>
 											<div class="flex flex-col">
 												<span class="text-sm font-semibold text-foreground">{{ selectedTeam[item].pokemon.display_name }}</span>
@@ -498,13 +558,26 @@ onMounted(() => {
 											</div>
 
 											<div class="flex flex-col flex-1">
+												<label class="text-xs text-muted-foreground mb-1">Held Item</label>
+												<UButton color="neutral" variant="outline" size="xs" class="w-full justify-between" @click="toggleHeldItemModal(item)">
+													<div class="flex items-center gap-2 min-w-0">
+														<div class="w-4 h-4 flex items-center justify-center flex-shrink-0">
+															<img v-if="selectedTeam[item].held_item" :src="selectedTeam[item].held_item.image.preview_url" class="w-4 h-4 object-contain block pixelated" alt="Selected item">
+															<UIcon v-else name="i-lucide-minus" class="w-4 h-4 text-gray-400 block" />
+														</div>
+														<span class="text-xs truncate">{{ selectedTeam[item].held_item?.display_name || 'None' }}</span>
+													</div>
+												</UButton>
+											</div>
+
+											<div class="flex flex-col flex-1">
 												<label class="text-xs text-muted-foreground mb-1">Pokeball</label>
 												<UDropdownMenu :items="pokeballOptions(item)" size="xs">
 													<UButton color="neutral" variant="outline" size="xs" class="w-full justify-center">
 														<div class="flex items-center gap-2">
 															<div class="w-4 h-4 flex items-center justify-center flex-shrink-0">
 																<img v-if="selectedTeam[item].pokeball" :src="selectedTeam[item].pokeball.image.preview_url" class="w-4 h-4 object-contain block pixelated" alt="Selected pokeball">
-																<UIcon v-else name="i-lucide-circle" class="w-4 h-4 text-gray-400 block" />
+																<UIcon v-else name="i-lucide-minus" class="w-4 h-4 text-gray-400 block" />
 															</div>
 															<UIcon name="i-lucide-chevron-down" class="w-3 h-3 flex-shrink-0" />
 														</div>
@@ -522,7 +595,7 @@ onMounted(() => {
 									<div class="hidden md:flex md:items-center md:justify-between md:w-full">
 										<div class="flex items-center space-x-4">
 											<div class="flex-shrink-0">
-												<img :src="selectedTeam[item].image.url" :alt="selectedTeam[item].pokemon.display_name" :class="['w-12', 'h-12', 'object-contain', { pixelated: selectedTeam[item].image.style === 'pixel_art' }]">
+												<img :src="selectedTeam[item].image.preview_url" :alt="selectedTeam[item].pokemon.display_name" :class="['w-12', 'h-12', 'object-contain', { pixelated: selectedTeam[item].image.style === 'pixel_art' }]">
 											</div>
 											<div class="flex flex-col">
 												<span class="text-sm font-semibold text-foreground">{{ selectedTeam[item].pokemon.display_name }}</span>
@@ -543,6 +616,19 @@ onMounted(() => {
 														</div>
 													</UButton>
 												</UDropdownMenu>
+											</div>
+
+											<div class="flex flex-col items-center">
+												<label class="text-xs text-muted-foreground mb-1">Held Item</label>
+												<UButton color="neutral" variant="outline" size="xs" @click="toggleHeldItemModal(item)">
+													<div class="flex items-center gap-2">
+														<div class="w-4 h-4 flex items-center justify-center flex-shrink-0">
+															<img v-if="selectedTeam[item].held_item" :src="selectedTeam[item].held_item.image.preview_url" class="w-4 h-4 object-contain block pixelated" alt="Selected item">
+															<UIcon v-else name="i-lucide-minus" class="w-4 h-4 text-gray-400 block" />
+														</div>
+														<span class="text-xs max-w-16 truncate">{{ selectedTeam[item].held_item?.display_name || 'None' }}</span>
+													</div>
+												</UButton>
 											</div>
 
 											<div class="flex flex-col items-center">
@@ -612,6 +698,34 @@ onMounted(() => {
 													</div>
 												</div>
 												<USeparator class="py-5" />
+											</div>
+										</div>
+									</div>
+								</template>
+							</UModal>
+							<UModal v-model:open="heldItemModalOpen">
+								<template #content>
+									<div class="p-4 w-full max-w-4xl">
+										<h3 class="text-lg font-semibold mb-4">Select Item</h3>
+
+										<div class="mb-4">
+											<UInput v-model="heldItemSearchQuery" placeholder="Search item by name..." class="w-full" />
+										</div>
+										<div v-if="isHeldItemsLoading" class="flex items-center justify-center h-96">
+											<div class="text-center">
+												<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
+												<p class="text-sm text-gray-500">Loading items...</p>
+											</div>
+										</div>
+										<div v-else class="p-4 grid grid-cols-5 gap-3 max-h-96 overflow-y-auto">
+											<div v-for="(heldItem, index) in filteredHeldItems" :key="index" class="relative cursor-pointer" @click="selectHeldItem(heldItem)">
+												<div :class="['border-2 rounded-lg p-2 transition-colors', selectedTeamIndex && selectedTeam[selectedTeamIndex]?.held_item?.name === heldItem.name ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-gray-300']">
+													<div class="aspect-square flex items-center justify-center bg-gray-50 rounded">
+														<img v-if="heldItem.image.preview_url" loading="lazy" :src="heldItem.image.preview_url" :alt="heldItem.name" :class="['max-w-full', 'max-h-full', 'object-contain', { pixelated: heldItem.image.style === 'pixel_art' }]">
+														<div v-else class="text-gray-400 text-xs text-center">{{ heldItem.name }}</div>
+													</div>
+													<p class="text-xs text-center mt-2 truncate">{{ heldItem.display_name }}</p>
+												</div>
 											</div>
 										</div>
 									</div>
