@@ -1,7 +1,7 @@
 import TrainerCard from '@/trainer-card-templates/TrainerCard';
 import type TrainerImage from '@/types/trainer-image';
 import type PokemonTeam from '@/types/pokemon-team';
-import type PokemonImage from '@/types/pokemon-image';
+import type { PokemonInTeam } from '@/types/pokemon-team';
 
 const { loadImage } = useImageCache();
 
@@ -263,45 +263,46 @@ export default class ModernBase extends TrainerCard {
 		const nameX3 = ((30 + 98 + 45 + 98 + 45) * this.backgroundScale) + pokeballSize / 2;
 
 		if (team[1]) {
-			await this.drawPokemon(team[1].image, column1X, row1Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[1], column1X, row1Y, pokemonSize, pokemonSize);
 			this.drawPokemonNickname(team[1].nickname, nameX1, nameY1);
 			await this.drawPokemonGender(team[1].gender, nameX1, nameY1);
 		}
 
 		if (team[2]) {
-			await this.drawPokemon(team[2].image, column2X, row1Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[2], column2X, row1Y, pokemonSize, pokemonSize);
 			this.drawPokemonNickname(team[2].nickname, nameX2, nameY1);
 			await this.drawPokemonGender(team[2].gender, nameX2, nameY1);
 		}
 
 		if (team[3]) {
-			await this.drawPokemon(team[3].image, column3X, row1Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[3], column3X, row1Y, pokemonSize, pokemonSize);
 			this.drawPokemonNickname(team[3].nickname, nameX3, nameY1);
 			await this.drawPokemonGender(team[3].gender, nameX3, nameY1);
 		}
 
 		if (team[4]) {
-			await this.drawPokemon(team[4].image, column1X, row2Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[4], column1X, row2Y, pokemonSize, pokemonSize);
 			this.drawPokemonNickname(team[4].nickname, nameX1, nameY2);
 			await this.drawPokemonGender(team[4].gender, nameX1, nameY2);
 		}
 
 		if (team[5]) {
-			await this.drawPokemon(team[5].image, column2X, row2Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[5], column2X, row2Y, pokemonSize, pokemonSize);
 			this.drawPokemonNickname(team[5].nickname, nameX2, nameY2);
 			await this.drawPokemonGender(team[5].gender, nameX2, nameY2);
 		}
 
 		if (team[6]) {
-			await this.drawPokemon(team[6].image, column3X, row2Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[6], column3X, row2Y, pokemonSize, pokemonSize);
 			this.drawPokemonNickname(team[6].nickname, nameX3, nameY2);
 			await this.drawPokemonGender(team[6].gender, nameX3, nameY2);
 		}
 	}
 
-	private async drawPokemon(image: PokemonImage, x: number, y: number, width: number, height: number) {
+	private async drawPokemon(pokemon: PokemonInTeam, x: number, y: number, width: number, height: number) {
 		// * Fuck it, we ball.
 		// * This works well enough. Monkey-slamming the keyboard ftw.
+		const image = pokemon.image;
 		const padding = image.dimensions.padding;
 		const pokemonImage = await loadImage(image.url);
 
@@ -329,6 +330,66 @@ export default class ModernBase extends TrainerCard {
 			drawWidth,
 			drawHeight
 		);
+
+		if (pokemon.pokeball) {
+			const pokeballImage = await loadImage(pokemon.pokeball.image.url);
+			const pokeballPadding = pokemon.pokeball.image.dimensions.padding;
+			const pokeballContentWidth = pokemon.pokeball.image.dimensions.content.width;
+			const pokeballContentHeight = pokemon.pokeball.image.dimensions.content.height;
+
+			const pokeballTargetSize = Math.min(drawWidth, drawHeight) * 0.3;
+			const pokeballScaleX = pokeballTargetSize / pokeballContentWidth;
+			const pokeballScaleY = pokeballTargetSize / pokeballContentHeight;
+			const pokeballScale = Math.min(pokeballScaleX, pokeballScaleY);
+
+			const pokeballDrawWidth = pokeballContentWidth * pokeballScale;
+			const pokeballDrawHeight = pokeballContentHeight * pokeballScale;
+
+			const pokeballX = x + offsetX + drawWidth - pokeballDrawWidth;
+			const pokeballY = y + offsetY + drawHeight - pokeballDrawHeight;
+
+			this.ctx.drawImage(
+				pokeballImage,
+				pokeballPadding.left,
+				pokeballPadding.top,
+				pokeballContentWidth,
+				pokeballContentHeight,
+				pokeballX,
+				pokeballY,
+				pokeballDrawWidth,
+				pokeballDrawHeight
+			);
+		}
+
+		if (pokemon.held_item) {
+			const heldItemImage = await loadImage(pokemon.held_item.image.url);
+			const heldItemPadding = pokemon.held_item.image.dimensions.padding;
+			const heldItemContentWidth = pokemon.held_item.image.dimensions.content.width;
+			const heldItemContentHeight = pokemon.held_item.image.dimensions.content.height;
+
+			const heldItemTargetSize = Math.min(drawWidth, drawHeight) * 0.3;
+			const heldItemScaleX = heldItemTargetSize / heldItemContentWidth;
+			const heldItemScaleY = heldItemTargetSize / heldItemContentHeight;
+			const heldItemScale = Math.min(heldItemScaleX, heldItemScaleY);
+
+			const heldItemDrawWidth = heldItemContentWidth * heldItemScale;
+			const heldItemDrawHeight = heldItemContentHeight * heldItemScale;
+
+			const heldItemX = x + offsetX;
+			const heldItemY = y + offsetY + drawHeight - heldItemDrawHeight;
+
+			this.ctx.drawImage(
+				heldItemImage,
+				heldItemPadding.left,
+				heldItemPadding.top,
+				heldItemContentWidth,
+				heldItemContentHeight,
+				heldItemX,
+				heldItemY,
+				heldItemDrawWidth,
+				heldItemDrawHeight
+			);
+		}
 	}
 
 	private drawPokemonNickname(name: string, x: number, y: number): void {
@@ -442,6 +503,48 @@ export default class ModernBase extends TrainerCard {
 
 		this.ctx.restore();
 		this.ctx.globalAlpha = 1.0;
+	}
+
+	override async drawWatermark(): Promise<void> {
+		const gradientWidth = 340 * this.backgroundScale;
+		const gradientHeight = 45 * this.backgroundScale;
+		const gradientX = this.canvas.width - gradientWidth;
+		const gradientY = this.canvas.height - gradientHeight;
+
+		const gradient = this.ctx.createLinearGradient(gradientX, 0, gradientY + gradientWidth, 0);
+		gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+		gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.2)');
+		gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.3)');
+		gradient.addColorStop(1, 'rgba(0, 0, 0, 0.6)');
+
+		this.ctx.fillStyle = gradient;
+		this.ctx.fillRect(gradientX, gradientY, gradientWidth, gradientHeight);
+
+		const textX = 450 * this.backgroundScale;
+		const textY = 410 * this.backgroundScale;
+		const text = 'Made with https://trainercards.studio';
+
+		const baseFontSize = 18;
+		const scaledFontSize = baseFontSize * this.backgroundScale;
+
+		this.ctx.font = `bold ${scaledFontSize}px "Varela Round", sans-serif`;
+		this.ctx.textAlign = 'left';
+		this.ctx.textBaseline = 'top';
+
+		this.ctx.save();
+
+		const shadowOffsetX = 2 * this.backgroundScale;
+		const shadowOffsetY = 2 * this.backgroundScale;
+
+		this.ctx.fillStyle = 'black';
+		this.ctx.globalAlpha = 0.6;
+		this.ctx.fillText(text, textX + shadowOffsetX, textY + shadowOffsetY);
+
+		this.ctx.restore();
+
+		this.ctx.fillStyle = 'white';
+		this.ctx.globalAlpha = 1;
+		this.ctx.fillText(text, textX, textY);
 	}
 
 	// * Not supported

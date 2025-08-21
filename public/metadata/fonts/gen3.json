@@ -1,0 +1,862 @@
+[
+  {
+    "symbol": "A",
+    "url": "/images/fonts/ruby-sapphire/A.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "B",
+    "url": "/images/fonts/ruby-sapphire/B.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "C",
+    "url": "/images/fonts/ruby-sapphire/C.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "D",
+    "url": "/images/fonts/ruby-sapphire/D.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "E",
+    "url": "/images/fonts/ruby-sapphire/E.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "F",
+    "url": "/images/fonts/ruby-sapphire/F.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "G",
+    "url": "/images/fonts/ruby-sapphire/G.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "H",
+    "url": "/images/fonts/ruby-sapphire/H.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "I",
+    "url": "/images/fonts/ruby-sapphire/I.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "J",
+    "url": "/images/fonts/ruby-sapphire/J.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "K",
+    "url": "/images/fonts/ruby-sapphire/K.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "L",
+    "url": "/images/fonts/ruby-sapphire/L.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "M",
+    "url": "/images/fonts/ruby-sapphire/M.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "N",
+    "url": "/images/fonts/ruby-sapphire/N.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "O",
+    "url": "/images/fonts/ruby-sapphire/O.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "P",
+    "url": "/images/fonts/ruby-sapphire/P.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "Q",
+    "url": "/images/fonts/ruby-sapphire/Q.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "R",
+    "url": "/images/fonts/ruby-sapphire/R.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "S",
+    "url": "/images/fonts/ruby-sapphire/S.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "T",
+    "url": "/images/fonts/ruby-sapphire/T.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "U",
+    "url": "/images/fonts/ruby-sapphire/U.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "V",
+    "url": "/images/fonts/ruby-sapphire/V.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "W",
+    "url": "/images/fonts/ruby-sapphire/W.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "X",
+    "url": "/images/fonts/ruby-sapphire/X.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "Y",
+    "url": "/images/fonts/ruby-sapphire/Y.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "Z",
+    "url": "/images/fonts/ruby-sapphire/Z.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "0",
+    "url": "/images/fonts/ruby-sapphire/0.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "1",
+    "url": "/images/fonts/ruby-sapphire/1.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "2",
+    "url": "/images/fonts/ruby-sapphire/2.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "3",
+    "url": "/images/fonts/ruby-sapphire/3.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "4",
+    "url": "/images/fonts/ruby-sapphire/4.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "5",
+    "url": "/images/fonts/ruby-sapphire/5.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "6",
+    "url": "/images/fonts/ruby-sapphire/6.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "7",
+    "url": "/images/fonts/ruby-sapphire/7.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "8",
+    "url": "/images/fonts/ruby-sapphire/8.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "9",
+    "url": "/images/fonts/ruby-sapphire/9.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": ".",
+    "url": "/images/fonts/ruby-sapphire/period.png",
+    "dimensions": {
+      "content": {
+        "width": 5,
+        "height": 12
+      },
+      "original": {
+        "width": 5,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "!",
+    "url": "/images/fonts/ruby-sapphire/exclamation.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "?",
+    "url": "/images/fonts/ruby-sapphire/question.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "/",
+    "url": "/images/fonts/ruby-sapphire/slash.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": ":",
+    "url": "/images/fonts/ruby-sapphire/colon.png",
+    "dimensions": {
+      "content": {
+        "width": 5,
+        "height": 12
+      },
+      "original": {
+        "width": 5,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": ",",
+    "url": "/images/fonts/ruby-sapphire/comma.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  },
+  {
+    "symbol": "-",
+    "url": "/images/fonts/ruby-sapphire/dash.png",
+    "dimensions": {
+      "content": {
+        "width": 6,
+        "height": 12
+      },
+      "original": {
+        "width": 6,
+        "height": 12
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "right": 0
+      }
+    }
+  }
+]

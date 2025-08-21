@@ -2,7 +2,7 @@ import type TrainerImage from '@/types/trainer-image';
 import type PokemonTeam from '@/types/pokemon-team';
 
 export interface TrainerCardConstructor {
-	new (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): TrainerCard;
+	new (): TrainerCard;
 
 	readonly name: string;
 	readonly previewURL: string;
@@ -11,6 +11,10 @@ export interface TrainerCardConstructor {
 export default abstract class TrainerCard {
 	public static name: string;
 	public static previewURL: string;
+
+	public canvas!: HTMLCanvasElement;
+	public ctx!: CanvasRenderingContext2D;
+
 	protected backgroundURL!: string;
 	protected backgroundOriginalWidth!: number;
 	protected backgroundOriginalHeight!: number;
@@ -18,14 +22,6 @@ export default abstract class TrainerCard {
 	protected pokemonScale!: number;
 	protected trainerImageScale!: number;
 	protected trainerNameScale!: number;
-
-	protected canvas: HTMLCanvasElement;
-	protected ctx: CanvasRenderingContext2D;
-
-	constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
-		this.canvas = canvas;
-		this.ctx = ctx;
-	}
 
 	protected rescaleCanvas(): void {
 		const displayWidth = this.backgroundOriginalWidth * this.backgroundScale;
@@ -42,4 +38,5 @@ export default abstract class TrainerCard {
 	abstract drawTrainerName(name: string): Promise<void>;
 	abstract drawPokemonTeam(team: PokemonTeam): Promise<void>;
 	abstract drawBadges(images: string[]): Promise<void>;
+	abstract drawWatermark(): Promise<void>;
 }

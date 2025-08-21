@@ -1,7 +1,8 @@
 import TrainerCard from '@/trainer-card-templates/TrainerCard';
 import type TrainerImage from '@/types/trainer-image';
 import type PokemonTeam from '@/types/pokemon-team';
-import type PokemonImage from '@/types/pokemon-image';
+import type { PokemonInTeam } from '@/types/pokemon-team';
+import type FontCharacterImage from '@/types/font-character-image';
 
 const { loadImage } = useImageCache();
 
@@ -15,6 +16,8 @@ export default class RedBlueGB extends TrainerCard {
 	protected override pokemonScale = 20;
 	protected override trainerImageScale = 20;
 	protected override trainerNameScale = 20;
+
+	private font?: FontCharacterImage[];
 
 	async drawBackground() {
 		this.rescaleCanvas();
@@ -72,90 +75,10 @@ export default class RedBlueGB extends TrainerCard {
 	}
 
 	override async drawTrainerName(name: string): Promise<void> {
-		// * There is no font for this, we just have raster images
-		// * https://www.spriters-resource.com/game_boy_gbc/pokemonredblue/sheet/8734/
-		// *
-		// * Draw it image-by-image like a caveman I guess
-		const characterWidth = 8;
-		const characterHeight = 8;
+		const x = 56 * this.trainerNameScale;
+		const y = 16 * this.trainerNameScale;
 
-		// TODO - Support lowercase letters and other characters
-		const characterImageMap: Record<string, string> = {
-			'A': 'A.png',
-			'B': 'B.png',
-			'C': 'C.png',
-			'D': 'D.png',
-			'E': 'E.png',
-			'F': 'F.png',
-			'G': 'G.png',
-			'H': 'H.png',
-			'I': 'I.png',
-			'J': 'J.png',
-			'K': 'K.png',
-			'L': 'L.png',
-			'M': 'M.png',
-			'N': 'N.png',
-			'O': 'O.png',
-			'P': 'P.png',
-			'Q': 'Q.png',
-			'R': 'R.png',
-			'S': 'S.png',
-			'T': 'T.png',
-			'U': 'U.png',
-			'V': 'V.png',
-			'W': 'W.png',
-			'X': 'X.png',
-			'Y': 'Y.png',
-			'Z': 'Z.png',
-			'0': '0.png',
-			'1': '1.png',
-			'2': '2.png',
-			'3': '3.png',
-			'4': '4.png',
-			'5': '5.png',
-			'6': '6.png',
-			'7': '7.png',
-			'8': '8.png',
-			'9': '9.png',
-			':': 'colon.png',
-			',': 'comma.png',
-			'-': 'dash.png',
-			// '': 'double-dot.png', // TODO - How to handle this?
-			// '': 'double-quote-backward.png', // TODO - How to handle this?
-			// '': 'double-quote-forward.png', // TODO - How to handle this?
-			'!': 'exclamation.png',
-			// '.': 'period.png', // TODO - Font seems to have multiple period characters?
-			'?': 'question.png',
-			// '': 'single-quote-backward.png',  // TODO - How to handle this?
-			// '': 'single-quote-forward.png',  // TODO - How to handle this?
-			'/': 'slash.png'
-		};
-		let x = 56 * this.trainerNameScale;
-
-		for (let i = 0; i < name.length; i++) {
-			const char = name[i]!.toUpperCase();
-
-			if (char === ' ' || !characterImageMap[char]) {
-				x += characterWidth * this.trainerNameScale;
-				continue;
-			}
-
-			const image = await loadImage(`/images/fonts/red-blue/${characterImageMap[char]}`);
-
-			this.ctx.drawImage(
-				image,
-				0,
-				0,
-				characterWidth,
-				characterHeight,
-				x,
-				(24 - characterHeight) * this.trainerNameScale,
-				characterWidth * this.trainerNameScale,
-				characterHeight * this.trainerNameScale
-			);
-
-			x += characterWidth * this.trainerNameScale;
-		}
+		await this.drawText(name, x, y, this.trainerNameScale);
 	}
 
 	override async drawPokemonTeam(team: PokemonTeam) {
@@ -174,33 +97,34 @@ export default class RedBlueGB extends TrainerCard {
 		const row2Y = rowBase + slotOffset;
 
 		if (team[1]) {
-			await this.drawPokemon(team[1].image, column1X, row1Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[1], column1X, row1Y, pokemonSize, pokemonSize);
 		}
 
 		if (team[2]) {
-			await this.drawPokemon(team[2].image, column2X, row1Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[2], column2X, row1Y, pokemonSize, pokemonSize);
 		}
 
 		if (team[3]) {
-			await this.drawPokemon(team[3].image, column3X, row1Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[3], column3X, row1Y, pokemonSize, pokemonSize);
 		}
 
 		if (team[4]) {
-			await this.drawPokemon(team[4].image, column1X, row2Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[4], column1X, row2Y, pokemonSize, pokemonSize);
 		}
 
 		if (team[5]) {
-			await this.drawPokemon(team[5].image, column2X, row2Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[5], column2X, row2Y, pokemonSize, pokemonSize);
 		}
 
 		if (team[6]) {
-			await this.drawPokemon(team[6].image, column3X, row2Y, pokemonSize, pokemonSize);
+			await this.drawPokemon(team[6], column3X, row2Y, pokemonSize, pokemonSize);
 		}
 	}
 
-	private async drawPokemon(image: PokemonImage, x: number, y: number, width: number, height: number) {
+	private async drawPokemon(pokemon: PokemonInTeam, x: number, y: number, width: number, height: number) {
 		// * Fuck it, we ball.
 		// * This works well enough. Monkey-slamming the keyboard ftw.
+		const image = pokemon.image;
 		const padding = image.dimensions.padding;
 		const pokemonImage = await loadImage(image.url);
 
@@ -228,6 +152,116 @@ export default class RedBlueGB extends TrainerCard {
 			drawWidth,
 			drawHeight
 		);
+
+		if (pokemon.pokeball) {
+			const pokeballImage = await loadImage(pokemon.pokeball.image.url);
+			const pokeballPadding = pokemon.pokeball.image.dimensions.padding;
+			const pokeballContentWidth = pokemon.pokeball.image.dimensions.content.width;
+			const pokeballContentHeight = pokemon.pokeball.image.dimensions.content.height;
+
+			const pokeballTargetSize = Math.min(drawWidth, drawHeight) * 0.3;
+			const pokeballScaleX = pokeballTargetSize / pokeballContentWidth;
+			const pokeballScaleY = pokeballTargetSize / pokeballContentHeight;
+			const pokeballScale = Math.min(pokeballScaleX, pokeballScaleY);
+
+			const pokeballDrawWidth = pokeballContentWidth * pokeballScale;
+			const pokeballDrawHeight = pokeballContentHeight * pokeballScale;
+
+			const pokeballX = x + offsetX + drawWidth - pokeballDrawWidth;
+			const pokeballY = y + offsetY + drawHeight - pokeballDrawHeight;
+
+			this.ctx.drawImage(
+				pokeballImage,
+				pokeballPadding.left,
+				pokeballPadding.top,
+				pokeballContentWidth,
+				pokeballContentHeight,
+				pokeballX,
+				pokeballY,
+				pokeballDrawWidth,
+				pokeballDrawHeight
+			);
+		}
+
+		if (pokemon.held_item) {
+			const heldItemImage = await loadImage(pokemon.held_item.image.url);
+			const heldItemPadding = pokemon.held_item.image.dimensions.padding;
+			const heldItemContentWidth = pokemon.held_item.image.dimensions.content.width;
+			const heldItemContentHeight = pokemon.held_item.image.dimensions.content.height;
+
+			const heldItemTargetSize = Math.min(drawWidth, drawHeight) * 0.3;
+			const heldItemScaleX = heldItemTargetSize / heldItemContentWidth;
+			const heldItemScaleY = heldItemTargetSize / heldItemContentHeight;
+			const heldItemScale = Math.min(heldItemScaleX, heldItemScaleY);
+
+			const heldItemDrawWidth = heldItemContentWidth * heldItemScale;
+			const heldItemDrawHeight = heldItemContentHeight * heldItemScale;
+
+			const heldItemX = x + offsetX;
+			const heldItemY = y + offsetY + drawHeight - heldItemDrawHeight;
+
+			this.ctx.drawImage(
+				heldItemImage,
+				heldItemPadding.left,
+				heldItemPadding.top,
+				heldItemContentWidth,
+				heldItemContentHeight,
+				heldItemX,
+				heldItemY,
+				heldItemDrawWidth,
+				heldItemDrawHeight
+			);
+		}
+	}
+
+	override async drawWatermark(): Promise<void> {
+		const x = 8 * this.backgroundScale;
+		const y = 8 * this.backgroundScale;
+		const scale = 7;
+
+		await this.drawText('Made with https://trainercards.studio', x, y, scale);
+	}
+
+	private async drawText(text: string, x: number, y: number, scale: number) {
+		// * There is no font for this, we just have raster images
+		// * https://www.spriters-resource.com/game_boy_gbc/pokemonredblue/sheet/8734/
+		// *
+		// * Draw it image-by-image like a caveman I guess
+		// TODO - Support lowercase letters and other characters
+		if (!this.font) {
+			const response = await fetch('/api/font/gen1');
+			this.font = await response.json();
+		}
+
+		for (let i = 0; i < text.length; i++) {
+			const symbol = text[i]!.toUpperCase();
+			const character = this.font!.find(char => char.symbol === symbol);
+
+			if (symbol === ' ') {
+				x += 8 * scale; // TODO - Should this default size go inside the font response?
+				continue;
+			}
+
+			if (!character) {
+				continue;
+			}
+
+			const image = await loadImage(character.url);
+
+			this.ctx.drawImage(
+				image,
+				0,
+				0,
+				character.dimensions.original.width,
+				character.dimensions.original.height,
+				x,
+				y,
+				character.dimensions.original.width * scale,
+				character.dimensions.original.height * scale
+			);
+
+			x += character.dimensions.original.width * scale;
+		}
 	}
 
 	// * Not supported
