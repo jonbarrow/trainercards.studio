@@ -1,0 +1,31 @@
+name: Trainer Card Template Request
+description: Request a new trainer card template
+title: "[Trainer Card Template Request]: "
+labels: ["trainer-card-template-request", "awaiting-approval"]
+assignees: []
+body:
+  - type: checkboxes
+    attributes:
+      label: Checked Existing
+      description: Ensure you have checked the existing issues, both open and closed, for duplicate issues.
+      options:
+        - label: I have checked the repository for duplicate issues.
+          required: true
+  - type: textarea
+    id: trainer-card-template-request
+    attributes:
+      label: What kind of trainer card template would you like to suggest? Please be as detailed as possible.
+    validations:
+      required: true
+  - type: textarea
+    id: trainer-card-examples
+    attributes:
+      label: Examples/inspiration for how you'd want it to look? (OPTIONAL)
+    validations:
+      required: false
+  - type: textarea
+    id: other-details
+    attributes:
+      label: Any other details to share? (OPTIONAL)
+    validations:
+      required: false
