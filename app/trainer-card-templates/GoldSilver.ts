@@ -214,6 +214,14 @@ export default class GoldSilver extends TrainerCard {
 		}
 	}
 
+	override async drawWatermark(): Promise<void> {
+		const x = 10 * this.backgroundScale;
+		const y = 10 * this.backgroundScale;
+		const scale = 7;
+
+		await this.drawText('Made with https://trainercards.studio', x, y, scale);
+	}
+
 	private async drawText(text: string, x: number, y: number, scale: number) {
 		// * I don't think the font changed between Red/Blue and Gold/Silver?
 		// * Just reuse it for now, can change later if need be
