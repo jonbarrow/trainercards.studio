@@ -299,7 +299,7 @@ export default class ModernBase extends TrainerCard {
 		}
 	}
 
-	private async drawPokemon(pokemon: PokemonInTeam, x: number, y: number, width: number, height: number) {
+	protected override async drawPokemon(pokemon: PokemonInTeam, x: number, y: number, width: number, height: number) {
 		// * Fuck it, we ball.
 		// * This works well enough. Monkey-slamming the keyboard ftw.
 		const image = pokemon.image;
