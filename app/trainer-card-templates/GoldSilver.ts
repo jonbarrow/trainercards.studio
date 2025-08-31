@@ -1,5 +1,4 @@
 import TrainerCard from '@/trainer-card-templates/TrainerCard';
-import type TrainerImage from '@/types/trainer-image';
 import type PokemonTeam from '@/types/pokemon-team';
 import type FontCharacterImage from '@/types/font-character-image';
 
@@ -13,6 +12,10 @@ export default class GoldSilver extends TrainerCard {
 	protected override backgroundOriginalHeight = 64;
 	protected override backgroundScale = 20;
 	protected override pokemonScale = 20;
+	protected override trainerImageX = 48;
+	protected override trainerImageY = 64;
+	protected override trainerImageBoundingBoxWidth = 40;
+	protected override trainerImageBoundingBoxHeight = 56;
 	protected override trainerImageScale = 20;
 	protected override trainerNameScale = 20;
 
@@ -28,49 +31,6 @@ export default class GoldSilver extends TrainerCard {
 
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.ctx.drawImage(backgroundImage, 0, 0, displayWidth, displayHeight);
-	}
-
-	async drawTrainerImage(trainer: TrainerImage) {
-		const trainerImage = await loadImage(trainer.image_url);
-
-		// * Shout out to https://www.spriters-resource.com/game_boy_gbc/pokemongoldsilver/sheet/9200/
-		// * for having the actual bounding box position/size. We can actually place trainers
-		// * perfectly now
-		const boundingBoxWidth = 40;
-		const boundingBoxHeight = 56;
-		const rightOffset = 48;
-		const topOffset = 64;
-
-		const boundingBoxX = (this.backgroundOriginalWidth - rightOffset) * this.backgroundScale;
-		const boundingBoxY = (topOffset - boundingBoxHeight) * this.backgroundScale;
-
-		let scaledContentWidth = trainer.dimensions!.content.width * this.trainerImageScale;
-		let scaledContentHeight = trainer.dimensions!.content.height * this.trainerImageScale;
-
-		const maxWidth = boundingBoxWidth * this.backgroundScale;
-		const maxHeight = boundingBoxHeight * this.backgroundScale;
-
-		const scaleX = maxWidth / scaledContentWidth;
-		const scaleY = maxHeight / scaledContentHeight;
-		const fitScale = Math.min(1, scaleX, scaleY);
-
-		scaledContentWidth *= fitScale;
-		scaledContentHeight *= fitScale;
-
-		const x = boundingBoxX + (maxWidth - scaledContentWidth) / 2;
-		const y = boundingBoxY + (maxHeight - scaledContentHeight) / 2;
-
-		this.ctx.drawImage(
-			trainerImage,
-			trainer.dimensions!.padding.left,
-			trainer.dimensions!.padding.top,
-			trainer.dimensions!.content.width,
-			trainer.dimensions!.content.height,
-			x,
-			y,
-			scaledContentWidth,
-			scaledContentHeight
-		);
 	}
 
 	override async drawTrainerName(name: string): Promise<void> {

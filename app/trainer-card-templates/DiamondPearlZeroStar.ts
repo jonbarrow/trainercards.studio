@@ -13,6 +13,10 @@ export default class DiamondPearlRed extends TrainerCard {
 	protected override backgroundOriginalHeight = 176;
 	protected override backgroundScale = 10;
 	protected override pokemonScale = 10;
+	protected override trainerImageX = 84;
+	protected override trainerImageY = 116;
+	protected override trainerImageBoundingBoxWidth = 72;
+	protected override trainerImageBoundingBoxHeight = 91;
 	protected override trainerImageScale = 10;
 	protected override trainerNameScale = 10;
 
@@ -30,7 +34,7 @@ export default class DiamondPearlRed extends TrainerCard {
 		this.ctx.drawImage(backgroundImage, 0, 0, displayWidth, displayHeight);
 	}
 
-	async drawTrainerImage(trainer: TrainerImage) {
+	override async drawTrainerImage(trainer: TrainerImage) {
 		const trainerImage = await loadImage(trainer.image_url);
 
 		const boundingBoxWidth = 72;

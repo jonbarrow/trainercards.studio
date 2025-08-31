@@ -1,5 +1,4 @@
 import TrainerCard from '@/trainer-card-templates/TrainerCard';
-import type TrainerImage from '@/types/trainer-image';
 import type PokemonTeam from '@/types/pokemon-team';
 import type { PokemonInTeam } from '@/types/pokemon-team';
 
@@ -16,7 +15,11 @@ export default class ModernBase extends TrainerCard {
 	protected override backgroundOriginalHeight = 440;
 	protected override backgroundScale = 4.5;
 	protected override pokemonScale = 4.5;
-	protected override trainerImageScale = 4.5;
+	protected override trainerImageX = 340;
+	protected override trainerImageY = 480;
+	protected override trainerImageBoundingBoxWidth = 360;
+	protected override trainerImageBoundingBoxHeight = 360;
+	protected override trainerImageScale = 20.25;
 	protected override trainerNameScale = 1;
 
 	async drawBackground() {
@@ -178,40 +181,6 @@ export default class ModernBase extends TrainerCard {
 
 		this.ctx.restore();
 		this.ctx.globalAlpha = 1.0;
-	}
-
-	async drawTrainerImage(trainer: TrainerImage) {
-		const trainerImage = await loadImage(trainer.image_url);
-
-		const blackPokeballCenterX = this.canvas.width - (160 * this.backgroundScale);
-		const blackPokeballCenterY = 300 * this.backgroundScale;
-
-		let scaledWidth = (trainer.dimensions!.content.width * this.trainerImageScale) * this.backgroundScale;
-		let scaledHeight = (trainer.dimensions!.content.height * this.trainerImageScale) * this.backgroundScale;
-
-		const maxSize = 360 * this.backgroundScale;
-
-		const scaleX = maxSize / scaledWidth;
-		const scaleY = maxSize / scaledHeight;
-		const fitScale = Math.min(1, scaleX, scaleY);
-
-		scaledWidth *= fitScale;
-		scaledHeight *= fitScale;
-
-		const x = blackPokeballCenterX - scaledWidth / 2;
-		const y = blackPokeballCenterY - scaledHeight / 2;
-
-		this.ctx.drawImage(
-			trainerImage,
-			trainer.dimensions!.padding.left,
-			trainer.dimensions!.padding.top,
-			trainer.dimensions!.content.width,
-			trainer.dimensions!.content.height,
-			x,
-			y,
-			scaledWidth,
-			scaledHeight
-		);
 	}
 
 	override async drawTrainerName(name: string): Promise<void> {

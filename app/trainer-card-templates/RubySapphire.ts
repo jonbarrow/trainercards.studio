@@ -1,5 +1,4 @@
 import TrainerCard from '@/trainer-card-templates/TrainerCard';
-import type TrainerImage from '@/types/trainer-image';
 import type PokemonTeam from '@/types/pokemon-team';
 import type FontCharacterImage from '@/types/font-character-image';
 
@@ -13,6 +12,10 @@ export default class RubySapphire extends TrainerCard {
 	protected override backgroundOriginalHeight = 140;
 	protected override backgroundScale = 10;
 	protected override pokemonScale = 10;
+	protected override trainerImageX = 83;
+	protected override trainerImageY = 105;
+	protected override trainerImageBoundingBoxWidth = 70;
+	protected override trainerImageBoundingBoxHeight = 70;
 	protected override trainerImageScale = 10;
 	protected override trainerNameScale = 10;
 
@@ -28,41 +31,6 @@ export default class RubySapphire extends TrainerCard {
 
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.ctx.drawImage(backgroundImage, 0, 0, displayWidth, displayHeight);
-	}
-
-	async drawTrainerImage(trainer: TrainerImage) {
-		const trainerImage = await loadImage(trainer.image_url);
-
-		const rightOffset = 48;
-		const topOffset = 70;
-
-		let scaledContentWidth = trainer.dimensions!.content.width * this.trainerImageScale;
-		let scaledContentHeight = trainer.dimensions!.content.height * this.trainerImageScale;
-
-		const maxWidth = (this.backgroundOriginalWidth - rightOffset) * this.backgroundScale;
-		const maxHeight = (this.backgroundOriginalHeight - topOffset) * this.backgroundScale;
-
-		const scaleX = maxWidth / scaledContentWidth;
-		const scaleY = maxHeight / scaledContentHeight;
-		const fitScale = Math.min(1, scaleX, scaleY);
-
-		scaledContentWidth *= fitScale;
-		scaledContentHeight *= fitScale;
-
-		const x = (this.backgroundOriginalWidth - rightOffset) * this.backgroundScale - scaledContentWidth / 2;
-		const y = topOffset * this.backgroundScale - scaledContentHeight / 2;
-
-		this.ctx.drawImage(
-			trainerImage,
-			trainer.dimensions!.padding.left,
-			trainer.dimensions!.padding.top,
-			trainer.dimensions!.content.width,
-			trainer.dimensions!.content.height,
-			x,
-			y,
-			scaledContentWidth,
-			scaledContentHeight
-		);
 	}
 
 	override async drawTrainerName(name: string): Promise<void> {

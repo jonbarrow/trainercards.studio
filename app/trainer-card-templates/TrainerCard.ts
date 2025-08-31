@@ -23,6 +23,10 @@ export default abstract class TrainerCard {
 	protected backgroundOriginalHeight!: number;
 	protected backgroundScale!: number;
 	protected pokemonScale!: number;
+	protected trainerImageX!: number; // TODO - Rename this, or change the values/math? Right now this means "how many pixels from the RIGHT SIDE of the canvas until the LEFT MOST SIDE of the bounding box"
+	protected trainerImageY!: number; // TODO - Rename this, or change the values/math? Right now this means "how many pixels from the TOP SIDE of the canvas until the BOTTOM MOST SIDE of the bounding box"
+	protected trainerImageBoundingBoxWidth!: number;
+	protected trainerImageBoundingBoxHeight!: number;
 	protected trainerImageScale!: number;
 	protected trainerNameScale!: number;
 
@@ -37,11 +41,50 @@ export default abstract class TrainerCard {
 	abstract drawBackground(): Promise<void>;
 	abstract drawIcon1(imageURL: string, text: string): Promise<void>;
 	abstract drawIcon2(imageURL: string, text: string): Promise<void>;
-	abstract drawTrainerImage(trainer: TrainerImage): Promise<void>;
 	abstract drawTrainerName(name: string): Promise<void>;
 	abstract drawPokemonTeam(team: PokemonTeam): Promise<void>;
 	abstract drawBadges(images: string[]): Promise<void>;
 	abstract drawWatermark(): Promise<void>;
+
+	public async drawTrainerImage(trainer: TrainerImage): Promise<void> {
+		const trainerImage = await loadImage(trainer.image_url);
+
+		const boundingBoxWidth = this.trainerImageBoundingBoxWidth;
+		const boundingBoxHeight = this.trainerImageBoundingBoxHeight;
+		const rightOffset = this.trainerImageX;
+		const topOffset = this.trainerImageY;
+
+		const boundingBoxX = (this.backgroundOriginalWidth - rightOffset) * this.backgroundScale;
+		const boundingBoxY = (topOffset - boundingBoxHeight) * this.backgroundScale;
+
+		let scaledContentWidth = trainer.dimensions!.content.width * this.trainerImageScale;
+		let scaledContentHeight = trainer.dimensions!.content.height * this.trainerImageScale;
+
+		const maxWidth = boundingBoxWidth * this.backgroundScale;
+		const maxHeight = boundingBoxHeight * this.backgroundScale;
+
+		const scaleX = maxWidth / scaledContentWidth;
+		const scaleY = maxHeight / scaledContentHeight;
+		const fitScale = Math.min(1, scaleX, scaleY);
+
+		scaledContentWidth *= fitScale;
+		scaledContentHeight *= fitScale;
+
+		const x = boundingBoxX + (maxWidth - scaledContentWidth) / 2;
+		const y = boundingBoxY + (maxHeight - scaledContentHeight) / 2;
+
+		this.ctx.drawImage(
+			trainerImage,
+			trainer.dimensions!.padding.left,
+			trainer.dimensions!.padding.top,
+			trainer.dimensions!.content.width,
+			trainer.dimensions!.content.height,
+			x,
+			y,
+			scaledContentWidth,
+			scaledContentHeight
+		);
+	}
 
 	protected async drawPokemon(pokemon: PokemonInTeam, x: number, y: number, width: number, height: number) {
 		// * Fuck it, we ball.
