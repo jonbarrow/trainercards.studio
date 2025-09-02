@@ -1,6 +1,7 @@
 import TrainerCard from '@/trainer-card-templates/TrainerCard';
 import type PokemonTeam from '@/types/pokemon-team';
 import type { PokemonInTeam } from '@/types/pokemon-team';
+import type { StaticPokemonImage } from '@/types/pokemon-image';
 
 const { loadImage } = useImageCache();
 
@@ -268,10 +269,10 @@ export default class ModernBase extends TrainerCard {
 		}
 	}
 
-	protected override async drawPokemon(pokemon: PokemonInTeam, x: number, y: number, width: number, height: number) {
+	protected override async drawStaticPokemon(pokemon: PokemonInTeam, x: number, y: number, width: number, height: number) {
 		// * Fuck it, we ball.
 		// * This works well enough. Monkey-slamming the keyboard ftw.
-		const image = pokemon.image;
+		const image = pokemon.image as StaticPokemonImage;
 		const padding = image.dimensions.padding;
 		const pokemonImage = await loadImage(image.url);
 

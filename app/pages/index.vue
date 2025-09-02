@@ -30,6 +30,10 @@ const isTrainersLoading = ref(false);
 const pokemonModalOpen = ref(false);
 const heldItemModalOpen = ref(false);
 const isHeldItemsLoading = ref(false);
+const exportAnimatedCardModalOpen = ref(false);
+const animatedCardExportingModalOpen = ref(false);
+const exportStatusText = ref('Starting recording...');
+const exportProgress = ref(0);
 const selectedTeamIndex = ref<number | null>(null);
 const pokemonSearchQuery = ref('');
 const debouncedPokemonSearchQuery = useDebounce(pokemonSearchQuery);
@@ -187,6 +191,8 @@ async function updateCanvas() {
 
 	await card.drawBackground();
 
+	card.captureBackgroundState();
+
 	if (selectedTrainer.value.image_url) {
 		await card.drawTrainerImage(selectedTrainer.value);
 	}
@@ -195,7 +201,7 @@ async function updateCanvas() {
 		await card.drawTrainerName(trainerName.value);
 	}
 
-	await card.drawPokemonTeam(selectedTeam);
+	card.animated = false;
 
 	if (socialIcon1.value.image_url) {
 		await card.drawIcon1(socialIcon1.value.image_url, socialText1.value);
@@ -212,6 +218,24 @@ async function updateCanvas() {
 	if (watermarkEnabled.value) {
 		await card.drawWatermark();
 	}
+
+	for (const i in selectedTeam) {
+		const pokemon = selectedTeam[i];
+		const image = pokemon!.image;
+
+		if ('frame_data' in image) {
+			let gifDuration = 0;
+			for (const frame of image.frame_data) {
+				gifDuration += frame.delay;
+			}
+
+			if (card.animationLength < gifDuration) {
+				card.animationLength = gifDuration;
+			}
+		}
+	}
+
+	await card.drawPokemonTeam(selectedTeam);
 }
 
 function selectTemplate(index: number) {
@@ -293,6 +317,14 @@ function toggleTrainerModal() {
 	}
 }
 
+function toggleExportAnimatedCardModal() {
+	exportAnimatedCardModalOpen.value = !exportAnimatedCardModalOpen.value;
+}
+
+function toggleAnimatedCardExportingModal() {
+	animatedCardExportingModalOpen.value = !animatedCardExportingModalOpen.value;
+}
+
 function toggleBadge(url: string) {
 	const index = badges.value.indexOf(url);
 	if (index > -1) {
@@ -369,31 +401,94 @@ function updatePokemonPokeball(slot: number, pokeball?: ItemData) {
 	}
 }
 
-function exportCard() {
+async function exportCard() {
 	const canvas = trainerCardCanvas.value;
 	if (!canvas) {
 		return;
 	}
 
-	canvas.toBlob((blob) => {
-		if (!blob) {
-			return;
+	if (!card.animated) {
+		canvas.toBlob((blob) => {
+			if (!blob) return;
+
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = 'trainer-card.png';
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			URL.revokeObjectURL(url);
+		}, 'image/png');
+		return;
+	}
+
+	toggleExportAnimatedCardModal();
+}
+
+async function exportAnimatedCard(mimeType: string, extension: string) {
+	toggleAnimatedCardExportingModal();
+	toggleExportAnimatedCardModal();
+
+	exportStatusText.value = 'Starting recording...';
+	exportProgress.value = 0;
+
+	await updateCanvas();
+
+	exportStatusText.value = 'Recording animation...';
+	exportProgress.value = 5;
+
+	const recordedChunks: Blob[] = [];
+	const stream = trainerCardCanvas.value!.captureStream(60);
+	const mediaRecorder = new MediaRecorder(stream, {
+		mimeType
+	});
+
+	const startTime = Date.now();
+
+	const progressInterval = setInterval(() => {
+		const elapsed = Date.now() - startTime;
+		const progress = Math.min(90, (elapsed / card.animationLength) * 100);
+		exportProgress.value = Math.round(progress);
+	}, 50);
+
+	mediaRecorder.start(card.animationLength);
+
+	mediaRecorder.addEventListener('dataavailable', (event) => {
+		recordedChunks.push(event.data);
+		if (mediaRecorder.state === 'recording') {
+			clearInterval(progressInterval);
+			exportProgress.value = 95;
+			mediaRecorder.stop();
 		}
+	});
+
+	mediaRecorder.addEventListener('stop', () => {
+		exportStatusText.value = 'Processing video...';
+		exportProgress.value = 98;
+
+		const blob = new Blob(recordedChunks, {
+			type: mimeType
+		});
+
+		exportStatusText.value = 'Download ready!';
+		exportProgress.value = 100;
 
 		const url = URL.createObjectURL(blob);
 		const link = document.createElement('a');
-
 		link.href = url;
-		link.download = 'trainer-card.png';
-
+		link.download = `trainer-card.${extension}`;
 		document.body.appendChild(link);
-
 		link.click();
-
 		document.body.removeChild(link);
-
 		URL.revokeObjectURL(url);
-	}, 'image/png');
+
+		setTimeout(() => {
+			toggleAnimatedCardExportingModal();
+			exportProgress.value = 0;
+			exportStatusText.value = 'Starting recording...';
+		}, 1500);
+	});
 }
 
 onMounted(() => {
@@ -751,6 +846,75 @@ onMounted(() => {
 					</UCard>
 				</div>
 				<div class="order-1 lg:order-2 lg:sticky lg:top-6 lg:self-start">
+					<UModal v-model:open="exportAnimatedCardModalOpen">
+						<template #content>
+							<div class="p-6">
+								<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Export Format</h3>
+								<USeparator class="mb-6" />
+
+								<div class="space-y-4">
+									<button @click="exportAnimatedCard('video/webm; codecs=vp9', 'webm')" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-500 transition-all">
+										<div class="text-left">
+											<div class="font-bold text-gray-900 dark:text-white">
+												WebM VP9
+											</div>
+											<div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+												Best quality, smaller file size
+											</div>
+										</div>
+									</button>
+
+									<button @click="exportAnimatedCard('video/webm; codecs=vp8', 'webm')" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-500 transition-all">
+										<div class="text-left">
+											<div class="font-bold text-gray-900 dark:text-white">
+												WebM VP8
+											</div>
+											<div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+												Better browser compatibility
+											</div>
+										</div>
+									</button>
+
+									<button @click="exportAnimatedCard('video/mp4; codecs=avc1.42E01E', 'mp4')" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-500 transition-all">
+										<div class="text-left">
+											<div class="font-bold text-gray-900 dark:text-white">
+												MP4 H.264
+											</div>
+											<div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+												Universal support
+											</div>
+										</div>
+									</button>
+								</div>
+
+								<div class="flex justify-end mt-6">
+									<UButton variant="ghost" @click="exportAnimatedCardModalOpen = false">
+										Cancel
+									</UButton>
+								</div>
+							</div>
+						</template>
+					</UModal>
+					<UModal v-model:open="animatedCardExportingModalOpen" :prevent-close="true">
+						<template #content>
+							<div class="p-6">
+								<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Exporting Animation</h3>
+								<p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Please wait while your trainer card is being processed...</p>
+
+								<div class="space-y-4">
+									<UProgress :model-value="exportProgress" :max="100" color="primary" size="lg" />
+									<div class="text-center">
+										<p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+											{{ exportStatusText }}
+										</p>
+										<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+											{{ exportProgress }}% complete
+										</p>
+									</div>
+								</div>
+							</div>
+						</template>
+					</UModal>
 					<UButton label="Download Trainer Card" color="neutral" variant="subtle" @click="exportCard" />
 					<USeparator class="py-5" />
 					<div class="rounded-lg bg-card shadow-sm">
