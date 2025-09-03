@@ -238,6 +238,8 @@ async function updateCanvas() {
 
 function selectTemplate(index: number) {
 	if (selectedTemplateIndex.value !== index) {
+		card.cleanup();
+
 		selectedTemplateIndex.value = index;
 		card = new templates[index]!();
 		updateCanvas();
@@ -247,6 +249,8 @@ function selectTemplate(index: number) {
 }
 
 function selectTrainer(trainer: TrainerImage) {
+	card.cleanup();
+
 	selectedTrainer.value = trainer;
 	trainerSearchQuery.value = '';
 	updateCanvas();
@@ -255,6 +259,8 @@ function selectTrainer(trainer: TrainerImage) {
 
 function selectPokemon(pokemon: Pokemon, image: PokemonImage) {
 	if (selectedTeamIndex.value !== null) {
+		card.cleanup();
+
 		const oldPokemon = selectedTeam[selectedTeamIndex.value];
 		if (oldPokemon) {
 			oldPokemon.pokemon = pokemon;
