@@ -1,4 +1,5 @@
 import type TrainerImage from '@/types/trainer-image';
+import type { StaticTrainerImage, AnimatedTrainerImage } from '@/types/trainer-image';
 import type PokemonTeam from '@/types/pokemon-team';
 import type { PokemonInTeam } from '@/types/pokemon-team';
 import type { StaticPokemonImage, AnimatedPokemonImage } from '@/types/pokemon-image';
@@ -8,6 +9,8 @@ const { loadImage } = useImageCache();
 
 // TODO - Move this, I *HATE* that it's in this file. It doesn't belong here
 class SpriteAnimation {
+	public animationLength: number;
+
 	private frames: HTMLCanvasElement[] = [];
 	private frameDelays: number[];
 	private currentFrame: number = 0;
@@ -16,6 +19,7 @@ class SpriteAnimation {
 	private frameHeight: number;
 
 	constructor(spriteImage: HTMLImageElement, frameData: AnimationFrameData[]) {
+		this.animationLength = frameData.reduce((length, frame) => length + frame.delay, 0);
 		this.frameDelays = frameData.map(frame => frame.delay);
 		this.frameWidth = frameData[0]!.width;
 		this.frameHeight = frameData[0]!.height;
@@ -78,8 +82,7 @@ export default abstract class TrainerCard {
 
 	public canvas!: HTMLCanvasElement;
 	public ctx!: CanvasRenderingContext2D;
-	public animated = false;
-	public animationLength = 0;
+	public animations: Map<string, SpriteAnimation> = new Map();
 
 	protected backgroundURL!: string;
 	protected backgroundOriginalWidth!: number;
@@ -94,7 +97,6 @@ export default abstract class TrainerCard {
 	protected trainerNameScale!: number;
 
 	protected backgroundCanvas?: HTMLCanvasElement;
-	protected pokemonAnimations: Map<string, SpriteAnimation> = new Map();
 	protected animationFrameIDs: Set<number> = new Set();
 
 	protected rescaleCanvas(): void {
@@ -216,13 +218,13 @@ export default abstract class TrainerCard {
 		const image = pokemon.image as AnimatedPokemonImage;
 		const animationKey = `${image.url}_${x}_${y}`;
 
-		if (!this.pokemonAnimations.has(animationKey)) {
+		if (!this.animations.has(animationKey)) {
 			const spriteSheet = await loadImage(image.url);
 			const animation = new SpriteAnimation(spriteSheet, image.frame_data);
-			this.pokemonAnimations.set(animationKey, animation);
+			this.animations.set(animationKey, animation);
 		}
 
-		const animation = this.pokemonAnimations.get(animationKey)!;
+		const animation = this.animations.get(animationKey)!;
 		animation.update(performance.now());
 
 		const frameSize = animation.getFrameSize();
@@ -356,12 +358,11 @@ export default abstract class TrainerCard {
 		if ('dimensions' in pokemon.image) {
 			await this.drawStaticPokemon(pokemon, x, y, width, height);
 		} else {
-			this.animated = true;
 			await this.drawAnimatedPokemon(pokemon, x, y, width, height);
 		}
 	}
 
-	public async drawTrainerImage(trainer: TrainerImage): Promise<void> {
+	protected async drawStaticTrainerImage(trainer: StaticTrainerImage): Promise<void> {
 		const trainerImage = await loadImage(trainer.image_url);
 
 		const boundingBoxWidth = this.trainerImageBoundingBoxWidth;
@@ -401,10 +402,80 @@ export default abstract class TrainerCard {
 		);
 	}
 
+	protected async drawAnimatedTrainerImage(trainer: AnimatedTrainerImage): Promise<void> {
+		const boundingBoxWidth = this.trainerImageBoundingBoxWidth;
+		const boundingBoxHeight = this.trainerImageBoundingBoxHeight;
+		const rightOffset = this.trainerImageX;
+		const topOffset = this.trainerImageY;
+
+		const boundingBoxX = (this.backgroundOriginalWidth - rightOffset) * this.backgroundScale;
+		const boundingBoxY = (topOffset - boundingBoxHeight) * this.backgroundScale;
+
+		const animationKey = `trainer_${trainer.image_url}_${boundingBoxX}_${boundingBoxY}`;
+
+		if (!this.animations.has(animationKey)) {
+			const spriteSheet = await loadImage(trainer.image_url);
+			const animation = new SpriteAnimation(spriteSheet, trainer.frame_data);
+			this.animations.set(animationKey, animation);
+		}
+
+		const animation = this.animations.get(animationKey)!;
+		animation.update(performance.now());
+
+		const frameSize = animation.getFrameSize();
+		const currentFrame = animation.getCurrentFrame();
+
+		let scaledContentWidth = frameSize.width * this.trainerImageScale;
+		let scaledContentHeight = frameSize.height * this.trainerImageScale;
+
+		const maxWidth = boundingBoxWidth * this.backgroundScale;
+		const maxHeight = boundingBoxHeight * this.backgroundScale;
+
+		const scaleX = maxWidth / scaledContentWidth;
+		const scaleY = maxHeight / scaledContentHeight;
+		const fitScale = Math.min(1, scaleX, scaleY);
+
+		scaledContentWidth *= fitScale;
+		scaledContentHeight *= fitScale;
+
+		const x = boundingBoxX + (maxWidth - scaledContentWidth) / 2;
+		const y = boundingBoxY + (maxHeight - scaledContentHeight) / 2;
+
+		this.ctx.clearRect(x, y, scaledContentWidth, scaledContentHeight);
+		await this.redrawBackgroundArea(x, y, scaledContentWidth, scaledContentHeight);
+
+		this.ctx.drawImage(
+			currentFrame,
+			0,
+			0,
+			frameSize.width,
+			frameSize.height,
+			x,
+			y,
+			scaledContentWidth,
+			scaledContentHeight
+		);
+
+		// Schedule next frame
+		const frameID = requestAnimationFrame(() => {
+			this.drawAnimatedTrainerImage(trainer);
+		});
+
+		this.animationFrameIDs.add(frameID);
+	}
+
+	public async drawTrainerImage(trainer: TrainerImage): Promise<void> {
+		if ('dimensions' in trainer) {
+			await this.drawStaticTrainerImage(trainer);
+		} else {
+			await this.drawAnimatedTrainerImage(trainer);
+		}
+	}
+
 	public cleanup() {
 		this.animationFrameIDs.forEach(cancelAnimationFrame);
 		this.animationFrameIDs.clear();
-		this.pokemonAnimations.clear();
+		this.animations.clear();
 	}
 
 	public captureBackgroundState() {

@@ -1,5 +1,4 @@
 import TrainerCard from '@/trainer-card-templates/TrainerCard';
-import type TrainerImage from '@/types/trainer-image';
 import type PokemonTeam from '@/types/pokemon-team';
 import type FontCharacterImage from '@/types/font-character-image';
 
@@ -32,46 +31,6 @@ export default class DiamondPearlRed extends TrainerCard {
 
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.ctx.drawImage(backgroundImage, 0, 0, displayWidth, displayHeight);
-	}
-
-	override async drawTrainerImage(trainer: TrainerImage) {
-		const trainerImage = await loadImage(trainer.image_url);
-
-		const boundingBoxWidth = 72;
-		const boundingBoxHeight = 91;
-		const rightOffset = 84;
-		const topOffset = 116;
-
-		const boundingBoxX = (this.backgroundOriginalWidth - rightOffset) * this.backgroundScale;
-		const boundingBoxY = (topOffset - boundingBoxHeight) * this.backgroundScale;
-
-		let scaledContentWidth = trainer.dimensions!.content.width * this.trainerImageScale;
-		let scaledContentHeight = trainer.dimensions!.content.height * this.trainerImageScale;
-
-		const maxWidth = boundingBoxWidth * this.backgroundScale;
-		const maxHeight = boundingBoxHeight * this.backgroundScale;
-
-		const scaleX = maxWidth / scaledContentWidth;
-		const scaleY = maxHeight / scaledContentHeight;
-		const fitScale = Math.min(1, scaleX, scaleY);
-
-		scaledContentWidth *= fitScale;
-		scaledContentHeight *= fitScale;
-
-		const x = boundingBoxX + (maxWidth - scaledContentWidth) / 2;
-		const y = boundingBoxY + (maxHeight - scaledContentHeight) / 2;
-
-		this.ctx.drawImage(
-			trainerImage,
-			trainer.dimensions!.padding.left,
-			trainer.dimensions!.padding.top,
-			trainer.dimensions!.content.width,
-			trainer.dimensions!.content.height,
-			x,
-			y,
-			scaledContentWidth,
-			scaledContentHeight
-		);
 	}
 
 	override async drawTrainerName(name: string): Promise<void> {

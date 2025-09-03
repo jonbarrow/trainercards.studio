@@ -22,7 +22,23 @@ const selectedTrainer = ref<TrainerImage>({
 	platform_display_name: '',
 	creator: '',
 	image_url: '',
-	preview_url: ''
+	preview_url: '',
+	dimensions: {
+		content: {
+			width: 0,
+			height: 0
+		},
+		original: {
+			width: 0,
+			height: 0
+		},
+		padding: {
+			top: 0,
+			left: 0,
+			bottom: 0,
+			right: 0
+		}
+	}
 });
 const templateModalOpen = ref(false);
 const trainerModalOpen = ref(false);
@@ -201,8 +217,6 @@ async function updateCanvas() {
 		await card.drawTrainerName(trainerName.value);
 	}
 
-	card.animated = false;
-
 	if (socialIcon1.value.image_url) {
 		await card.drawIcon1(socialIcon1.value.image_url, socialText1.value);
 	}
@@ -217,22 +231,6 @@ async function updateCanvas() {
 
 	if (watermarkEnabled.value) {
 		await card.drawWatermark();
-	}
-
-	for (const i in selectedTeam) {
-		const pokemon = selectedTeam[i];
-		const image = pokemon!.image;
-
-		if ('frame_data' in image) {
-			let gifDuration = 0;
-			for (const frame of image.frame_data) {
-				gifDuration += frame.delay;
-			}
-
-			if (card.animationLength < gifDuration) {
-				card.animationLength = gifDuration;
-			}
-		}
 	}
 
 	await card.drawPokemonTeam(selectedTeam);
@@ -407,7 +405,7 @@ async function exportCard() {
 		return;
 	}
 
-	if (!card.animated) {
+	if (card.animations.size === 0) {
 		canvas.toBlob((blob) => {
 			if (!blob) return;
 
@@ -430,6 +428,13 @@ async function exportAnimatedCard(mimeType: string, extension: string) {
 	toggleAnimatedCardExportingModal();
 	toggleExportAnimatedCardModal();
 
+	let animationLength = 0;
+	for (const animation of card.animations.values()) {
+		if (animation.animationLength > animationLength) {
+			animationLength = animation.animationLength;
+		}
+	}
+
 	exportStatusText.value = 'Starting recording...';
 	exportProgress.value = 0;
 
@@ -448,11 +453,13 @@ async function exportAnimatedCard(mimeType: string, extension: string) {
 
 	const progressInterval = setInterval(() => {
 		const elapsed = Date.now() - startTime;
-		const progress = Math.min(90, (elapsed / card.animationLength) * 100);
+		const progress = Math.min(90, (elapsed / animationLength) * 100);
 		exportProgress.value = Math.round(progress);
 	}, 50);
 
-	mediaRecorder.start(card.animationLength);
+	console.log(animationLength);
+
+	mediaRecorder.start(animationLength);
 
 	mediaRecorder.addEventListener('dataavailable', (event) => {
 		recordedChunks.push(event.data);

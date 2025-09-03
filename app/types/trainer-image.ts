@@ -1,6 +1,7 @@
 import type ImageDimensions from '@/types/image-dimensions';
+import type AnimationFrameData from '@/types/animation-frame-data';
 
-interface TrainerImage {
+interface BaseTrainerImage {
 	style: 'pixel_art' | 'model_render';
 	name: string;
 	platform: string;
@@ -9,7 +10,16 @@ interface TrainerImage {
 	creator_url?: string;
 	image_url: string;
 	preview_url: string;
-	dimensions?: ImageDimensions;
 }
+
+export interface StaticTrainerImage extends BaseTrainerImage {
+	dimensions: ImageDimensions;
+}
+
+export interface AnimatedTrainerImage extends BaseTrainerImage {
+	frame_data: AnimationFrameData[];
+}
+
+type TrainerImage = StaticTrainerImage | AnimatedTrainerImage;
 
 export default TrainerImage;

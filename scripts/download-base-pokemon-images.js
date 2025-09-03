@@ -313,8 +313,6 @@ async function main() {
 						const info = gifInfo(Uint8Array.from(buffer).buffer);
 						const frameCount = info.images.length;
 
-						console.log(buffer, Uint8Array.from(buffer).buffer, info);
-
 						await fs.ensureDir(path.dirname(`${__dirname}/../public${localPath}`));
 						await execAsync(`ffmpeg -y -i ${image.path} -vf "tile=${frameCount}x1" -update 1 ${__dirname}/../public${localPath}`, {
 							stdio: ['pipe', 'pipe', 'pipe']
