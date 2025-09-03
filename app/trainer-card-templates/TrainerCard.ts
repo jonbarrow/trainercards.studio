@@ -83,6 +83,7 @@ export default abstract class TrainerCard {
 	public canvas!: HTMLCanvasElement;
 	public ctx!: CanvasRenderingContext2D;
 	public animations: Map<string, SpriteAnimation> = new Map();
+	public watermarkEnabled = true; // * Hack for modern templates
 
 	protected backgroundURL!: string;
 	protected backgroundOriginalWidth!: number;
@@ -456,8 +457,7 @@ export default abstract class TrainerCard {
 			scaledContentHeight
 		);
 
-		// Schedule next frame
-		const frameID = requestAnimationFrame(() => {
+		const frameID = requestAnimationFrame(async () => {
 			this.drawAnimatedTrainerImage(trainer);
 		});
 

@@ -233,6 +233,8 @@ async function updateCanvas() {
 		await card.drawWatermark();
 	}
 
+	card.watermarkEnabled = watermarkEnabled.value;
+
 	await card.drawPokemonTeam(selectedTeam);
 }
 
