@@ -23,6 +23,9 @@ const selectedTrainer = ref<TrainerImage>({
 	creator: '',
 	image_url: '',
 	preview_url: '',
+	offset_x: 0,
+	offset_y: 0,
+	scale: 1,
 	dimensions: {
 		content: {
 			width: 0,
@@ -253,10 +256,37 @@ function selectTemplate(index: number) {
 function selectTrainer(trainer: TrainerImage) {
 	card.cleanup();
 
-	selectedTrainer.value = trainer;
+	selectedTrainer.value = {
+		...trainer,
+		offset_x: trainer.offset_x ?? 0,
+		offset_y: trainer.offset_y ?? 0,
+		scale: trainer.scale ?? 1
+	};
+
 	trainerSearchQuery.value = '';
 	updateCanvas();
 	toggleTrainerModal();
+}
+
+function updateTrainerOffset(axis: 'x' | 'y', value: number) {
+	if (axis === 'x') {
+		selectedTrainer.value.offset_x = value;
+	} else {
+		selectedTrainer.value.offset_y = value;
+	}
+	updateCanvas();
+}
+
+function updateTrainerScale(value: number) {
+	selectedTrainer.value.scale = value;
+	updateCanvas();
+}
+
+function resetTrainerTransform() {
+	selectedTrainer.value.offset_x = 0;
+	selectedTrainer.value.offset_y = 0;
+	selectedTrainer.value.scale = 1;
+	updateCanvas();
 }
 
 function selectPokemon(pokemon: Pokemon, image: PokemonImage) {
@@ -663,6 +693,47 @@ onMounted(() => {
 										</div>
 									</template>
 								</UModal>
+							</div>
+						</div>
+						<div v-if="selectedTrainer.image_url" class="space-y-4">
+							<h3 class="text-sm font-medium">Position & Scale</h3>
+							<div class="flex flex-col space-y-3 md:hidden">
+								<div class="flex items-end space-x-2">
+									<div class="flex flex-col flex-1">
+										<label class="text-xs text-muted-foreground mb-1">X Offset</label>
+										<UInput type="number" :model-value="selectedTrainer.offset_x" size="xs" placeholder="0" @input="updateTrainerOffset('x', parseInt($event.target.value) || 0)" />
+									</div>
+									<div class="flex flex-col flex-1">
+										<label class="text-xs text-muted-foreground mb-1">Y Offset</label>
+										<UInput type="number" :model-value="selectedTrainer.offset_y" size="xs" placeholder="0" @input="updateTrainerOffset('y', parseInt($event.target.value) || 0)" />
+									</div>
+									<div class="flex flex-col flex-1">
+										<label class="text-xs text-muted-foreground mb-1">Scale</label>
+										<UInput type="number" :model-value="selectedTrainer.scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" @input="updateTrainerScale(parseFloat($event.target.value) || 1)" />
+									</div>
+									<div class="flex flex-col">
+										<label class="text-xs text-muted-foreground mb-1">&nbsp;</label>
+										<UButton color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" @click="resetTrainerTransform" title="Reset position & scale" />
+									</div>
+								</div>
+							</div>
+							<div class="hidden md:flex md:items-center md:space-x-4">
+								<div class="flex flex-col items-center">
+									<label class="text-xs text-muted-foreground mb-1">X Offset</label>
+									<UInput type="number" :model-value="selectedTrainer.offset_x" size="xs" placeholder="0" class="w-20 text-center" @input="updateTrainerOffset('x', parseInt($event.target.value) || 0)" />
+								</div>
+								<div class="flex flex-col items-center">
+									<label class="text-xs text-muted-foreground mb-1">Y Offset</label>
+									<UInput type="number" :model-value="selectedTrainer.offset_y" size="xs" placeholder="0" class="w-20 text-center" @input="updateTrainerOffset('y', parseInt($event.target.value) || 0)" />
+								</div>
+								<div class="flex flex-col items-center">
+									<label class="text-xs text-muted-foreground mb-1">Scale</label>
+									<UInput type="number" :model-value="selectedTrainer.scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" class="w-20 text-center" @input="updateTrainerScale(parseFloat($event.target.value) || 1)" />
+								</div>
+								<div class="flex flex-col items-center">
+									<label class="text-xs text-muted-foreground mb-1">Reset</label>
+									<UButton color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" @click="resetTrainerTransform" title="Reset position & scale" />
+								</div>
 							</div>
 						</div>
 

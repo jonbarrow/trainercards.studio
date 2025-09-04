@@ -377,21 +377,25 @@ export default abstract class TrainerCard {
 		const boundingBoxX = (this.backgroundOriginalWidth - rightOffset) * this.backgroundScale;
 		const boundingBoxY = (topOffset - boundingBoxHeight) * this.backgroundScale;
 
-		let scaledContentWidth = trainer.dimensions!.content.width * this.trainerImageScale;
-		let scaledContentHeight = trainer.dimensions!.content.height * this.trainerImageScale;
+		const baseScaledContentWidth = trainer.dimensions!.content.width * this.trainerImageScale;
+		const baseScaledContentHeight = trainer.dimensions!.content.height * this.trainerImageScale;
 
 		const maxWidth = boundingBoxWidth * this.backgroundScale;
 		const maxHeight = boundingBoxHeight * this.backgroundScale;
 
-		const scaleX = maxWidth / scaledContentWidth;
-		const scaleY = maxHeight / scaledContentHeight;
-		const fitScale = Math.min(1, scaleX, scaleY);
+		const baseScaleX = maxWidth / baseScaledContentWidth;
+		const baseScaleY = maxHeight / baseScaledContentHeight;
+		const baseFitScale = Math.min(1, baseScaleX, baseScaleY);
 
-		scaledContentWidth *= fitScale;
-		scaledContentHeight *= fitScale;
+		const userScale = trainer.scale;
+		const finalScale = baseFitScale * userScale;
+		const scaledContentWidth = baseScaledContentWidth * finalScale;
+		const scaledContentHeight = baseScaledContentHeight * finalScale;
 
-		const x = boundingBoxX + (maxWidth - scaledContentWidth) / 2;
-		const y = boundingBoxY + (maxHeight - scaledContentHeight) / 2;
+		const baseX = boundingBoxX + (maxWidth - scaledContentWidth) / 2;
+		const baseY = boundingBoxY + (maxHeight - scaledContentHeight) / 2;
+		const finalX = baseX + trainer.offset_x;
+		const finalY = baseY + trainer.offset_y;
 
 		this.ctx.drawImage(
 			trainerImage,
@@ -399,8 +403,8 @@ export default abstract class TrainerCard {
 			trainer.dimensions!.padding.top,
 			trainer.dimensions!.content.width,
 			trainer.dimensions!.content.height,
-			x,
-			y,
+			finalX,
+			finalY,
 			scaledContentWidth,
 			scaledContentHeight
 		);
@@ -415,7 +419,7 @@ export default abstract class TrainerCard {
 		const boundingBoxX = (this.backgroundOriginalWidth - rightOffset) * this.backgroundScale;
 		const boundingBoxY = (topOffset - boundingBoxHeight) * this.backgroundScale;
 
-		const animationKey = `trainer_${trainer.image_url}_${boundingBoxX}_${boundingBoxY}`;
+		const animationKey = `trainer_${trainer.image_url}_${boundingBoxX}_${boundingBoxY}_${trainer.offset_x}_${trainer.offset_y}_${trainer.scale}`; // TODO - Is this overkill?
 
 		if (!this.animations.has(animationKey)) {
 			const spriteSheet = await loadImage(trainer.image_url);
@@ -429,24 +433,28 @@ export default abstract class TrainerCard {
 		const frameSize = animation.getFrameSize();
 		const currentFrame = animation.getCurrentFrame();
 
-		let scaledContentWidth = frameSize.width * this.trainerImageScale;
-		let scaledContentHeight = frameSize.height * this.trainerImageScale;
+		const baseScaledContentWidth = frameSize.width * this.trainerImageScale;
+		const baseScaledContentHeight = frameSize.height * this.trainerImageScale;
 
 		const maxWidth = boundingBoxWidth * this.backgroundScale;
 		const maxHeight = boundingBoxHeight * this.backgroundScale;
 
-		const scaleX = maxWidth / scaledContentWidth;
-		const scaleY = maxHeight / scaledContentHeight;
-		const fitScale = Math.min(1, scaleX, scaleY);
+		const baseScaleX = maxWidth / baseScaledContentWidth;
+		const baseScaleY = maxHeight / baseScaledContentHeight;
+		const baseFitScale = Math.min(1, baseScaleX, baseScaleY);
 
-		scaledContentWidth *= fitScale;
-		scaledContentHeight *= fitScale;
+		const userScale = trainer.scale;
+		const finalScale = baseFitScale * userScale;
+		const scaledContentWidth = baseScaledContentWidth * finalScale;
+		const scaledContentHeight = baseScaledContentHeight * finalScale;
 
-		const x = boundingBoxX + (maxWidth - scaledContentWidth) / 2;
-		const y = boundingBoxY + (maxHeight - scaledContentHeight) / 2;
+		const baseX = boundingBoxX + (maxWidth - scaledContentWidth) / 2;
+		const baseY = boundingBoxY + (maxHeight - scaledContentHeight) / 2;
+		const finalX = baseX + trainer.offset_x;
+		const finalY = baseY + trainer.offset_y;
 
-		this.ctx.clearRect(x, y, scaledContentWidth, scaledContentHeight);
-		await this.redrawBackgroundArea(x, y, scaledContentWidth, scaledContentHeight);
+		this.ctx.clearRect(finalX, finalY, scaledContentWidth, scaledContentHeight);
+		await this.redrawBackgroundArea(finalX, finalY, scaledContentWidth, scaledContentHeight);
 
 		this.ctx.drawImage(
 			currentFrame,
@@ -454,8 +462,8 @@ export default abstract class TrainerCard {
 			0,
 			frameSize.width,
 			frameSize.height,
-			x,
-			y,
+			finalX,
+			finalY,
 			scaledContentWidth,
 			scaledContentHeight
 		);

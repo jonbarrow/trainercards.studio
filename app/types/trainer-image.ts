@@ -10,6 +10,9 @@ interface BaseTrainerImage {
 	creator_url?: string;
 	image_url: string;
 	preview_url: string;
+	offset_x: number;
+	offset_y: number;
+	scale: number;
 }
 
 export interface StaticTrainerImage extends BaseTrainerImage {
