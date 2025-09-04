@@ -126,15 +126,18 @@ export default abstract class TrainerCard {
 		const contentWidth = pokemonImage.width - padding.left - padding.right;
 		const contentHeight = pokemonImage.height - padding.top - padding.bottom;
 
-		const scaleX = width / contentWidth;
-		const scaleY = height / contentHeight;
+		const userScale = pokemon.scale;
+		const scaleX = (width / contentWidth) * userScale;
+		const scaleY = (height / contentHeight) * userScale;
 		const scale = Math.min(scaleX, scaleY);
 
 		const drawWidth = contentWidth * scale;
 		const drawHeight = contentHeight * scale;
 
-		const offsetX = (width - drawWidth) / 2;
-		const offsetY = (height - drawHeight) / 2;
+		const baseOffsetX = (width - drawWidth) / 2;
+		const baseOffsetY = (height - drawHeight) / 2;
+		const finalX = x + baseOffsetX + pokemon.offset_x;
+		const finalY = y + baseOffsetY + pokemon.offset_y;
 
 		this.ctx.drawImage(
 			pokemonImage,
@@ -142,8 +145,8 @@ export default abstract class TrainerCard {
 			padding.top,
 			contentWidth,
 			contentHeight,
-			x + offsetX,
-			y + offsetY,
+			finalX,
+			finalY,
 			drawWidth,
 			drawHeight
 		);
@@ -162,8 +165,8 @@ export default abstract class TrainerCard {
 			const pokeballDrawWidth = pokeballContentWidth * pokeballScale;
 			const pokeballDrawHeight = pokeballContentHeight * pokeballScale;
 
-			const pokeballX = x + offsetX + drawWidth - pokeballDrawWidth;
-			const pokeballY = y + offsetY + drawHeight - pokeballDrawHeight;
+			const pokeballX = finalX + drawWidth - pokeballDrawWidth;
+			const pokeballY = finalY + drawHeight - pokeballDrawHeight;
 
 			this.ctx.drawImage(
 				pokeballImage,
@@ -192,8 +195,8 @@ export default abstract class TrainerCard {
 			const heldItemDrawWidth = heldItemContentWidth * heldItemScale;
 			const heldItemDrawHeight = heldItemContentHeight * heldItemScale;
 
-			const heldItemX = x + offsetX;
-			const heldItemY = y + offsetY + drawHeight - heldItemDrawHeight;
+			const heldItemX = finalX;
+			const heldItemY = finalY + drawHeight - heldItemDrawHeight;
 
 			this.ctx.drawImage(
 				heldItemImage,
@@ -217,7 +220,7 @@ export default abstract class TrainerCard {
 		// * That means we get to animate things by hand using sprite sheets
 		// TODO - Can this be made better? I feel like this sucks ass, first attempt at something like this
 		const image = pokemon.image as AnimatedPokemonImage;
-		const animationKey = `${image.url}_${x}_${y}`;
+		const animationKey = `${image.url}_${x}_${y}_${pokemon.offset_x}_${pokemon.offset_y}_${pokemon.scale}`; // TODO - This will break if the same Pokemon is set to the EXACT same values
 
 		if (!this.animations.has(animationKey)) {
 			const spriteSheet = await loadImage(image.url);
@@ -236,18 +239,18 @@ export default abstract class TrainerCard {
 		// * little to account for this and make them look ~the same size
 		const scaleMultiplier = 1.1;
 
-		const scaleX = (width / frameSize.width) * scaleMultiplier;
-		const scaleY = (height / frameSize.height) * scaleMultiplier;
+		const userScale = pokemon.scale;
+		const scaleX = (width / frameSize.width) * scaleMultiplier * userScale;
+		const scaleY = (height / frameSize.height) * scaleMultiplier * userScale;
 		const scale = Math.min(scaleX, scaleY);
 
 		const drawWidth = frameSize.width * scale;
 		const drawHeight = frameSize.height * scale;
 
-		const offsetX = (width - drawWidth) / 2;
-		const offsetY = (height - drawHeight) / 2;
-
-		const clearX = x + offsetX;
-		const clearY = y + offsetY;
+		const baseOffsetX = (width - drawWidth) / 2;
+		const baseOffsetY = (height - drawHeight) / 2;
+		const finalX = x + baseOffsetX + pokemon.offset_x;
+		const finalY = y + baseOffsetY + pokemon.offset_y;
 
 		// * Sort of a hack. Need to clear the previous animation from
 		// * the canvas before drawing the new one to prevent ghosting.
@@ -259,8 +262,8 @@ export default abstract class TrainerCard {
 		// * the result of the drawn background using this.captureBackgroundState()
 		// * and then sample a portion of it. I'm unsure how good this is
 		// * for performance, but it works so /shrug
-		this.ctx.clearRect(clearX, clearY, drawWidth, drawHeight);
-		await this.redrawBackgroundArea(clearX, clearY, drawWidth, drawHeight);
+		this.ctx.clearRect(finalX, finalY, drawWidth, drawHeight);
+		await this.redrawBackgroundArea(finalX, finalY, drawWidth, drawHeight);
 
 		this.ctx.drawImage(
 			currentFrame,
@@ -268,8 +271,8 @@ export default abstract class TrainerCard {
 			0,
 			frameSize.width,
 			frameSize.height,
-			clearX,
-			clearY,
+			finalX,
+			finalY,
 			drawWidth,
 			drawHeight
 		);
@@ -288,8 +291,8 @@ export default abstract class TrainerCard {
 			const pokeballDrawWidth = pokeballContentWidth * pokeballScale;
 			const pokeballDrawHeight = pokeballContentHeight * pokeballScale;
 
-			const pokeballX = x + offsetX + drawWidth - pokeballDrawWidth;
-			const pokeballY = y + offsetY + drawHeight - pokeballDrawHeight;
+			const pokeballX = finalX + drawWidth - pokeballDrawWidth;
+			const pokeballY = finalY + drawHeight - pokeballDrawHeight;
 
 			this.ctx.drawImage(
 				pokeballImage,
@@ -318,8 +321,8 @@ export default abstract class TrainerCard {
 			const heldItemDrawWidth = heldItemContentWidth * heldItemScale;
 			const heldItemDrawHeight = heldItemContentHeight * heldItemScale;
 
-			const heldItemX = x + offsetX;
-			const heldItemY = y + offsetY + drawHeight - heldItemDrawHeight;
+			const heldItemX = finalX;
+			const heldItemY = finalY + drawHeight - heldItemDrawHeight;
 
 			this.ctx.drawImage(
 				heldItemImage,

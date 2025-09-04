@@ -272,13 +272,43 @@ function selectPokemon(pokemon: Pokemon, image: PokemonImage) {
 				pokemon,
 				image,
 				nickname: pokemon.display_name,
-				gender: ''
+				gender: '',
+				offset_x: 0,
+				offset_y: 0,
+				scale: 1
 			};
 		}
 
 		pokemonSearchQuery.value = '';
 		pokemonModalOpen.value = false;
 
+		updateCanvas();
+	}
+}
+
+function updatePokemonOffset(slot: number, axis: 'x' | 'y', value: number) {
+	if (selectedTeam[slot]) {
+		if (axis === 'x') {
+			selectedTeam[slot].offset_x = value;
+		} else {
+			selectedTeam[slot].offset_y = value;
+		}
+		updateCanvas();
+	}
+}
+
+function updatePokemonScale(slot: number, value: number) {
+	if (selectedTeam[slot]) {
+		selectedTeam[slot].scale = value;
+		updateCanvas();
+	}
+}
+
+function resetPokemonTransform(slot: number) {
+	if (selectedTeam[slot]) {
+		selectedTeam[slot].offset_x = 0;
+		selectedTeam[slot].offset_y = 0;
+		selectedTeam[slot].scale = 1;
 		updateCanvas();
 	}
 }
@@ -695,14 +725,31 @@ onMounted(() => {
 												</UDropdownMenu>
 											</div>
 										</div>
+										<div class="flex items-end space-x-2" @click.stop>
+											<div class="flex flex-col flex-1">
+												<label class="text-xs text-muted-foreground mb-1">X Offset</label>
+												<UInput type="number" :model-value="selectedTeam[item].offset_x || 0" size="xs" placeholder="0" @input="updatePokemonOffset(item, 'x', parseInt($event.target.value) || 0)" />
+											</div>
+											<div class="flex flex-col flex-1">
+												<label class="text-xs text-muted-foreground mb-1">Y Offset</label>
+												<UInput type="number" :model-value="selectedTeam[item].offset_y || 0" size="xs" placeholder="0" @input="updatePokemonOffset(item, 'y', parseInt($event.target.value) || 0)" />
+											</div>
+											<div class="flex flex-col flex-1">
+												<label class="text-xs text-muted-foreground mb-1">Scale</label>
+												<UInput type="number" :model-value="selectedTeam[item].scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" @input="updatePokemonScale(item, parseFloat($event.target.value) || 1)" />
+											</div>
+											<div class="flex flex-col">
+												<label class="text-xs text-muted-foreground mb-1">&nbsp;</label>
+												<UButton title="Reset position" color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" @click="resetPokemonTransform(item)" />
+											</div>
+										</div>
 
 										<div @click.stop>
 											<label class="text-xs text-muted-foreground mb-1 block">Nickname</label>
 											<input type="text" class="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background" :value="selectedTeam[item].nickname ?? selectedTeam[item].pokemon.display_name" :placeholder="selectedTeam[item].pokemon.display_name" @input="updatePokemonNickname(item, ($event.target as HTMLInputElement).value)">
 										</div>
 									</div>
-
-									<div class="hidden md:flex md:items-center md:justify-between md:w-full">
+									<div class="hidden md:flex md:items-start md:justify-between md:w-full md:space-x-4">
 										<div class="flex items-center space-x-4">
 											<div class="flex-shrink-0">
 												<img :src="selectedTeam[item].image.preview_url" :alt="selectedTeam[item].pokemon.display_name" :class="['w-12', 'h-12', 'object-contain', { pixelated: selectedTeam[item].image.style === 'pixel_art' }]">
@@ -712,54 +759,74 @@ onMounted(() => {
 												<span class="text-xs text-muted-foreground">Slot {{ item }}</span>
 											</div>
 										</div>
+										<div class="flex flex-col space-y-2" @click.stop>
+											<div class="flex items-center space-x-4">
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">Gender</label>
+													<UDropdownMenu :items="genderOptions(item)" size="xs">
+														<UButton color="neutral" variant="outline" size="xs">
+															<div class="flex items-center gap-1">
+																<span v-if="selectedTeam[item].gender === 'male'" class="text-blue-500">♂</span>
+																<span v-else-if="selectedTeam[item].gender === 'female'" class="text-pink-500">♀</span>
+																<span v-else class="text-muted-foreground">-</span>
+																<UIcon name="i-lucide-chevron-down" class="w-3 h-3" />
+															</div>
+														</UButton>
+													</UDropdownMenu>
+												</div>
 
-										<div class="flex items-center space-x-4" @click.stop>
-											<div class="flex flex-col items-center">
-												<label class="text-xs text-muted-foreground mb-1">Gender</label>
-												<UDropdownMenu :items="genderOptions(item)" size="xs">
-													<UButton color="neutral" variant="outline" size="xs">
-														<div class="flex items-center gap-1">
-															<span v-if="selectedTeam[item].gender === 'male'" class="text-blue-500">♂</span>
-															<span v-else-if="selectedTeam[item].gender === 'female'" class="text-pink-500">♀</span>
-															<span v-else class="text-muted-foreground">-</span>
-															<UIcon name="i-lucide-chevron-down" class="w-3 h-3" />
-														</div>
-													</UButton>
-												</UDropdownMenu>
-											</div>
-
-											<div class="flex flex-col items-center">
-												<label class="text-xs text-muted-foreground mb-1">Held Item</label>
-												<UButton color="neutral" variant="outline" size="xs" @click="toggleHeldItemModal(item)">
-													<div class="flex items-center gap-2">
-														<div class="w-4 h-4 flex items-center justify-center flex-shrink-0">
-															<img v-if="selectedTeam[item].held_item" :src="selectedTeam[item].held_item.image.preview_url" class="w-4 h-4 object-contain block pixelated" alt="Selected item">
-															<UIcon v-else name="i-lucide-minus" class="w-4 h-4 text-gray-400 block" />
-														</div>
-														<span class="text-xs max-w-16 truncate">{{ selectedTeam[item].held_item?.display_name || 'None' }}</span>
-													</div>
-												</UButton>
-											</div>
-
-											<div class="flex flex-col items-center">
-												<label class="text-xs text-muted-foreground mb-1">Pokeball</label>
-												<UDropdownMenu :items="pokeballOptions(item)" size="xs">
-													<UButton color="neutral" variant="outline" size="xs">
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">Held Item</label>
+													<UButton color="neutral" variant="outline" size="xs" @click="toggleHeldItemModal(item)">
 														<div class="flex items-center gap-2">
 															<div class="w-4 h-4 flex items-center justify-center flex-shrink-0">
-																<img v-if="selectedTeam[item].pokeball" :src="selectedTeam[item].pokeball.image.preview_url" class="w-4 h-4 object-contain block pixelated" alt="Selected pokeball">
+																<img v-if="selectedTeam[item].held_item" :src="selectedTeam[item].held_item.image.preview_url" class="w-4 h-4 object-contain block pixelated" alt="Selected item">
 																<UIcon v-else name="i-lucide-minus" class="w-4 h-4 text-gray-400 block" />
 															</div>
-															<UIcon name="i-lucide-chevron-down" class="w-3 h-3 flex-shrink-0" />
+															<span class="text-xs max-w-16 truncate">{{ selectedTeam[item].held_item?.display_name || 'None' }}</span>
 														</div>
 													</UButton>
-												</UDropdownMenu>
+												</div>
+
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">Pokeball</label>
+													<UDropdownMenu :items="pokeballOptions(item)" size="xs">
+														<UButton color="neutral" variant="outline" size="xs">
+															<div class="flex items-center gap-2">
+																<div class="w-4 h-4 flex items-center justify-center flex-shrink-0">
+																	<img v-if="selectedTeam[item].pokeball" :src="selectedTeam[item].pokeball.image.preview_url" class="w-4 h-4 object-contain block pixelated" alt="Selected pokeball">
+																	<UIcon v-else name="i-lucide-minus" class="w-4 h-4 text-gray-400 block" />
+																</div>
+																<UIcon name="i-lucide-chevron-down" class="w-3 h-3 flex-shrink-0" />
+															</div>
+														</UButton>
+													</UDropdownMenu>
+												</div>
+
+												<div class="flex flex-col">
+													<label class="text-xs text-muted-foreground mb-1">Nickname</label>
+													<div class="w-32">
+														<input type="text" class="w-full px-2 py-1 text-xs border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-center bg-background" :value="selectedTeam[item].nickname ?? selectedTeam[item].pokemon.display_name" :placeholder="selectedTeam[item].pokemon.display_name" @input="updatePokemonNickname(item, ($event.target as HTMLInputElement).value)">
+													</div>
+												</div>
 											</div>
 
-											<div class="flex flex-col">
-												<label class="text-xs text-muted-foreground mb-1">Nickname</label>
-												<div class="w-32">
-													<input type="text" class="w-full px-2 py-1 text-xs border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-center bg-background" :value="selectedTeam[item].nickname ?? selectedTeam[item].pokemon.display_name" :placeholder="selectedTeam[item].pokemon.display_name" @input="updatePokemonNickname(item, ($event.target as HTMLInputElement).value)">
+											<div class="flex items-center space-x-2">
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">X Offset</label>
+													<UInput type="number" :model-value="selectedTeam[item].offset_x || 0" size="xs" placeholder="0" class="w-16 text-center" @input="updatePokemonOffset(item, 'x', parseInt($event.target.value) || 0)" />
+												</div>
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">Y Offset</label>
+													<UInput type="number" :model-value="selectedTeam[item].offset_y || 0" size="xs" placeholder="0" class="w-16 text-center" @input="updatePokemonOffset(item, 'y', parseInt($event.target.value) || 0)" />
+												</div>
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">Scale</label>
+													<UInput type="number" :model-value="selectedTeam[item].scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" class="w-16 text-center" @input="updatePokemonScale(item, parseFloat($event.target.value) || 1)" />
+												</div>
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">Reset</label>
+													<UButton title="Reset position & scale" color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" @click="resetPokemonTransform(item)" />
 												</div>
 											</div>
 										</div>

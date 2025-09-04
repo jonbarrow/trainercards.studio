@@ -9,6 +9,9 @@ export interface PokemonInTeam {
 	pokeball?: ItemData;
 	held_item?: ItemData;
 	image: PokemonImage;
+	offset_x: number;
+	offset_y: number;
+	scale: number;
 }
 
 interface PokemonTeam {
