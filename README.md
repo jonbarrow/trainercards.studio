@@ -8,9 +8,11 @@ Custom Pokémon trainer card creator
 - 2,241 trainer images
 - 13 card templates in both classic and "modern" (pokecharms) styles
 - Animated trainer cards in various video formats
+- Customize the scale and positions of Pokémon and your trainer
 - Each image can be in any style and on any card, allowing you to mix and match any combination
 - Support for showing what Pokéball each Pokémon is in
 - Support for giving each Pokémon a held item
+- Badges for all games generations 1-5
 
 ## Configuration
 
