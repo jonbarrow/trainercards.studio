@@ -1,12 +1,16 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
 import axios from 'axios';
 import fs from 'fs-extra';
 import sharp from 'sharp';
+import gifInfo from 'gif-info';
 import getImageDimensions from './get-image-dimensions.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const execAsync = promisify(exec);
 
 function buildPokemonImages(pokemon, form) {
 	// * PokeAPI only exposes all image URLs for the default forms of Pokemon. Alternate forms
@@ -87,6 +91,11 @@ function buildPokemonImages(pokemon, form) {
 		{ style: 'pixel_art', platform: 'black_white', platform_display_name: 'Black / White', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-v/black-white/shiny/${fileName}.png` },
 		{ style: 'pixel_art', platform: 'black_white', platform_display_name: 'Black / White', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-v/black-white/shiny/female/${fileName}.png` },
 
+		{ style: 'pixel_art', platform: 'black_white', platform_display_name: 'Black / White', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions//generation-v/black-white/animated/${fileName}.gif` },
+		{ style: 'pixel_art', platform: 'black_white', platform_display_name: 'Black / White', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions//generation-v/black-white/animated/female/${fileName}.gif` },
+		{ style: 'pixel_art', platform: 'black_white', platform_display_name: 'Black / White', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions//generation-v/black-white/animated/shiny/${fileName}.gif` },
+		{ style: 'pixel_art', platform: 'black_white', platform_display_name: 'Black / White', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions//generation-v/black-white/animated/shiny/female/${fileName}.gif` },
+
 		{ style: 'model_render', platform: 'x_y', platform_display_name: 'X / Y', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vi/x-y/${fileName}.png` },
 		{ style: 'model_render', platform: 'x_y', platform_display_name: 'X / Y', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vi/x-y/female/${fileName}.png` },
 		{ style: 'model_render', platform: 'x_y', platform_display_name: 'X / Y', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vi/x-y/shiny/${fileName}.png` },
@@ -100,7 +109,12 @@ function buildPokemonImages(pokemon, form) {
 		{ style: 'model_render', platform: 'ultra_sun_ultra_moon', platform_display_name: 'Ultra Sun / Ultra Moon', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/${fileName}.png` },
 		{ style: 'model_render', platform: 'ultra_sun_ultra_moon', platform_display_name: 'Ultra Sun / Ultra Moon', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/female/${fileName}.png` },
 		{ style: 'model_render', platform: 'ultra_sun_ultra_moon', platform_display_name: 'Ultra Sun / Ultra Moon', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/shiny/${fileName}.png` },
-		{ style: 'model_render', platform: 'ultra_sun_ultra_moon', platform_display_name: 'Ultra Sun / Ultra Moon', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/shiny/female/${fileName}.png` }
+		{ style: 'model_render', platform: 'ultra_sun_ultra_moon', platform_display_name: 'Ultra Sun / Ultra Moon', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/shiny/female/${fileName}.png` },
+
+		{ style: 'model_render', platform: 'showdown', platform_display_name: 'Pokémon Showdown', gender: 'male', gender_display_name: 'Male', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/showdown/${fileName}.gif` },
+		{ style: 'model_render', platform: 'showdown', platform_display_name: 'Pokémon Showdown', gender: 'female', gender_display_name: 'Female', shiny: false, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/showdown/female/${fileName}.gif` },
+		{ style: 'model_render', platform: 'showdown', platform_display_name: 'Pokémon Showdown', gender: 'male', gender_display_name: 'Male', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/showdown/shiny/${fileName}.gif` },
+		{ style: 'model_render', platform: 'showdown', platform_display_name: 'Pokémon Showdown', gender: 'female', gender_display_name: 'Female', shiny: true, path: `${__dirname}/../vendor/pokeapi-sprites/sprites/pokemon/other/showdown/shiny/female/${fileName}.gif` }
 	];
 }
 
@@ -209,18 +223,19 @@ async function downloadImage(url, output) {
 
 async function main() {
 	const dreamWorldArt = await getAllDreamWorldArt();
-
 	const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0');
 	const pokemonData = [];
 
 	for (const { url } of response.data.results) {
 		try {
-			const { data: pokemon } = await axios.get(url);
-			const { data: species } = await axios.get(pokemon.species.url);
+			// * PokeAPI has issues with trailing slashes sometimes.
+			// * See https://github.com/PokeAPI/pokeapi/issues/1286
+			const { data: pokemon } = await axios.get(url.replace(/\/+$/, ''));
+			const { data: species } = await axios.get(pokemon.species.url.replace(/\/+$/, ''));
 			const speciesTranslation = species.names.find(translation => translation.language.name === 'en');
 
 			for (const formData of pokemon.forms) {
-				const formURL = formData.url;
+				const formURL = formData.url.replace(/\/+$/, '');
 				const { data: form } = await axios.get(formURL);
 				let displayName = speciesTranslation.name;
 
@@ -270,23 +285,57 @@ async function main() {
 						localPath = `${localPath}_gray`;
 					}
 
-					const localPreviewPath = `${localPath}_preview.${extension}`;
-					localPath = `${localPath}.${extension}`;
+					image.creator = 'GameFreak'; // TODO - Are showdown sprites made by GameFreak?
 
-					await fs.ensureDir(path.dirname(`${__dirname}/../public${localPath}`));
-					await fs.copyFile(image.path, `${__dirname}/../public${localPath}`);
+					if (extension !== 'gif') {
+						const localPreviewPath = `${localPath}_preview.${extension}`;
+						localPath = `${localPath}.${extension}`;
 
-					image.creator = 'GameFreak';
-					image.url = localPath;
-					image.preview_url = localPreviewPath;
-					image.dimensions = await getImageDimensions(`${__dirname}/../public${localPath}`);
+						await fs.ensureDir(path.dirname(`${__dirname}/../public${localPath}`));
+						await fs.copyFile(image.path, `${__dirname}/../public${localPath}`);
 
-					await sharp(`${__dirname}/../public${localPath}`).extract({
-						left: image.dimensions.padding.left,
-						top: image.dimensions.padding.top,
-						width: image.dimensions.content.width,
-						height: image.dimensions.content.height
-					}).png().toFile(`${__dirname}/../public${localPreviewPath}`);
+						image.url = localPath;
+						image.preview_url = localPreviewPath;
+						image.dimensions = await getImageDimensions(`${__dirname}/../public${localPath}`);
+
+						await sharp(`${__dirname}/../public${localPath}`).extract({
+							left: image.dimensions.padding.left,
+							top: image.dimensions.padding.top,
+							width: image.dimensions.content.width,
+							height: image.dimensions.content.height
+						}).png().toFile(`${__dirname}/../public${localPreviewPath}`);
+					} else {
+						// * GIFs are special
+						const localPreviewPath = `${localPath}_animated_preview.${extension}`;
+						localPath = `${localPath}_animated_sheet.png`;
+
+						const buffer = fs.readFileSync(image.path);
+						const info = gifInfo(Uint8Array.from(buffer).buffer);
+						const frameCount = info.images.length;
+
+						await fs.ensureDir(path.dirname(`${__dirname}/../public${localPath}`));
+						await execAsync(`ffmpeg -y -i ${image.path} -vf "tile=${frameCount}x1" -update 1 ${__dirname}/../public${localPath}`, {
+							stdio: ['pipe', 'pipe', 'pipe']
+						});
+
+						await fs.copyFile(image.path, `${__dirname}/../public${localPreviewPath}`);
+
+						image.url = localPath;
+						image.preview_url = localPreviewPath;
+						image.frame_data = info.images.map(i => ({
+							identifier: i.identifier,
+							local_palette: i.localPalette,
+							local_palette_size: i.localPaletteSize,
+							interlace: i.interlace,
+							text: i.text,
+							left: i.left,
+							top: i.top,
+							width: i.width,
+							height: i.height,
+							delay: i.delay,
+							disposal: i.disposal
+						}));
+					}
 
 					delete image.path;
 					delete image.gray;

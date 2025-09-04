@@ -22,7 +22,26 @@ const selectedTrainer = ref<TrainerImage>({
 	platform_display_name: '',
 	creator: '',
 	image_url: '',
-	preview_url: ''
+	preview_url: '',
+	offset_x: 0,
+	offset_y: 0,
+	scale: 1,
+	dimensions: {
+		content: {
+			width: 0,
+			height: 0
+		},
+		original: {
+			width: 0,
+			height: 0
+		},
+		padding: {
+			top: 0,
+			left: 0,
+			bottom: 0,
+			right: 0
+		}
+	}
 });
 const templateModalOpen = ref(false);
 const trainerModalOpen = ref(false);
@@ -30,6 +49,10 @@ const isTrainersLoading = ref(false);
 const pokemonModalOpen = ref(false);
 const heldItemModalOpen = ref(false);
 const isHeldItemsLoading = ref(false);
+const exportAnimatedCardModalOpen = ref(false);
+const animatedCardExportingModalOpen = ref(false);
+const exportStatusText = ref('Starting recording...');
+const exportProgress = ref(0);
 const selectedTeamIndex = ref<number | null>(null);
 const pokemonSearchQuery = ref('');
 const debouncedPokemonSearchQuery = useDebounce(pokemonSearchQuery);
@@ -187,6 +210,8 @@ async function updateCanvas() {
 
 	await card.drawBackground();
 
+	card.captureBackgroundState();
+
 	if (selectedTrainer.value.image_url) {
 		await card.drawTrainerImage(selectedTrainer.value);
 	}
@@ -194,8 +219,6 @@ async function updateCanvas() {
 	if (trainerName.value) {
 		await card.drawTrainerName(trainerName.value);
 	}
-
-	await card.drawPokemonTeam(selectedTeam);
 
 	if (socialIcon1.value.image_url) {
 		await card.drawIcon1(socialIcon1.value.image_url, socialText1.value);
@@ -212,10 +235,16 @@ async function updateCanvas() {
 	if (watermarkEnabled.value) {
 		await card.drawWatermark();
 	}
+
+	card.watermarkEnabled = watermarkEnabled.value;
+
+	await card.drawPokemonTeam(selectedTeam);
 }
 
 function selectTemplate(index: number) {
 	if (selectedTemplateIndex.value !== index) {
+		card.cleanup();
+
 		selectedTemplateIndex.value = index;
 		card = new templates[index]!();
 		updateCanvas();
@@ -225,14 +254,45 @@ function selectTemplate(index: number) {
 }
 
 function selectTrainer(trainer: TrainerImage) {
-	selectedTrainer.value = trainer;
+	card.cleanup();
+
+	selectedTrainer.value = {
+		...trainer,
+		offset_x: trainer.offset_x ?? 0,
+		offset_y: trainer.offset_y ?? 0,
+		scale: trainer.scale ?? 1
+	};
+
 	trainerSearchQuery.value = '';
 	updateCanvas();
 	toggleTrainerModal();
 }
 
+function updateTrainerOffset(axis: 'x' | 'y', value: number) {
+	if (axis === 'x') {
+		selectedTrainer.value.offset_x = value;
+	} else {
+		selectedTrainer.value.offset_y = value;
+	}
+	updateCanvas();
+}
+
+function updateTrainerScale(value: number) {
+	selectedTrainer.value.scale = value;
+	updateCanvas();
+}
+
+function resetTrainerTransform() {
+	selectedTrainer.value.offset_x = 0;
+	selectedTrainer.value.offset_y = 0;
+	selectedTrainer.value.scale = 1;
+	updateCanvas();
+}
+
 function selectPokemon(pokemon: Pokemon, image: PokemonImage) {
 	if (selectedTeamIndex.value !== null) {
+		card.cleanup();
+
 		const oldPokemon = selectedTeam[selectedTeamIndex.value];
 		if (oldPokemon) {
 			oldPokemon.pokemon = pokemon;
@@ -242,13 +302,43 @@ function selectPokemon(pokemon: Pokemon, image: PokemonImage) {
 				pokemon,
 				image,
 				nickname: pokemon.display_name,
-				gender: ''
+				gender: '',
+				offset_x: 0,
+				offset_y: 0,
+				scale: 1
 			};
 		}
 
 		pokemonSearchQuery.value = '';
 		pokemonModalOpen.value = false;
 
+		updateCanvas();
+	}
+}
+
+function updatePokemonOffset(slot: number, axis: 'x' | 'y', value: number) {
+	if (selectedTeam[slot]) {
+		if (axis === 'x') {
+			selectedTeam[slot].offset_x = value;
+		} else {
+			selectedTeam[slot].offset_y = value;
+		}
+		updateCanvas();
+	}
+}
+
+function updatePokemonScale(slot: number, value: number) {
+	if (selectedTeam[slot]) {
+		selectedTeam[slot].scale = value;
+		updateCanvas();
+	}
+}
+
+function resetPokemonTransform(slot: number) {
+	if (selectedTeam[slot]) {
+		selectedTeam[slot].offset_x = 0;
+		selectedTeam[slot].offset_y = 0;
+		selectedTeam[slot].scale = 1;
 		updateCanvas();
 	}
 }
@@ -291,6 +381,14 @@ function toggleTrainerModal() {
 			}, 100);
 		});
 	}
+}
+
+function toggleExportAnimatedCardModal() {
+	exportAnimatedCardModalOpen.value = !exportAnimatedCardModalOpen.value;
+}
+
+function toggleAnimatedCardExportingModal() {
+	animatedCardExportingModalOpen.value = !animatedCardExportingModalOpen.value;
 }
 
 function toggleBadge(url: string) {
@@ -369,31 +467,103 @@ function updatePokemonPokeball(slot: number, pokeball?: ItemData) {
 	}
 }
 
-function exportCard() {
+async function exportCard() {
 	const canvas = trainerCardCanvas.value;
 	if (!canvas) {
 		return;
 	}
 
-	canvas.toBlob((blob) => {
-		if (!blob) {
-			return;
+	if (card.animations.size === 0) {
+		canvas.toBlob((blob) => {
+			if (!blob) return;
+
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = 'trainer-card.png';
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			URL.revokeObjectURL(url);
+		}, 'image/png');
+		return;
+	}
+
+	toggleExportAnimatedCardModal();
+}
+
+async function exportAnimatedCard(mimeType: string, extension: string) {
+	toggleAnimatedCardExportingModal();
+	toggleExportAnimatedCardModal();
+
+	let animationLength = 0;
+	for (const animation of card.animations.values()) {
+		if (animation.animationLength > animationLength) {
+			animationLength = animation.animationLength;
 		}
+	}
+
+	exportStatusText.value = 'Starting recording...';
+	exportProgress.value = 0;
+
+	await updateCanvas();
+
+	exportStatusText.value = 'Recording animation...';
+	exportProgress.value = 5;
+
+	const recordedChunks: Blob[] = [];
+	const stream = trainerCardCanvas.value!.captureStream(60);
+	const mediaRecorder = new MediaRecorder(stream, {
+		mimeType
+	});
+
+	const startTime = Date.now();
+
+	const progressInterval = setInterval(() => {
+		const elapsed = Date.now() - startTime;
+		const progress = Math.min(90, (elapsed / animationLength) * 100);
+		exportProgress.value = Math.round(progress);
+	}, 50);
+
+	console.log(animationLength);
+
+	mediaRecorder.start(animationLength);
+
+	mediaRecorder.addEventListener('dataavailable', (event) => {
+		recordedChunks.push(event.data);
+		if (mediaRecorder.state === 'recording') {
+			clearInterval(progressInterval);
+			exportProgress.value = 95;
+			mediaRecorder.stop();
+		}
+	});
+
+	mediaRecorder.addEventListener('stop', () => {
+		exportStatusText.value = 'Processing video...';
+		exportProgress.value = 98;
+
+		const blob = new Blob(recordedChunks, {
+			type: mimeType
+		});
+
+		exportStatusText.value = 'Download ready!';
+		exportProgress.value = 100;
 
 		const url = URL.createObjectURL(blob);
 		const link = document.createElement('a');
-
 		link.href = url;
-		link.download = 'trainer-card.png';
-
+		link.download = `trainer-card.${extension}`;
 		document.body.appendChild(link);
-
 		link.click();
-
 		document.body.removeChild(link);
-
 		URL.revokeObjectURL(url);
-	}, 'image/png');
+
+		setTimeout(() => {
+			toggleAnimatedCardExportingModal();
+			exportProgress.value = 0;
+			exportStatusText.value = 'Starting recording...';
+		}, 1500);
+	});
 }
 
 onMounted(() => {
@@ -525,6 +695,47 @@ onMounted(() => {
 								</UModal>
 							</div>
 						</div>
+						<div v-if="selectedTrainer.image_url" class="space-y-4">
+							<h3 class="text-sm font-medium">Position & Scale</h3>
+							<div class="flex flex-col space-y-3 md:hidden">
+								<div class="flex items-end space-x-2">
+									<div class="flex flex-col flex-1">
+										<label class="text-xs text-muted-foreground mb-1">X Offset</label>
+										<UInput type="number" :model-value="selectedTrainer.offset_x" size="xs" placeholder="0" @input="updateTrainerOffset('x', parseInt($event.target.value) || 0)" />
+									</div>
+									<div class="flex flex-col flex-1">
+										<label class="text-xs text-muted-foreground mb-1">Y Offset</label>
+										<UInput type="number" :model-value="selectedTrainer.offset_y" size="xs" placeholder="0" @input="updateTrainerOffset('y', parseInt($event.target.value) || 0)" />
+									</div>
+									<div class="flex flex-col flex-1">
+										<label class="text-xs text-muted-foreground mb-1">Scale</label>
+										<UInput type="number" :model-value="selectedTrainer.scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" @input="updateTrainerScale(parseFloat($event.target.value) || 1)" />
+									</div>
+									<div class="flex flex-col">
+										<label class="text-xs text-muted-foreground mb-1">&nbsp;</label>
+										<UButton color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" @click="resetTrainerTransform" title="Reset position & scale" />
+									</div>
+								</div>
+							</div>
+							<div class="hidden md:flex md:items-center md:space-x-4">
+								<div class="flex flex-col items-center">
+									<label class="text-xs text-muted-foreground mb-1">X Offset</label>
+									<UInput type="number" :model-value="selectedTrainer.offset_x" size="xs" placeholder="0" class="w-20 text-center" @input="updateTrainerOffset('x', parseInt($event.target.value) || 0)" />
+								</div>
+								<div class="flex flex-col items-center">
+									<label class="text-xs text-muted-foreground mb-1">Y Offset</label>
+									<UInput type="number" :model-value="selectedTrainer.offset_y" size="xs" placeholder="0" class="w-20 text-center" @input="updateTrainerOffset('y', parseInt($event.target.value) || 0)" />
+								</div>
+								<div class="flex flex-col items-center">
+									<label class="text-xs text-muted-foreground mb-1">Scale</label>
+									<UInput type="number" :model-value="selectedTrainer.scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" class="w-20 text-center" @input="updateTrainerScale(parseFloat($event.target.value) || 1)" />
+								</div>
+								<div class="flex flex-col items-center">
+									<label class="text-xs text-muted-foreground mb-1">Reset</label>
+									<UButton color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" @click="resetTrainerTransform" title="Reset position & scale" />
+								</div>
+							</div>
+						</div>
 
 						<h1 class="pt-5">Team</h1>
 						<USeparator class="py-5" />
@@ -585,14 +796,31 @@ onMounted(() => {
 												</UDropdownMenu>
 											</div>
 										</div>
+										<div class="flex items-end space-x-2" @click.stop>
+											<div class="flex flex-col flex-1">
+												<label class="text-xs text-muted-foreground mb-1">X Offset</label>
+												<UInput type="number" :model-value="selectedTeam[item].offset_x || 0" size="xs" placeholder="0" @input="updatePokemonOffset(item, 'x', parseInt($event.target.value) || 0)" />
+											</div>
+											<div class="flex flex-col flex-1">
+												<label class="text-xs text-muted-foreground mb-1">Y Offset</label>
+												<UInput type="number" :model-value="selectedTeam[item].offset_y || 0" size="xs" placeholder="0" @input="updatePokemonOffset(item, 'y', parseInt($event.target.value) || 0)" />
+											</div>
+											<div class="flex flex-col flex-1">
+												<label class="text-xs text-muted-foreground mb-1">Scale</label>
+												<UInput type="number" :model-value="selectedTeam[item].scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" @input="updatePokemonScale(item, parseFloat($event.target.value) || 1)" />
+											</div>
+											<div class="flex flex-col">
+												<label class="text-xs text-muted-foreground mb-1">&nbsp;</label>
+												<UButton title="Reset position" color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" @click="resetPokemonTransform(item)" />
+											</div>
+										</div>
 
 										<div @click.stop>
 											<label class="text-xs text-muted-foreground mb-1 block">Nickname</label>
 											<input type="text" class="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background" :value="selectedTeam[item].nickname ?? selectedTeam[item].pokemon.display_name" :placeholder="selectedTeam[item].pokemon.display_name" @input="updatePokemonNickname(item, ($event.target as HTMLInputElement).value)">
 										</div>
 									</div>
-
-									<div class="hidden md:flex md:items-center md:justify-between md:w-full">
+									<div class="hidden md:flex md:items-start md:justify-between md:w-full md:space-x-4">
 										<div class="flex items-center space-x-4">
 											<div class="flex-shrink-0">
 												<img :src="selectedTeam[item].image.preview_url" :alt="selectedTeam[item].pokemon.display_name" :class="['w-12', 'h-12', 'object-contain', { pixelated: selectedTeam[item].image.style === 'pixel_art' }]">
@@ -602,54 +830,74 @@ onMounted(() => {
 												<span class="text-xs text-muted-foreground">Slot {{ item }}</span>
 											</div>
 										</div>
+										<div class="flex flex-col space-y-2" @click.stop>
+											<div class="flex items-center space-x-4">
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">Gender</label>
+													<UDropdownMenu :items="genderOptions(item)" size="xs">
+														<UButton color="neutral" variant="outline" size="xs">
+															<div class="flex items-center gap-1">
+																<span v-if="selectedTeam[item].gender === 'male'" class="text-blue-500">♂</span>
+																<span v-else-if="selectedTeam[item].gender === 'female'" class="text-pink-500">♀</span>
+																<span v-else class="text-muted-foreground">-</span>
+																<UIcon name="i-lucide-chevron-down" class="w-3 h-3" />
+															</div>
+														</UButton>
+													</UDropdownMenu>
+												</div>
 
-										<div class="flex items-center space-x-4" @click.stop>
-											<div class="flex flex-col items-center">
-												<label class="text-xs text-muted-foreground mb-1">Gender</label>
-												<UDropdownMenu :items="genderOptions(item)" size="xs">
-													<UButton color="neutral" variant="outline" size="xs">
-														<div class="flex items-center gap-1">
-															<span v-if="selectedTeam[item].gender === 'male'" class="text-blue-500">♂</span>
-															<span v-else-if="selectedTeam[item].gender === 'female'" class="text-pink-500">♀</span>
-															<span v-else class="text-muted-foreground">-</span>
-															<UIcon name="i-lucide-chevron-down" class="w-3 h-3" />
-														</div>
-													</UButton>
-												</UDropdownMenu>
-											</div>
-
-											<div class="flex flex-col items-center">
-												<label class="text-xs text-muted-foreground mb-1">Held Item</label>
-												<UButton color="neutral" variant="outline" size="xs" @click="toggleHeldItemModal(item)">
-													<div class="flex items-center gap-2">
-														<div class="w-4 h-4 flex items-center justify-center flex-shrink-0">
-															<img v-if="selectedTeam[item].held_item" :src="selectedTeam[item].held_item.image.preview_url" class="w-4 h-4 object-contain block pixelated" alt="Selected item">
-															<UIcon v-else name="i-lucide-minus" class="w-4 h-4 text-gray-400 block" />
-														</div>
-														<span class="text-xs max-w-16 truncate">{{ selectedTeam[item].held_item?.display_name || 'None' }}</span>
-													</div>
-												</UButton>
-											</div>
-
-											<div class="flex flex-col items-center">
-												<label class="text-xs text-muted-foreground mb-1">Pokeball</label>
-												<UDropdownMenu :items="pokeballOptions(item)" size="xs">
-													<UButton color="neutral" variant="outline" size="xs">
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">Held Item</label>
+													<UButton color="neutral" variant="outline" size="xs" @click="toggleHeldItemModal(item)">
 														<div class="flex items-center gap-2">
 															<div class="w-4 h-4 flex items-center justify-center flex-shrink-0">
-																<img v-if="selectedTeam[item].pokeball" :src="selectedTeam[item].pokeball.image.preview_url" class="w-4 h-4 object-contain block pixelated" alt="Selected pokeball">
+																<img v-if="selectedTeam[item].held_item" :src="selectedTeam[item].held_item.image.preview_url" class="w-4 h-4 object-contain block pixelated" alt="Selected item">
 																<UIcon v-else name="i-lucide-minus" class="w-4 h-4 text-gray-400 block" />
 															</div>
-															<UIcon name="i-lucide-chevron-down" class="w-3 h-3 flex-shrink-0" />
+															<span class="text-xs max-w-16 truncate">{{ selectedTeam[item].held_item?.display_name || 'None' }}</span>
 														</div>
 													</UButton>
-												</UDropdownMenu>
+												</div>
+
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">Pokeball</label>
+													<UDropdownMenu :items="pokeballOptions(item)" size="xs">
+														<UButton color="neutral" variant="outline" size="xs">
+															<div class="flex items-center gap-2">
+																<div class="w-4 h-4 flex items-center justify-center flex-shrink-0">
+																	<img v-if="selectedTeam[item].pokeball" :src="selectedTeam[item].pokeball.image.preview_url" class="w-4 h-4 object-contain block pixelated" alt="Selected pokeball">
+																	<UIcon v-else name="i-lucide-minus" class="w-4 h-4 text-gray-400 block" />
+																</div>
+																<UIcon name="i-lucide-chevron-down" class="w-3 h-3 flex-shrink-0" />
+															</div>
+														</UButton>
+													</UDropdownMenu>
+												</div>
+
+												<div class="flex flex-col">
+													<label class="text-xs text-muted-foreground mb-1">Nickname</label>
+													<div class="w-32">
+														<input type="text" class="w-full px-2 py-1 text-xs border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-center bg-background" :value="selectedTeam[item].nickname ?? selectedTeam[item].pokemon.display_name" :placeholder="selectedTeam[item].pokemon.display_name" @input="updatePokemonNickname(item, ($event.target as HTMLInputElement).value)">
+													</div>
+												</div>
 											</div>
 
-											<div class="flex flex-col">
-												<label class="text-xs text-muted-foreground mb-1">Nickname</label>
-												<div class="w-32">
-													<input type="text" class="w-full px-2 py-1 text-xs border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-center bg-background" :value="selectedTeam[item].nickname ?? selectedTeam[item].pokemon.display_name" :placeholder="selectedTeam[item].pokemon.display_name" @input="updatePokemonNickname(item, ($event.target as HTMLInputElement).value)">
+											<div class="flex items-center space-x-2">
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">X Offset</label>
+													<UInput type="number" :model-value="selectedTeam[item].offset_x || 0" size="xs" placeholder="0" class="w-16 text-center" @input="updatePokemonOffset(item, 'x', parseInt($event.target.value) || 0)" />
+												</div>
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">Y Offset</label>
+													<UInput type="number" :model-value="selectedTeam[item].offset_y || 0" size="xs" placeholder="0" class="w-16 text-center" @input="updatePokemonOffset(item, 'y', parseInt($event.target.value) || 0)" />
+												</div>
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">Scale</label>
+													<UInput type="number" :model-value="selectedTeam[item].scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" class="w-16 text-center" @input="updatePokemonScale(item, parseFloat($event.target.value) || 1)" />
+												</div>
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">Reset</label>
+													<UButton title="Reset position & scale" color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" @click="resetPokemonTransform(item)" />
 												</div>
 											</div>
 										</div>
@@ -751,6 +999,75 @@ onMounted(() => {
 					</UCard>
 				</div>
 				<div class="order-1 lg:order-2 lg:sticky lg:top-6 lg:self-start">
+					<UModal v-model:open="exportAnimatedCardModalOpen">
+						<template #content>
+							<div class="p-6">
+								<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Export Format</h3>
+								<USeparator class="mb-6" />
+
+								<div class="space-y-4">
+									<button @click="exportAnimatedCard('video/webm; codecs=vp9', 'webm')" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-500 transition-all">
+										<div class="text-left">
+											<div class="font-bold text-gray-900 dark:text-white">
+												WebM VP9
+											</div>
+											<div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+												Best quality, smaller file size
+											</div>
+										</div>
+									</button>
+
+									<button @click="exportAnimatedCard('video/webm; codecs=vp8', 'webm')" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-500 transition-all">
+										<div class="text-left">
+											<div class="font-bold text-gray-900 dark:text-white">
+												WebM VP8
+											</div>
+											<div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+												Better browser compatibility
+											</div>
+										</div>
+									</button>
+
+									<button @click="exportAnimatedCard('video/mp4; codecs=avc1.42E01E', 'mp4')" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-500 transition-all">
+										<div class="text-left">
+											<div class="font-bold text-gray-900 dark:text-white">
+												MP4 H.264
+											</div>
+											<div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+												Universal support
+											</div>
+										</div>
+									</button>
+								</div>
+
+								<div class="flex justify-end mt-6">
+									<UButton variant="ghost" @click="exportAnimatedCardModalOpen = false">
+										Cancel
+									</UButton>
+								</div>
+							</div>
+						</template>
+					</UModal>
+					<UModal v-model:open="animatedCardExportingModalOpen" :prevent-close="true">
+						<template #content>
+							<div class="p-6">
+								<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Exporting Animation</h3>
+								<p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Please wait while your trainer card is being processed...</p>
+
+								<div class="space-y-4">
+									<UProgress :model-value="exportProgress" :max="100" color="primary" size="lg" />
+									<div class="text-center">
+										<p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+											{{ exportStatusText }}
+										</p>
+										<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+											{{ exportProgress }}% complete
+										</p>
+									</div>
+								</div>
+							</div>
+						</template>
+					</UModal>
 					<UButton label="Download Trainer Card" color="neutral" variant="subtle" @click="exportCard" />
 					<USeparator class="py-5" />
 					<div class="rounded-lg bg-card shadow-sm">

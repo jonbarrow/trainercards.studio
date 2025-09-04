@@ -1,11 +1,14 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
 import axios from 'axios';
 import fs from 'fs-extra';
 import getImageDimensions from './get-image-dimensions.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const execAsync = promisify(exec);
 
 const spriteCategories = [
 	'Generation_I_Trainer_sprites',
@@ -16,6 +19,89 @@ const spriteCategories = [
 	'Trainer_class_artwork',
 	'Pokémon_Masters_Trainer_sprites'
 ];
+
+function isAnimatedPNG(filePath) {
+	try {
+		const buffer = fs.readFileSync(filePath);
+
+		if (!buffer.slice(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) {
+			return false;
+		}
+
+		let offset = 8;
+
+		while (offset < buffer.length - 8) {
+			const chunkLength = buffer.readUInt32BE(offset);
+			offset += 4;
+
+			const chunkType = buffer.slice(offset, offset + 4).toString('ascii');
+			offset += 4;
+
+			if (chunkType === 'acTL' || chunkType === 'fcTL' || chunkType === 'fdAT') {
+				return true;
+			}
+
+			offset += chunkLength + 4;
+
+			if (chunkType === 'IEND') {
+				break;
+			}
+		}
+
+		return false;
+	} catch (error) {
+		console.error(`Error reading ${filePath}:`, error.message);
+		return false;
+	}
+}
+
+function parseAPNGFrameData(filePath) {
+	try {
+		const buffer = fs.readFileSync(filePath);
+
+		let offset = 8;
+		const frames = [];
+
+		while (offset < buffer.length - 8) {
+			const chunkLength = buffer.readUInt32BE(offset);
+			offset += 4;
+
+			const chunkType = buffer.slice(offset, offset + 4).toString('ascii');
+			offset += 4;
+
+			if (chunkType === 'fcTL') {
+				const frameWidth = buffer.readUInt32BE(offset + 4);
+				const frameHeight = buffer.readUInt32BE(offset + 8);
+				const delayNum = buffer.readUInt16BE(offset + 20);
+				const delayDen = buffer.readUInt16BE(offset + 22);
+
+				const denominator = delayDen === 0 ? 100 : delayDen;
+				const delayMs = Math.round((delayNum / denominator) * 1000);
+
+				frames.push({
+					width: frameWidth,
+					height: frameHeight,
+					delay: delayMs
+				});
+			}
+
+			offset += chunkLength + 4;
+
+			if (chunkType === 'IEND') {
+				break;
+			}
+		}
+
+		if (frames.length === 0) {
+			return null;
+		}
+
+		return frames;
+	} catch (error) {
+		console.error(`Error parsing APNG ${filePath}:`, error.message);
+		return null;
+	}
+}
 
 async function downloadImage(url, output) {
 	const response = await axios({
@@ -299,25 +385,69 @@ async function main() {
 				localPath = `${localPath}_${normalizedName.gender}`;
 			}
 
-			localPath = `${localPath}.${fileExtension}`;
+			await downloadImage(image.url, `${__dirname}/../public/${localPath}.${fileExtension}`);
 
-			await downloadImage(image.url, `${__dirname}/../public/${localPath}`);
+			const animated = isAnimatedPNG(`${__dirname}/../public/${localPath}.${fileExtension}`);
 
-			const dimensions = await getImageDimensions(`${__dirname}/../public/${localPath}`);
+			if (!animated) {
+				localPath = `${localPath}.${fileExtension}`;
+				const dimensions = await getImageDimensions(`${__dirname}/../public/${localPath}`);
 
-			trainers.push({
-				style: normalizedName.style, // * Just hijacking the normalize function for this, it's not a name thing
-				name: normalizedName.display_name,
-				platform: normalizedName.platform,
-				platform_display_name: normalizedName.platform_display_name,
-				creator: 'GameFreak',
-				image_url: localPath,
-				preview_url: localPath,
-				dimensions
-			});
+				trainers.push({
+					style: normalizedName.style, // * Just hijacking the normalize function for this, it's not a name thing
+					name: normalizedName.display_name,
+					platform: normalizedName.platform,
+					platform_display_name: normalizedName.platform_display_name,
+					creator: 'GameFreak',
+					image_url: localPath,
+					preview_url: localPath,
+					dimensions
+				});
+			} else {
+				const localPreviewPath = `${localPath}_animated_preview.apng`;
+
+				await fs.move(`${__dirname}/../public/${localPath}.${fileExtension}`, `${__dirname}/../public/${localPreviewPath}`, {
+					overwrite: true
+				});
+
+				localPath = `${localPath}_animated_sheet.png`;
+				const frames = parseAPNGFrameData(`${__dirname}/../public/${localPreviewPath}`);
+
+				// * At the time of writing, September 2nd 2025, ffmpeg's latest release, 8.0, has a bug
+				// * where it does not handle animated PNGs correctly. See https://code.ffmpeg.org/FFmpeg/FFmpeg/pulls/20208
+				// * for details.
+				// *
+				// * This patch was merged, but has not made it's way into a release yet. Even still, some
+				// * animated PNGs give errors in ffmpeg. Until those are solved, we have to use other tricks
+				if (fs.existsSync(`${__dirname}/frames`)) {
+					await fs.rmdir(`${__dirname}/frames`, { recursive: true, force: true });
+				}
+
+				// * https://github.com/apngasm/apngasm
+				await execAsync(`apngasm -o ${__dirname}/frames -D ${__dirname}/../public/${localPreviewPath}`, {
+					stdio: ['pipe', 'pipe', 'pipe']
+				});
+
+				await execAsync(`magick $(ls ${__dirname}/frames/*.png | sort -V) +append ${__dirname}/../public${localPath}`, {
+					stdio: ['pipe', 'pipe', 'pipe'],
+					shell: true // * Need shell for the $(ls ... | sort -V) command
+				});
+
+				trainers.push({
+					style: normalizedName.style, // * Just hijacking the normalize function for this, it's not a name thing
+					name: normalizedName.display_name,
+					platform: normalizedName.platform,
+					platform_display_name: normalizedName.platform_display_name,
+					creator: 'GameFreak',
+					image_url: localPath,
+					preview_url: localPreviewPath,
+					frame_data: frames
+				});
+			}
 		}
 	}
 
+	fs.rmdirSync(`${__dirname}/frames`, { recursive: true, force: true });
 	fs.ensureDirSync(`${__dirname}/../public/metadata`);
 	fs.writeJSONSync(`${__dirname}/../public/metadata/trainers.json`, trainers);
 }

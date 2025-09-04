@@ -4,12 +4,15 @@ Custom Pokémon trainer card creator
 
 ## Features
 
-- 30,452 Pokémon sprites
-- 2,198 trainer images
+- 34,949 Pokémon sprites
+- 2,241 trainer images
 - 13 card templates in both classic and "modern" (pokecharms) styles
+- Animated trainer cards in various video formats
+- Customize the scale and positions of Pokémon and your trainer
 - Each image can be in any style and on any card, allowing you to mix and match any combination
 - Support for showing what Pokéball each Pokémon is in
 - Support for giving each Pokémon a held item
+- Badges for all games generations 1-5
 
 ## Configuration
 
@@ -50,3 +53,4 @@ Some assets in this project are modified versions of copyrighted materials. Whil
 - If you fork or distribute this project, ensure you comply with the rights of all copyright holders
 - When in doubt, replace copyrighted assets with your own original creations or properly licensed alternatives
 - See the [`PokeAPI/sprites`](https://github.com/PokeAPI/sprites/blob/9683e1d7ffbab3401c1542e39d8105102153e6f9/LICENCE.txt) license for copyrighted sprites
+- See the [`msikma/pokesprit`](https://github.com/msikma/pokesprite/blob/c5aaa610ff2acdf7fd8e2dccd181bca8be9fcb3e/license.md) license for custom sprites

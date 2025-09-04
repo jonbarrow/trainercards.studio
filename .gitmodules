@@ -1,3 +1,6 @@
 [submodule "vendor/pokeapi-sprites"]
 	path = vendor/pokeapi-sprites
 	url = https://github.com/PokeAPI/sprites.git
+[submodule "vendor/msikma-pokesprite"]
+	path = vendor/msikma-pokesprite
+	url = https://github.com/msikma/pokesprite
