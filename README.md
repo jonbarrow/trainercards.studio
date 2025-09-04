@@ -50,3 +50,4 @@ Some assets in this project are modified versions of copyrighted materials. Whil
 - If you fork or distribute this project, ensure you comply with the rights of all copyright holders
 - When in doubt, replace copyrighted assets with your own original creations or properly licensed alternatives
 - See the [`PokeAPI/sprites`](https://github.com/PokeAPI/sprites/blob/9683e1d7ffbab3401c1542e39d8105102153e6f9/LICENCE.txt) license for copyrighted sprites
+- See the [`msikma/pokesprit`](https://github.com/msikma/pokesprite/blob/c5aaa610ff2acdf7fd8e2dccd181bca8be9fcb3e/license.md) license for custom sprites
