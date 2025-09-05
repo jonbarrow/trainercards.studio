@@ -1071,8 +1071,8 @@ onMounted(() => {
 					<UButton label="Download Trainer Card" color="neutral" variant="subtle" @click="exportCard" />
 					<USeparator class="py-5" />
 					<div class="rounded-lg bg-card shadow-sm">
-						<div class="relative w-full" style="aspect-ratio: 228/140;">
-							<canvas ref="trainerCardCanvas" class="absolute inset-0 w-full h-full rounded-lg pixelated" />
+						<div class="relative w-full">
+							<canvas ref="trainerCardCanvas" class="w-full h-auto rounded-lg pixelated" />
 						</div>
 					</div>
 				</div>
