@@ -283,17 +283,23 @@ function updateTrainerOffset(axis: 'x' | 'y', value: number) {
 	} else {
 		selectedTrainer.value.offset_y = value;
 	}
+
+	card.cleanup();
 	updateCanvas();
 }
 
 function updateTrainerScale(value: number) {
 	selectedTrainer.value.scale = value;
+
+	card.cleanup();
 	updateCanvas();
 }
 
 function updateTrainerFlip(value: boolean | 'indeterminate') {
 	const flipped = value === true;
 	selectedTrainer.value.flipped = flipped;
+
+	card.cleanup();
 	updateCanvas();
 }
 
@@ -301,6 +307,8 @@ function resetTrainerTransform() {
 	selectedTrainer.value.offset_x = 0;
 	selectedTrainer.value.offset_y = 0;
 	selectedTrainer.value.scale = 1;
+
+	card.cleanup();
 	updateCanvas();
 }
 
@@ -345,6 +353,8 @@ function updatePokemonOffset(slot: number, axis: 'x' | 'y', value: number) {
 		} else {
 			selectedTeam[slot].offset_y = value;
 		}
+
+		card.cleanup();
 		updateCanvas();
 	}
 }
@@ -352,6 +362,8 @@ function updatePokemonOffset(slot: number, axis: 'x' | 'y', value: number) {
 function updatePokemonScale(slot: number, value: number) {
 	if (selectedTeam[slot]) {
 		selectedTeam[slot].scale = value;
+
+		card.cleanup();
 		updateCanvas();
 	}
 }
@@ -360,6 +372,8 @@ function updatePokemonFlip(slot: number, value: boolean | 'indeterminate') {
 	if (selectedTeam[slot]) {
 		const flipped = value === true;
 		selectedTeam[slot].flipped = flipped;
+
+		card.cleanup();
 		updateCanvas();
 	}
 }
@@ -369,6 +383,8 @@ function resetPokemonTransform(slot: number) {
 		selectedTeam[slot].offset_x = 0;
 		selectedTeam[slot].offset_y = 0;
 		selectedTeam[slot].scale = 1;
+
+		card.cleanup();
 		updateCanvas();
 	}
 }
@@ -718,6 +734,7 @@ function canvasMouseMove(event: MouseEvent): void {
 			trainerCardCanvas.value.style.cursor = 'grabbing';
 		}
 
+		card.cleanup();
 		updateCanvas();
 	} else {
 		const { mouseX, mouseY } = getEventCoordinates(event);
@@ -778,6 +795,7 @@ function canvasWheel(event: WheelEvent): void {
 
 		clickedSprite.value.scale = newScale;
 
+		card.cleanup();
 		updateCanvas();
 	}
 }
@@ -823,6 +841,7 @@ function canvasTouchMove(event: TouchEvent): void {
 		clickedSprite.value.drawn_x = clickedSprite.value.original_x + clickedSprite.value.offset_x;
 		clickedSprite.value.drawn_y = clickedSprite.value.original_y + clickedSprite.value.offset_y;
 
+		card.cleanup();
 		updateCanvas();
 	} else if (event.touches.length === 2 && pinchData.value) {
 		const currentDistance = getTouchDistance(event);
@@ -831,6 +850,7 @@ function canvasTouchMove(event: TouchEvent): void {
 
 		pinchData.value.sprite!.scale = newScale;
 
+		card.cleanup();
 		updateCanvas();
 	}
 }
