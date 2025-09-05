@@ -713,7 +713,7 @@ onMounted(() => {
 									</div>
 									<div class="flex flex-col">
 										<label class="text-xs text-muted-foreground mb-1">&nbsp;</label>
-										<UButton color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" @click="resetTrainerTransform" title="Reset position & scale" />
+										<UButton color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" title="Reset position & scale" @click="resetTrainerTransform" />
 									</div>
 								</div>
 							</div>
@@ -732,7 +732,7 @@ onMounted(() => {
 								</div>
 								<div class="flex flex-col items-center">
 									<label class="text-xs text-muted-foreground mb-1">Reset</label>
-									<UButton color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" @click="resetTrainerTransform" title="Reset position & scale" />
+									<UButton color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" title="Reset position & scale" @click="resetTrainerTransform" />
 								</div>
 							</div>
 						</div>
@@ -1006,7 +1006,7 @@ onMounted(() => {
 								<USeparator class="mb-6" />
 
 								<div class="space-y-4">
-									<button @click="exportAnimatedCard('video/webm; codecs=vp9', 'webm')" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-500 transition-all">
+									<button class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-500 transition-all" @click="exportAnimatedCard('video/webm; codecs=vp9', 'webm')">
 										<div class="text-left">
 											<div class="font-bold text-gray-900 dark:text-white">
 												WebM VP9
@@ -1017,7 +1017,7 @@ onMounted(() => {
 										</div>
 									</button>
 
-									<button @click="exportAnimatedCard('video/webm; codecs=vp8', 'webm')" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-500 transition-all">
+									<button class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-500 transition-all" @click="exportAnimatedCard('video/webm; codecs=vp8', 'webm')">
 										<div class="text-left">
 											<div class="font-bold text-gray-900 dark:text-white">
 												WebM VP8
@@ -1028,7 +1028,7 @@ onMounted(() => {
 										</div>
 									</button>
 
-									<button @click="exportAnimatedCard('video/mp4; codecs=avc1.42E01E', 'mp4')" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-500 transition-all">
+									<button class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-500 transition-all" @click="exportAnimatedCard('video/mp4; codecs=avc1.42E01E', 'mp4')">
 										<div class="text-left">
 											<div class="font-bold text-gray-900 dark:text-white">
 												MP4 H.264
