@@ -9,6 +9,7 @@ import type BadgeData from '@/types/badge-data';
 import type ModernIconData from '@/types/modern-icon-data';
 import type TrainerCard from '@/trainer-card-templates/TrainerCard';
 import type ItemData from '@/types/item-data';
+import type SelectableSprite from '@/types/selectable-sprite';
 
 const { loadImage } = useImageCache();
 
@@ -23,9 +24,16 @@ const selectedTrainer = ref<TrainerImage>({
 	creator: '',
 	image_url: '',
 	preview_url: '',
-	offset_x: 0,
-	offset_y: 0,
-	scale: 1,
+	offset_x: 0, // * Set prior to the drawing process but not in the original metadata
+	offset_y: 0, // * Set prior to the drawing process but not in the original metadata
+	scale: 1, // * Set prior to the drawing process but not in the original metadata
+	flipped: false, // * Set prior to the drawing process but not in the original metadata
+	original_x: 0, // * Set during the drawing process
+	original_y: 0, // * Set during the drawing process
+	drawn_x: 0, // * Set during the drawing process
+	drawn_y: 0, // * Set during the drawing process
+	drawn_width: 0, // * Set during the drawing process
+	drawn_height: 0, // * Set during the drawing process
 	dimensions: {
 		content: {
 			width: 0,
@@ -232,13 +240,13 @@ async function updateCanvas() {
 		await card.drawBadges(badges.value);
 	}
 
+	await card.drawPokemonTeam(selectedTeam);
+
 	if (watermarkEnabled.value) {
 		await card.drawWatermark();
 	}
 
 	card.watermarkEnabled = watermarkEnabled.value;
-
-	await card.drawPokemonTeam(selectedTeam);
 }
 
 function selectTemplate(index: number) {
@@ -260,7 +268,8 @@ function selectTrainer(trainer: TrainerImage) {
 		...trainer,
 		offset_x: trainer.offset_x ?? 0,
 		offset_y: trainer.offset_y ?? 0,
-		scale: trainer.scale ?? 1
+		scale: trainer.scale ?? 1,
+		flipped: trainer.flipped ?? false
 	};
 
 	trainerSearchQuery.value = '';
@@ -279,6 +288,12 @@ function updateTrainerOffset(axis: 'x' | 'y', value: number) {
 
 function updateTrainerScale(value: number) {
 	selectedTrainer.value.scale = value;
+	updateCanvas();
+}
+
+function updateTrainerFlip(value: boolean | 'indeterminate') {
+	const flipped = value === true;
+	selectedTrainer.value.flipped = flipped;
 	updateCanvas();
 }
 
@@ -303,9 +318,16 @@ function selectPokemon(pokemon: Pokemon, image: PokemonImage) {
 				image,
 				nickname: pokemon.display_name,
 				gender: '',
-				offset_x: 0,
-				offset_y: 0,
-				scale: 1
+				offset_x: 0, // * Set prior to the drawing process but not in the original metadata
+				offset_y: 0, // * Set prior to the drawing process but not in the original metadata
+				scale: 1, // * Set prior to the drawing process but not in the original metadata
+				flipped: false, // * Set prior to the drawing process but not in the original metadata
+				original_x: 0, // * Set during the drawing process
+				original_y: 0, // * Set during the drawing process
+				drawn_x: 0, // * Set during the drawing process
+				drawn_y: 0, // * Set during the drawing process
+				drawn_width: 0, // * Set during the drawing process
+				drawn_height: 0 // * Set during the drawing process
 			};
 		}
 
@@ -330,6 +352,14 @@ function updatePokemonOffset(slot: number, axis: 'x' | 'y', value: number) {
 function updatePokemonScale(slot: number, value: number) {
 	if (selectedTeam[slot]) {
 		selectedTeam[slot].scale = value;
+		updateCanvas();
+	}
+}
+
+function updatePokemonFlip(slot: number, value: boolean | 'indeterminate') {
+	if (selectedTeam[slot]) {
+		const flipped = value === true;
+		selectedTeam[slot].flipped = flipped;
 		updateCanvas();
 	}
 }
@@ -575,6 +605,245 @@ onMounted(() => {
 	loadHeldItemData();
 	updateCanvas();
 });
+
+const clickedSprite = ref<SelectableSprite | null>(null);
+const dragOffset = ref<{
+	x: number;
+	y: number;
+} | null>(null);
+const pinchData = ref<{
+	sprite: SelectableSprite | null;
+	initialDistance: number;
+	initialScale: number;
+} | null>(null);
+
+function getEventCoordinates(event: MouseEvent | TouchEvent) {
+	const canvas = event.target! as HTMLCanvasElement;
+	const boundingClientRect = canvas.getBoundingClientRect();
+	const scaleX = canvas.width / boundingClientRect.width;
+	const scaleY = canvas.height / boundingClientRect.height;
+
+	let clientX;
+	let clientY;
+	if (event instanceof TouchEvent) {
+		clientX = event.touches[0]?.clientX || event.changedTouches[0]?.clientX;
+		clientY = event.touches[0]?.clientY || event.changedTouches[0]?.clientY;
+	} else {
+		clientX = event.clientX;
+		clientY = event.clientY;
+	}
+
+	const mouseX = (clientX! - boundingClientRect.left) * scaleX;
+	const mouseY = (clientY! - boundingClientRect.top) * scaleY;
+
+	return {
+		mouseX,
+		mouseY
+	};
+}
+
+function getTouchDistance(event: TouchEvent): number {
+	if (event.touches.length < 2) {
+		return 0;
+	}
+
+	const touch1 = event.touches[0]!;
+	const touch2 = event.touches[1]!;
+
+	const dx = touch1.clientX - touch2.clientX;
+	const dy = touch1.clientY - touch2.clientY;
+
+	return Math.sqrt(dx * dx + dy * dy);
+}
+
+function getTouchCenter(event: TouchEvent) {
+	if (event.touches.length < 2) {
+		return null;
+	}
+
+	const canvas = event.target! as HTMLCanvasElement;
+	const boundingClientRect = canvas.getBoundingClientRect();
+	const scaleX = canvas.width / boundingClientRect.width;
+	const scaleY = canvas.height / boundingClientRect.height;
+
+	const touch1 = event.touches[0]!;
+	const touch2 = event.touches[1]!;
+
+	const centerX = ((touch1.clientX + touch2.clientX) / 2 - boundingClientRect.left) * scaleX;
+	const centerY = ((touch1.clientY + touch2.clientY) / 2 - boundingClientRect.top) * scaleY;
+
+	return {
+		centerX,
+		centerY
+	};
+}
+
+function findSpriteAtCoordinates(mouseX: number, mouseY: number): SelectableSprite | null {
+	// * Loop over the team backwards to make selections prefer the draw order
+	const pokemonArray = Object.values(selectedTeam);
+	for (let i = pokemonArray.length - 1; i >= 0; i--) {
+		const pokemon = pokemonArray[i];
+		const isWithinX = mouseX >= pokemon.drawn_x && mouseX <= pokemon.drawn_x + pokemon.drawn_width;
+		const isWithinY = mouseY >= pokemon.drawn_y && mouseY <= pokemon.drawn_y + pokemon.drawn_height;
+
+		if (isWithinX && isWithinY) {
+			return pokemon;
+		}
+	}
+
+	// * Trainer is drawn before the team, so it has the lowest priority
+	if (selectedTrainer.value.name !== 'None') {
+		const isWithinX = mouseX >= selectedTrainer.value.drawn_x && mouseX <= selectedTrainer.value.drawn_x + selectedTrainer.value.drawn_width;
+		const isWithinY = mouseY >= selectedTrainer.value.drawn_y && mouseY <= selectedTrainer.value.drawn_y + selectedTrainer.value.drawn_height;
+
+		if (isWithinX && isWithinY) {
+			return selectedTrainer.value;
+		}
+	}
+
+	return null;
+}
+
+function canvasMouseMove(event: MouseEvent): void {
+	if (clickedSprite.value && dragOffset.value) {
+		const { mouseX, mouseY } = getEventCoordinates(event);
+
+		clickedSprite.value.offset_x = (mouseX - dragOffset.value.x) - clickedSprite.value.original_x;
+		clickedSprite.value.offset_y = (mouseY - dragOffset.value.y) - clickedSprite.value.original_y;
+
+		clickedSprite.value.drawn_x = clickedSprite.value.original_x + clickedSprite.value.offset_x;
+		clickedSprite.value.drawn_y = clickedSprite.value.original_y + clickedSprite.value.offset_y;
+
+		if (trainerCardCanvas.value) {
+			trainerCardCanvas.value.style.cursor = 'grabbing';
+		}
+
+		updateCanvas();
+	} else {
+		const { mouseX, mouseY } = getEventCoordinates(event);
+		const hoveredPokemon = findSpriteAtCoordinates(mouseX, mouseY);
+
+		if (trainerCardCanvas.value) {
+			trainerCardCanvas.value.style.cursor = hoveredPokemon ? 'grab' : 'default';
+		}
+	}
+}
+
+function canvasMouseDown(event: MouseEvent): void {
+	const { mouseX, mouseY } = getEventCoordinates(event);
+	const pokemon = findSpriteAtCoordinates(mouseX, mouseY);
+
+	if (pokemon) {
+		clickedSprite.value = pokemon;
+
+		dragOffset.value = {
+			x: mouseX - pokemon.drawn_x,
+			y: mouseY - pokemon.drawn_y
+		};
+
+		if (trainerCardCanvas.value) {
+			trainerCardCanvas.value.style.cursor = 'grabbing';
+		}
+	}
+}
+
+function canvasMouseUp(event: MouseEvent): void {
+	clickedSprite.value = null;
+	dragOffset.value = null;
+
+	const { mouseX, mouseY } = getEventCoordinates(event);
+	const hoveredPokemon = findSpriteAtCoordinates(mouseX, mouseY);
+
+	if (trainerCardCanvas.value) {
+		trainerCardCanvas.value.style.cursor = hoveredPokemon ? 'grab' : 'default';
+	}
+}
+
+function canvasMouseLeave(): void {
+	clickedSprite.value = null;
+	dragOffset.value = null;
+
+	if (trainerCardCanvas.value) {
+		trainerCardCanvas.value.style.cursor = 'default';
+	}
+}
+
+function canvasWheel(event: WheelEvent): void {
+	if (clickedSprite.value) {
+		event.preventDefault();
+
+		const scaleChange = event.deltaY > 0 ? 0.9 : 1.1;
+		const currentScale = clickedSprite.value.scale || 1;
+		const newScale = currentScale * scaleChange;
+
+		clickedSprite.value.scale = newScale;
+
+		updateCanvas();
+	}
+}
+
+function canvasTouchStart(event: TouchEvent): void {
+	if (event.touches.length === 1) {
+		const { mouseX, mouseY } = getEventCoordinates(event);
+		const pokemon = findSpriteAtCoordinates(mouseX, mouseY);
+
+		if (pokemon) {
+			clickedSprite.value = pokemon;
+
+			dragOffset.value = {
+				x: mouseX - pokemon.drawn_x,
+				y: mouseY - pokemon.drawn_y
+			};
+		}
+	} else if (event.touches.length === 2) {
+		const center = getTouchCenter(event);
+		if (center) {
+			const pokemon = findSpriteAtCoordinates(center.centerX, center.centerY);
+			if (pokemon) {
+				pinchData.value = {
+					sprite: pokemon,
+					initialDistance: getTouchDistance(event),
+					initialScale: pokemon.scale || 1
+				};
+
+				clickedSprite.value = null;
+				dragOffset.value = null;
+			}
+		}
+	}
+}
+
+function canvasTouchMove(event: TouchEvent): void {
+	if (event.touches.length === 1 && clickedSprite.value && dragOffset.value) {
+		const { mouseX, mouseY } = getEventCoordinates(event);
+
+		clickedSprite.value.offset_x = (mouseX - dragOffset.value.x) - clickedSprite.value.original_x;
+		clickedSprite.value.offset_y = (mouseY - dragOffset.value.y) - clickedSprite.value.original_y;
+
+		clickedSprite.value.drawn_x = clickedSprite.value.original_x + clickedSprite.value.offset_x;
+		clickedSprite.value.drawn_y = clickedSprite.value.original_y + clickedSprite.value.offset_y;
+
+		updateCanvas();
+	} else if (event.touches.length === 2 && pinchData.value) {
+		const currentDistance = getTouchDistance(event);
+		const scaleChange = currentDistance / pinchData.value.initialDistance;
+		const newScale = pinchData.value.initialScale * scaleChange;
+
+		pinchData.value.sprite!.scale = newScale;
+
+		updateCanvas();
+	}
+}
+
+function canvasTouchEnd(event: TouchEvent): void {
+	if (event.touches.length === 0) {
+		clickedSprite.value = null;
+		dragOffset.value = null;
+		pinchData.value = null;
+	} else if (event.touches.length === 1 && pinchData.value) {
+		pinchData.value = null;
+	}
+}
 </script>
 
 <template>
@@ -696,7 +965,7 @@ onMounted(() => {
 							</div>
 						</div>
 						<div v-if="selectedTrainer.image_url" class="space-y-4">
-							<h3 class="text-sm font-medium">Position & Scale</h3>
+							<h3 class="text-sm font-medium">Transform</h3>
 							<div class="flex flex-col space-y-3 md:hidden">
 								<div class="flex items-end space-x-2">
 									<div class="flex flex-col flex-1">
@@ -712,8 +981,12 @@ onMounted(() => {
 										<UInput type="number" :model-value="selectedTrainer.scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" @input="updateTrainerScale(parseFloat($event.target.value) || 1)" />
 									</div>
 									<div class="flex flex-col">
+										<label class="text-xs text-muted-foreground mb-1">Flip</label>
+										<UCheckbox color="secondary" :model-value="selectedTrainer.flipped" @update:model-value="updateTrainerFlip" />
+									</div>
+									<div class="flex flex-col">
 										<label class="text-xs text-muted-foreground mb-1">&nbsp;</label>
-										<UButton color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" @click="resetTrainerTransform" title="Reset position & scale" />
+										<UButton color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" title="Reset position & scale" @click="resetTrainerTransform" />
 									</div>
 								</div>
 							</div>
@@ -731,8 +1004,12 @@ onMounted(() => {
 									<UInput type="number" :model-value="selectedTrainer.scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" class="w-20 text-center" @input="updateTrainerScale(parseFloat($event.target.value) || 1)" />
 								</div>
 								<div class="flex flex-col items-center">
+									<label class="text-xs text-muted-foreground mb-1">Flip</label>
+									<UCheckbox color="secondary" :model-value="selectedTrainer.flipped" @update:model-value="updateTrainerFlip" />
+								</div>
+								<div class="flex flex-col items-center">
 									<label class="text-xs text-muted-foreground mb-1">Reset</label>
-									<UButton color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" @click="resetTrainerTransform" title="Reset position & scale" />
+									<UButton color="neutral" variant="outline" size="xs" icon="i-lucide-rotate-ccw" title="Reset position & scale" @click="resetTrainerTransform" />
 								</div>
 							</div>
 						</div>
@@ -808,6 +1085,10 @@ onMounted(() => {
 											<div class="flex flex-col flex-1">
 												<label class="text-xs text-muted-foreground mb-1">Scale</label>
 												<UInput type="number" :model-value="selectedTeam[item].scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" @input="updatePokemonScale(item, parseFloat($event.target.value) || 1)" />
+											</div>
+											<div class="flex flex-col">
+												<label class="text-xs text-muted-foreground mb-1">Flip</label>
+												<UCheckbox color="secondary" :model-value="selectedTeam[item].flipped" @update:model-value="updatePokemonFlip(item, $event)" />
 											</div>
 											<div class="flex flex-col">
 												<label class="text-xs text-muted-foreground mb-1">&nbsp;</label>
@@ -894,6 +1175,10 @@ onMounted(() => {
 												<div class="flex flex-col items-center">
 													<label class="text-xs text-muted-foreground mb-1">Scale</label>
 													<UInput type="number" :model-value="selectedTeam[item].scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" class="w-16 text-center" @input="updatePokemonScale(item, parseFloat($event.target.value) || 1)" />
+												</div>
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">Flip</label>
+													<UCheckbox color="secondary" :model-value="selectedTeam[item].flipped" @update:model-value="updatePokemonFlip(item, $event)" />
 												</div>
 												<div class="flex flex-col items-center">
 													<label class="text-xs text-muted-foreground mb-1">Reset</label>
@@ -1006,7 +1291,7 @@ onMounted(() => {
 								<USeparator class="mb-6" />
 
 								<div class="space-y-4">
-									<button @click="exportAnimatedCard('video/webm; codecs=vp9', 'webm')" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-500 transition-all">
+									<button class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-500 transition-all" @click="exportAnimatedCard('video/webm; codecs=vp9', 'webm')">
 										<div class="text-left">
 											<div class="font-bold text-gray-900 dark:text-white">
 												WebM VP9
@@ -1017,7 +1302,7 @@ onMounted(() => {
 										</div>
 									</button>
 
-									<button @click="exportAnimatedCard('video/webm; codecs=vp8', 'webm')" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-500 transition-all">
+									<button class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-500 transition-all" @click="exportAnimatedCard('video/webm; codecs=vp8', 'webm')">
 										<div class="text-left">
 											<div class="font-bold text-gray-900 dark:text-white">
 												WebM VP8
@@ -1028,7 +1313,7 @@ onMounted(() => {
 										</div>
 									</button>
 
-									<button @click="exportAnimatedCard('video/mp4; codecs=avc1.42E01E', 'mp4')" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-500 transition-all">
+									<button class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-500 transition-all" @click="exportAnimatedCard('video/mp4; codecs=avc1.42E01E', 'mp4')">
 										<div class="text-left">
 											<div class="font-bold text-gray-900 dark:text-white">
 												MP4 H.264
@@ -1068,11 +1353,40 @@ onMounted(() => {
 							</div>
 						</template>
 					</UModal>
-					<UButton label="Download Trainer Card" color="neutral" variant="subtle" @click="exportCard" />
+					<div class="flex gap-2">
+						<UButton label="Download Trainer Card" color="neutral" variant="subtle" @click="exportCard" />
+						<UPopover>
+							<UButton icon="i-heroicons-question-mark-circle" label="Controls" color="neutral" variant="subtle" />
+							<template #content>
+								<div class="p-4 w-72">
+									<div class="space-y-4">
+										<div>
+											<h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Desktop</h4>
+											<div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+												<div class="flex items-center gap-2">
+													<span>• <UKbd>Left-Click</UKbd> & drag to move sprite</span>
+												</div>
+												<div class="flex items-center gap-2">
+													<span>• <UKbd>Left-Click</UKbd> & <UKbd>scroll</UKbd> to scale</span>
+												</div>
+											</div>
+										</div>
+										<div>
+											<h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Mobile</h4>
+											<div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+												<div>• <UKbd>Tap</UKbd> & <UKbd>drag</UKbd> to move sprite</div>
+												<div>• <UKbd>Pinch</UKbd> to scale</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</template>
+						</UPopover>
+					</div>
 					<USeparator class="py-5" />
 					<div class="rounded-lg bg-card shadow-sm">
-						<div class="relative w-full" style="aspect-ratio: 228/140;">
-							<canvas ref="trainerCardCanvas" class="absolute inset-0 w-full h-full rounded-lg pixelated" />
+						<div class="relative w-full">
+							<canvas ref="trainerCardCanvas" class="w-full h-auto rounded-lg pixelated" @mousemove="canvasMouseMove" @mousedown="canvasMouseDown" @mouseup="canvasMouseUp" @mouseleave="canvasMouseLeave" @wheel.prevent="canvasWheel" @touchstart.prevent="canvasTouchStart" @touchmove.prevent="canvasTouchMove" @touchend.prevent="canvasTouchEnd" />
 						</div>
 					</div>
 				</div>
