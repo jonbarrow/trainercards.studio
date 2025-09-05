@@ -151,6 +151,13 @@ export default abstract class TrainerCard {
 			drawHeight
 		);
 
+		pokemon.original_x = x + baseOffsetX;
+		pokemon.original_y = y + baseOffsetY;
+		pokemon.drawn_x = finalX;
+		pokemon.drawn_y = finalY;
+		pokemon.drawn_width = drawWidth;
+		pokemon.drawn_height = drawHeight;
+
 		if (pokemon.pokeball) {
 			const pokeballImage = await loadImage(pokemon.pokeball.image.url);
 			const pokeballPadding = pokemon.pokeball.image.dimensions.padding;
@@ -276,6 +283,13 @@ export default abstract class TrainerCard {
 			drawWidth,
 			drawHeight
 		);
+
+		pokemon.original_x = x + baseOffsetX;
+		pokemon.original_y = y + baseOffsetY;
+		pokemon.drawn_x = finalX;
+		pokemon.drawn_y = finalY;
+		pokemon.drawn_width = drawWidth;
+		pokemon.drawn_height = drawHeight;
 
 		if (pokemon.pokeball) {
 			const pokeballImage = await loadImage(pokemon.pokeball.image.url);
@@ -408,6 +422,13 @@ export default abstract class TrainerCard {
 			scaledContentWidth,
 			scaledContentHeight
 		);
+
+		trainer.original_x = baseX;
+		trainer.original_y = baseY;
+		trainer.drawn_x = finalX;
+		trainer.drawn_y = finalY;
+		trainer.drawn_width = scaledContentWidth;
+		trainer.drawn_height = scaledContentHeight;
 	}
 
 	protected async drawAnimatedTrainerImage(trainer: AnimatedTrainerImage): Promise<void> {
@@ -467,6 +488,13 @@ export default abstract class TrainerCard {
 			scaledContentWidth,
 			scaledContentHeight
 		);
+
+		trainer.original_x = baseX;
+		trainer.original_y = baseY;
+		trainer.drawn_x = finalX;
+		trainer.drawn_y = finalY;
+		trainer.drawn_width = scaledContentWidth;
+		trainer.drawn_height = scaledContentHeight;
 
 		const frameID = requestAnimationFrame(async () => {
 			this.drawAnimatedTrainerImage(trainer);

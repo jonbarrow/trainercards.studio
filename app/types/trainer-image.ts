@@ -1,7 +1,8 @@
 import type ImageDimensions from '@/types/image-dimensions';
 import type AnimationFrameData from '@/types/animation-frame-data';
+import type SelectableSprite from '@/types/selectable-sprite';
 
-interface BaseTrainerImage {
+interface BaseTrainerImage extends SelectableSprite {
 	style: 'pixel_art' | 'model_render';
 	name: string;
 	platform: string;
@@ -10,9 +11,6 @@ interface BaseTrainerImage {
 	creator_url?: string;
 	image_url: string;
 	preview_url: string;
-	offset_x: number;
-	offset_y: number;
-	scale: number;
 }
 
 export interface StaticTrainerImage extends BaseTrainerImage {
