@@ -24,9 +24,10 @@ const selectedTrainer = ref<TrainerImage>({
 	creator: '',
 	image_url: '',
 	preview_url: '',
-	offset_x: 0,
-	offset_y: 0,
-	scale: 1,
+	offset_x: 0, // * Set prior to the drawing process but not in the original metadata
+	offset_y: 0, // * Set prior to the drawing process but not in the original metadata
+	scale: 1, // * Set prior to the drawing process but not in the original metadata
+	flipped: false, // * Set prior to the drawing process but not in the original metadata
 	original_x: 0, // * Set during the drawing process
 	original_y: 0, // * Set during the drawing process
 	drawn_x: 0, // * Set during the drawing process
@@ -267,7 +268,8 @@ function selectTrainer(trainer: TrainerImage) {
 		...trainer,
 		offset_x: trainer.offset_x ?? 0,
 		offset_y: trainer.offset_y ?? 0,
-		scale: trainer.scale ?? 1
+		scale: trainer.scale ?? 1,
+		flipped: trainer.flipped ?? false
 	};
 
 	trainerSearchQuery.value = '';
@@ -286,6 +288,12 @@ function updateTrainerOffset(axis: 'x' | 'y', value: number) {
 
 function updateTrainerScale(value: number) {
 	selectedTrainer.value.scale = value;
+	updateCanvas();
+}
+
+function updateTrainerFlip(value: boolean | 'indeterminate') {
+	const flipped = value === true;
+	selectedTrainer.value.flipped = flipped;
 	updateCanvas();
 }
 
@@ -310,9 +318,10 @@ function selectPokemon(pokemon: Pokemon, image: PokemonImage) {
 				image,
 				nickname: pokemon.display_name,
 				gender: '',
-				offset_x: 0,
-				offset_y: 0,
-				scale: 1,
+				offset_x: 0, // * Set prior to the drawing process but not in the original metadata
+				offset_y: 0, // * Set prior to the drawing process but not in the original metadata
+				scale: 1, // * Set prior to the drawing process but not in the original metadata
+				flipped: false, // * Set prior to the drawing process but not in the original metadata
 				original_x: 0, // * Set during the drawing process
 				original_y: 0, // * Set during the drawing process
 				drawn_x: 0, // * Set during the drawing process
@@ -343,6 +352,14 @@ function updatePokemonOffset(slot: number, axis: 'x' | 'y', value: number) {
 function updatePokemonScale(slot: number, value: number) {
 	if (selectedTeam[slot]) {
 		selectedTeam[slot].scale = value;
+		updateCanvas();
+	}
+}
+
+function updatePokemonFlip(slot: number, value: boolean | 'indeterminate') {
+	if (selectedTeam[slot]) {
+		const flipped = value === true;
+		selectedTeam[slot].flipped = flipped;
 		updateCanvas();
 	}
 }
@@ -948,7 +965,7 @@ function canvasTouchEnd(event: TouchEvent): void {
 							</div>
 						</div>
 						<div v-if="selectedTrainer.image_url" class="space-y-4">
-							<h3 class="text-sm font-medium">Position & Scale</h3>
+							<h3 class="text-sm font-medium">Transform</h3>
 							<div class="flex flex-col space-y-3 md:hidden">
 								<div class="flex items-end space-x-2">
 									<div class="flex flex-col flex-1">
@@ -962,6 +979,10 @@ function canvasTouchEnd(event: TouchEvent): void {
 									<div class="flex flex-col flex-1">
 										<label class="text-xs text-muted-foreground mb-1">Scale</label>
 										<UInput type="number" :model-value="selectedTrainer.scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" @input="updateTrainerScale(parseFloat($event.target.value) || 1)" />
+									</div>
+									<div class="flex flex-col">
+										<label class="text-xs text-muted-foreground mb-1">Flip</label>
+										<UCheckbox color="secondary" :model-value="selectedTrainer.flipped" @update:model-value="updateTrainerFlip" />
 									</div>
 									<div class="flex flex-col">
 										<label class="text-xs text-muted-foreground mb-1">&nbsp;</label>
@@ -981,6 +1002,10 @@ function canvasTouchEnd(event: TouchEvent): void {
 								<div class="flex flex-col items-center">
 									<label class="text-xs text-muted-foreground mb-1">Scale</label>
 									<UInput type="number" :model-value="selectedTrainer.scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" class="w-20 text-center" @input="updateTrainerScale(parseFloat($event.target.value) || 1)" />
+								</div>
+								<div class="flex flex-col items-center">
+									<label class="text-xs text-muted-foreground mb-1">Flip</label>
+									<UCheckbox color="secondary" :model-value="selectedTrainer.flipped" @update:model-value="updateTrainerFlip" />
 								</div>
 								<div class="flex flex-col items-center">
 									<label class="text-xs text-muted-foreground mb-1">Reset</label>
@@ -1060,6 +1085,10 @@ function canvasTouchEnd(event: TouchEvent): void {
 											<div class="flex flex-col flex-1">
 												<label class="text-xs text-muted-foreground mb-1">Scale</label>
 												<UInput type="number" :model-value="selectedTeam[item].scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" @input="updatePokemonScale(item, parseFloat($event.target.value) || 1)" />
+											</div>
+											<div class="flex flex-col">
+												<label class="text-xs text-muted-foreground mb-1">Flip</label>
+												<UCheckbox color="secondary" :model-value="selectedTeam[item].flipped" @update:model-value="updatePokemonFlip(item, $event)" />
 											</div>
 											<div class="flex flex-col">
 												<label class="text-xs text-muted-foreground mb-1">&nbsp;</label>
@@ -1146,6 +1175,10 @@ function canvasTouchEnd(event: TouchEvent): void {
 												<div class="flex flex-col items-center">
 													<label class="text-xs text-muted-foreground mb-1">Scale</label>
 													<UInput type="number" :model-value="selectedTeam[item].scale" size="xs" placeholder="1.0" step="0.1" min="0.1" max="3.0" class="w-16 text-center" @input="updatePokemonScale(item, parseFloat($event.target.value) || 1)" />
+												</div>
+												<div class="flex flex-col items-center">
+													<label class="text-xs text-muted-foreground mb-1">Flip</label>
+													<UCheckbox color="secondary" :model-value="selectedTeam[item].flipped" @update:model-value="updatePokemonFlip(item, $event)" />
 												</div>
 												<div class="flex flex-col items-center">
 													<label class="text-xs text-muted-foreground mb-1">Reset</label>

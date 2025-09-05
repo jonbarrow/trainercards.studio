@@ -139,17 +139,34 @@ export default abstract class TrainerCard {
 		const finalX = x + baseOffsetX + pokemon.offset_x;
 		const finalY = y + baseOffsetY + pokemon.offset_y;
 
-		this.ctx.drawImage(
-			pokemonImage,
-			padding.left,
-			padding.top,
-			contentWidth,
-			contentHeight,
-			finalX,
-			finalY,
-			drawWidth,
-			drawHeight
-		);
+		if (pokemon.flipped) {
+			this.ctx.save();
+			this.ctx.scale(-1, 1);
+			this.ctx.drawImage(
+				pokemonImage,
+				padding.left,
+				padding.top,
+				contentWidth,
+				contentHeight,
+				-finalX - drawWidth,
+				finalY,
+				drawWidth,
+				drawHeight
+			);
+			this.ctx.restore();
+		} else {
+			this.ctx.drawImage(
+				pokemonImage,
+				padding.left,
+				padding.top,
+				contentWidth,
+				contentHeight,
+				finalX,
+				finalY,
+				drawWidth,
+				drawHeight
+			);
+		}
 
 		pokemon.original_x = x + baseOffsetX;
 		pokemon.original_y = y + baseOffsetY;
@@ -272,17 +289,34 @@ export default abstract class TrainerCard {
 		this.ctx.clearRect(finalX, finalY, drawWidth, drawHeight);
 		await this.redrawBackgroundArea(finalX, finalY, drawWidth, drawHeight);
 
-		this.ctx.drawImage(
-			currentFrame,
-			0,
-			0,
-			frameSize.width,
-			frameSize.height,
-			finalX,
-			finalY,
-			drawWidth,
-			drawHeight
-		);
+		if (pokemon.flipped) {
+			this.ctx.save();
+			this.ctx.scale(-1, 1);
+			this.ctx.drawImage(
+				currentFrame,
+				0,
+				0,
+				frameSize.width,
+				frameSize.height,
+				-finalX - drawWidth,
+				finalY,
+				drawWidth,
+				drawHeight
+			);
+			this.ctx.restore();
+		} else {
+			this.ctx.drawImage(
+				currentFrame,
+				0,
+				0,
+				frameSize.width,
+				frameSize.height,
+				finalX,
+				finalY,
+				drawWidth,
+				drawHeight
+			);
+		}
 
 		pokemon.original_x = x + baseOffsetX;
 		pokemon.original_y = y + baseOffsetY;
@@ -411,17 +445,34 @@ export default abstract class TrainerCard {
 		const finalX = baseX + trainer.offset_x;
 		const finalY = baseY + trainer.offset_y;
 
-		this.ctx.drawImage(
-			trainerImage,
-			trainer.dimensions!.padding.left,
-			trainer.dimensions!.padding.top,
-			trainer.dimensions!.content.width,
-			trainer.dimensions!.content.height,
-			finalX,
-			finalY,
-			scaledContentWidth,
-			scaledContentHeight
-		);
+		if (trainer.flipped) {
+			this.ctx.save();
+			this.ctx.scale(-1, 1);
+			this.ctx.drawImage(
+				trainerImage,
+				trainer.dimensions!.padding.left,
+				trainer.dimensions!.padding.top,
+				trainer.dimensions!.content.width,
+				trainer.dimensions!.content.height,
+				-finalX - scaledContentWidth,
+				finalY,
+				scaledContentWidth,
+				scaledContentHeight
+			);
+			this.ctx.restore();
+		} else {
+			this.ctx.drawImage(
+				trainerImage,
+				trainer.dimensions!.padding.left,
+				trainer.dimensions!.padding.top,
+				trainer.dimensions!.content.width,
+				trainer.dimensions!.content.height,
+				finalX,
+				finalY,
+				scaledContentWidth,
+				scaledContentHeight
+			);
+		}
 
 		trainer.original_x = baseX;
 		trainer.original_y = baseY;
@@ -477,17 +528,34 @@ export default abstract class TrainerCard {
 		this.ctx.clearRect(finalX, finalY, scaledContentWidth, scaledContentHeight);
 		await this.redrawBackgroundArea(finalX, finalY, scaledContentWidth, scaledContentHeight);
 
-		this.ctx.drawImage(
-			currentFrame,
-			0,
-			0,
-			frameSize.width,
-			frameSize.height,
-			finalX,
-			finalY,
-			scaledContentWidth,
-			scaledContentHeight
-		);
+		if (trainer.flipped) {
+			this.ctx.save();
+			this.ctx.scale(-1, 1);
+			this.ctx.drawImage(
+				currentFrame,
+				0,
+				0,
+				frameSize.width,
+				frameSize.height,
+				-finalX - scaledContentWidth,
+				finalY,
+				scaledContentWidth,
+				scaledContentHeight
+			);
+			this.ctx.restore();
+		} else {
+			this.ctx.drawImage(
+				currentFrame,
+				0,
+				0,
+				frameSize.width,
+				frameSize.height,
+				finalX,
+				finalY,
+				scaledContentWidth,
+				scaledContentHeight
+			);
+		}
 
 		trainer.original_x = baseX;
 		trainer.original_y = baseY;
