@@ -20,6 +20,7 @@
 		"better-sqlite3": "^12.2.0",
 		"fs-extra": "^11.3.1",
 		"nuxt": "^4.0.3",
+		"sitemap": "^8.0.0",
 		"typescript": "^5.9.2",
 		"vue": "^3.5.18",
 		"vue-router": "^4.5.1"
