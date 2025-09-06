@@ -870,10 +870,13 @@ function canvasTouchEnd(event: TouchEvent): void {
 	<div>
 		<div class="flex items-center justify-between w-full px-4 py-2">
 			<div class="flex items-center">
-				<span class="text-xl font-semibold">Trainer Cards Studio</span>
+				<ULink raw class="text-xl font-semibold" to="/">Trainer Cards Studio</ULink>
 			</div>
 
-			<UButton to="https://github.com/jonbarrow/trainercards.studio" target="_blank" color="neutral" variant="subtle" icon="i-simple-icons-github">GitHub</UButton>
+			<div class="flex items-center gap-2">
+				<UButton to="/credits" color="neutral" variant="subtle" icon="i-heroicons-information-circle">Credits</UButton>
+				<UButton to="https://github.com/jonbarrow/trainercards.studio" target="_blank" color="neutral" variant="subtle" icon="i-simple-icons-github">GitHub</UButton>
+			</div>
 		</div>
 		<USeparator />
 		<UContainer class="py-10">

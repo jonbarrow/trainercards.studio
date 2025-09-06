@@ -30,7 +30,7 @@ See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details on how to contribute.
 
 ## Credits / Attributions
 
-This project would not be possible without outside help. All credits/attributions for external resources (even those which state they do not need credit) can be found in [ATTRIBUTIONS.md](ATTRIBUTIONS.md). Resources made specifically for the project are (generally) attributed via the git history, but may also be placed in [ATTRIBUTIONS.md](ATTRIBUTIONS.md).
+This project would not be possible without outside help. All credits/attributions for external resources (even those which state they do not need credit) can be found in [ATTRIBUTIONS.md](content/ATTRIBUTIONS.md). Resources made specifically for the project are (generally) attributed via the git history, but may also be placed in [ATTRIBUTIONS.md](content/ATTRIBUTIONS.md).
 
 ## License
 
@@ -43,7 +43,7 @@ All source code and original assets created by project maintainers/contributors 
 This project includes assets that are copyrighted by their respective owners:
 
 - **Pokémon-related assets**: Images, sprites, and other materials are copyrighted by Nintendo Co., Ltd., The Pokémon Company, and Game Freak Inc. These assets are used under fair use provisions for educational/non-commercial purposes.
-- **Other third-party assets**: Various images and resources from the wider internet are used with attribution. See [ATTRIBUTIONS.md](ATTRIBUTIONS.md) for detailed credits and sources.
+- **Other third-party assets**: Various images and resources from the wider internet are used with attribution. See [ATTRIBUTIONS.md](content/ATTRIBUTIONS.md) for detailed credits and sources.
 
 ### Modified Assets
 Some assets in this project are modified versions of copyrighted materials. While the modifications themselves may be considered derivative works, the underlying copyrighted material remains the property of the original copyright holders.
