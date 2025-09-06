@@ -1,4 +1,4 @@
-import DiamondPearlZeroStar from '@/trainer-card-templates/DiamondPearlZeroStar';
+import DiamondPearlZeroStar from '@/trainer-card-templates/diamond-pearl-stars/DiamondPearlZeroStar';
 
 export default class DiamondPearlFiveStar extends DiamondPearlZeroStar {
 	public static override name = 'Diamond / Pearl (5 Star)';

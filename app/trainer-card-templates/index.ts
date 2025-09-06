@@ -1,17 +1,17 @@
 import type { TrainerCardConstructor } from '@/trainer-card-templates/TrainerCard';
-import RedBlueGB from '@/trainer-card-templates/RedBlueGB';
-import RedBlueGBC from '@/trainer-card-templates/RedBlueGBC';
-import GoldSilver from '@/trainer-card-templates/GoldSilver';
-import RubySapphire from '@/trainer-card-templates/RubySapphire';
-import DiamondPearlRed from '@/trainer-card-templates/DiamondPearlZeroStar';
-import DiamondPearlOneStar from '@/trainer-card-templates/DiamondPearlOneStar';
-import DiamondPearlTwoStar from '@/trainer-card-templates/DiamondPearlTwoStar';
-import DiamondPearlThreeStar from '@/trainer-card-templates/DiamondPearlThreeStar';
-import DiamondPearlFourStar from '@/trainer-card-templates/DiamondPearlFourStar';
-import DiamondPearlFiveStar from '@/trainer-card-templates/DiamondPearlFiveStar';
-import ModernCity from '@/trainer-card-templates/ModernCity';
-import ModernGalarScenery from '@/trainer-card-templates/ModernGalarScenery';
-import ModernPokemonInTheWild from '@/trainer-card-templates/ModernPokemonInTheWild';
+import RedBlueGB from '@/trainer-card-templates/red-blue/RedBlueGB';
+import RedBlueGBC from '@/trainer-card-templates/red-blue/RedBlueGBC';
+import GoldSilver from '@/trainer-card-templates/gold-silver/GoldSilver';
+import RubySapphire from '@/trainer-card-templates/ruby-sapphire/RubySapphire';
+import DiamondPearlRed from '@/trainer-card-templates/diamond-pearl-stars/DiamondPearlZeroStar';
+import DiamondPearlOneStar from '@/trainer-card-templates/diamond-pearl-stars/DiamondPearlOneStar';
+import DiamondPearlTwoStar from '@/trainer-card-templates/diamond-pearl-stars/DiamondPearlTwoStar';
+import DiamondPearlThreeStar from '@/trainer-card-templates/diamond-pearl-stars/DiamondPearlThreeStar';
+import DiamondPearlFourStar from '@/trainer-card-templates/diamond-pearl-stars/DiamondPearlFourStar';
+import DiamondPearlFiveStar from '@/trainer-card-templates/diamond-pearl-stars/DiamondPearlFiveStar';
+import ModernCity from '@/trainer-card-templates/modern/ModernCity';
+import ModernGalarScenery from '@/trainer-card-templates/modern/ModernGalarScenery';
+import ModernPokemonInTheWild from '@/trainer-card-templates/modern/ModernPokemonInTheWild';
 
 const templates: TrainerCardConstructor[] = [
 	RedBlueGB,

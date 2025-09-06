@@ -1,4 +1,4 @@
-import RedBlueGB from '@/trainer-card-templates/RedBlueGB';
+import RedBlueGB from '@/trainer-card-templates/red-blue/RedBlueGB';
 
 export default class RedBlueGBC extends RedBlueGB {
 	public static override name = 'Red / Blue (GBC)';
