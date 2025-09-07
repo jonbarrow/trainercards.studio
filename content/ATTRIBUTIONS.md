@@ -20,6 +20,7 @@ Credits for assets/data taken from other sources in no specific order. Some data
 - Gen 1 and 2 badges: https://www.spriters-resource.com/ds_dsi/pokemonheartgoldsoulsilver/
 - Gen 5 badges: https://www.spriters-resource.com/ds_dsi/pokemonblackwhite/
 - Gen 5 badges: https://www.spriters-resource.com/ds_dsi/pokemonblack2white2/
+- Gen 6 badges: https://bulbapedia.bulbagarden.net/wiki/Kalos_League
 - Base Pokeball used for "modern" trainer cards: https://www.etsy.com/listing/1024585656/pokemon-pokeball-svg-black-and-white
 - Gender icon: https://github.com/FlagBrew/PKSM/blob/b8d735ecffea6a341bcffbc33829ca9b2c78df1d/assets/gfx/ui/icon_female.png
 - Gender icon: https://github.com/FlagBrew/PKSM/blob/b8d735ecffea6a341bcffbc33829ca9b2c78df1d/assets/gfx/ui/icon_male.png

@@ -118,5 +118,31 @@
 			"/images/badges/unova/legend-b2w2.png",
 			"/images/badges/unova/wave.png"
 		]
+	},
+	{
+		"label": "X / Y",
+		"images": [
+			"/images/badges/kalos/bug.png",
+			"/images/badges/kalos/cliff.png",
+			"/images/badges/kalos/rumble.png",
+			"/images/badges/kalos/plant.png",
+			"/images/badges/kalos/voltage.png",
+			"/images/badges/kalos/fairy.png",
+			"/images/badges/kalos/psychic.png",
+			"/images/badges/kalos/iceberg.png"
+		]
+	},
+	{
+		"label": "Omega Ruby / Alpha Sapphire",
+		"images": [
+			"/images/badges/hoenn/stone-oras.png",
+			"/images/badges/hoenn/knuckle-oras.png",
+			"/images/badges/hoenn/dynamo-oras.png",
+			"/images/badges/hoenn/heat-oras.png",
+			"/images/badges/hoenn/balance-oras.png",
+			"/images/badges/hoenn/feather-oras.png",
+			"/images/badges/hoenn/mind-oras.png",
+			"/images/badges/hoenn/rain-oras.png"
+		]
 	}
 ]
