@@ -233,5 +233,28 @@
 			"/images/badges/sinnoh/icicle-bdsp.png",
 			"/images/badges/sinnoh/beacon-bdsp.png"
 		]
+	},
+	{
+		"label": "Scarlet / Violet",
+		"images": [
+			"/images/badges/paldea/dragon.png",
+			"/images/badges/paldea/bug.png",
+			"/images/badges/paldea/grass.png",
+			"/images/badges/paldea/electric.png",
+			"/images/badges/paldea/water.png",
+			"/images/badges/paldea/normal.png",
+			"/images/badges/paldea/ghost.png",
+			"/images/badges/paldea/psychic.png",
+			"/images/badges/paldea/ice.png",
+			"/images/badges/paldea/dark.png",
+			"/images/badges/paldea/fire.png",
+			"/images/badges/paldea/poison.png",
+			"/images/badges/paldea/fairy.png",
+			"/images/badges/paldea/fighting.png",
+			"/images/badges/paldea/rock.png",
+			"/images/badges/paldea/flying.png",
+			"/images/badges/paldea/steel.png",
+			"/images/badges/paldea/ground.png"
+		]
 	}
 ]
