@@ -4,20 +4,32 @@ import type FontCharacterImage from '@/types/font-character-image';
 
 const { loadImage } = useImageCache();
 
-export default class RubySapphire extends TrainerCard {
-	public static override name = 'Ruby / Sapphire';
-	public static override previewURL = '/images/trainer-cards/gen-3-trainer-card-no-id-no.png';
-	protected override backgroundURL = '/images/trainer-cards/gen-3-trainer-card-no-id-no.png';
-	protected override backgroundOriginalWidth = 228;
-	protected override backgroundOriginalHeight = 140;
-	protected override backgroundScale = 10;
-	protected override pokemonScale = 10;
-	protected override trainerImageX = 83;
-	protected override trainerImageY = 105;
-	protected override trainerImageBoundingBoxWidth = 70;
-	protected override trainerImageBoundingBoxHeight = 70;
-	protected override trainerImageScale = 10;
-	protected override trainerNameScale = 10;
+export default class RedBlue extends TrainerCard {
+	public static override name = 'Red / Blue';
+
+	public override backgrounds = [
+		{
+			name: 'GameBoy',
+			previewURL: '/images/trainer-cards/gen-1.png',
+			backgroundURL: '/images/trainer-cards/gen-1.png'
+		},
+		{
+			name: 'GameBoy Color',
+			previewURL: '/images/trainer-cards/gen-1-color.png',
+			backgroundURL: '/images/trainer-cards/gen-1-color.png'
+		}
+	];
+
+	protected override backgroundOriginalWidth = 160;
+	protected override backgroundOriginalHeight = 64;
+	protected override backgroundScale = 20;
+	protected override pokemonScale = 20;
+	protected override trainerImageX = 40;
+	protected override trainerImageY = 56;
+	protected override trainerImageBoundingBoxWidth = 32;
+	protected override trainerImageBoundingBoxHeight = 48;
+	protected override trainerImageScale = 20;
+	protected override trainerNameScale = 20;
 
 	private font?: FontCharacterImage[];
 
@@ -27,34 +39,26 @@ export default class RubySapphire extends TrainerCard {
 
 		const displayWidth = this.backgroundOriginalWidth * this.backgroundScale;
 		const displayHeight = this.backgroundOriginalHeight * this.backgroundScale;
-		const backgroundImage = await loadImage(this.backgroundURL);
+		const backgroundImage = await loadImage(this.backgrounds[this.selectedBackgroundIndex]!.backgroundURL);
 
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.ctx.drawImage(backgroundImage, 0, 0, displayWidth, displayHeight);
 	}
 
 	override async drawTrainerName(name: string): Promise<void> {
-		const x = 50 * this.trainerNameScale;
-		const y = 36 * this.trainerNameScale;
+		const x = 56 * this.trainerNameScale;
+		const y = 16 * this.trainerNameScale;
 
 		await this.drawText(name, x, y, this.trainerNameScale);
 	}
 
 	override async drawPokemonTeam(team: PokemonTeam) {
-		// * The values 18 and 55 come from the pixel offsets from the original
-		// * 1x scale card image.
-		// *
-		// * The rest of the values came from me monkey-slamming my keyboard
-		// * until something that wasn't total garbage came out. This is my
-		// * first time writing any sort of dynamic drawing code like this.
-		// *
-		// * I hope that you will forgive me, because I know God will not.
 		const scale = this.pokemonScale;
-		const pokemonSize = 20 * scale;
-		const spacing = pokemonSize / 4;
+		const pokemonSize = 12 * scale;
+		const spacing = 8 * scale;
 		const slotOffset = pokemonSize + spacing;
-		const columnBase = 18 * scale;
-		const rowBase = 55 * scale;
+		const columnBase = 16 * scale;
+		const rowBase = 26 * scale;
 
 		const column1X = columnBase;
 		const column2X = columnBase + slotOffset;
@@ -88,61 +92,22 @@ export default class RubySapphire extends TrainerCard {
 		}
 	}
 
-	override async drawBadges(urls: string[]) {
-		const slotSize = 16;
-		const startX = 27;
-		const startY = 115;
-		const slotSpacing = 24;
-
-		// * Card only has 8 slots for badges
-		for (let i = 0; i < 8; i++) {
-			if (urls[i]) {
-				const image = await loadImage(urls[i]!);
-
-				const slotX = (startX + (i * slotSpacing)) * this.backgroundScale;
-				const slotY = startY * this.backgroundScale;
-				const scaledSlotSize = slotSize * this.backgroundScale;
-
-				const scaleX = scaledSlotSize / (image.width * this.backgroundScale);
-				const scaleY = scaledSlotSize / (image.height * this.backgroundScale);
-				const fitScale = Math.min(1, scaleX, scaleY);
-
-				const badgeWidth = image.width * this.backgroundScale * fitScale;
-				const badgeHeight = image.height * this.backgroundScale * fitScale;
-
-				const badgeX = slotX + (scaledSlotSize - badgeWidth) / 2 - this.backgroundScale;
-				const badgeY = slotY + (scaledSlotSize - badgeHeight) / 2 - this.backgroundScale;
-
-				this.ctx.drawImage(
-					image,
-					0, 0,
-					image.width,
-					image.height,
-					badgeX,
-					badgeY,
-					badgeWidth,
-					badgeHeight
-				);
-			}
-		}
-	}
-
 	override async drawWatermark(): Promise<void> {
-		const x = 113 * this.backgroundScale;
-		const y = 15 * this.backgroundScale;
-		const scale = 5;
+		const x = 8 * this.backgroundScale;
+		const y = 8 * this.backgroundScale;
+		const scale = 7;
 
 		await this.drawText('Made with https://trainercards.studio', x, y, scale);
 	}
 
 	private async drawText(text: string, x: number, y: number, scale: number) {
 		// * There is no font for this, we just have raster images
-		// * https://www.spriters-resource.com/fullview/8307/
+		// * https://www.spriters-resource.com/game_boy_gbc/pokemonredblue/sheet/8734/
 		// *
 		// * Draw it image-by-image like a caveman I guess
 		// TODO - Support lowercase letters and other characters
 		if (!this.font) {
-			const response = await fetch('/api/font/gen3');
+			const response = await fetch('/api/font/gen1');
 			this.font = await response.json();
 		}
 
@@ -151,7 +116,7 @@ export default class RubySapphire extends TrainerCard {
 			const character = this.font!.find(char => char.symbol === symbol);
 
 			if (symbol === ' ') {
-				x += 6 * scale; // TODO - Should this default size go inside the font response?
+				x += 8 * scale; // TODO - Should this default size go inside the font response?
 				continue;
 			}
 
@@ -178,6 +143,7 @@ export default class RubySapphire extends TrainerCard {
 	}
 
 	// * Not supported
+	override async drawBadges(_urls: string[]) {}
 	override async drawIcon1(_imageURL: string, _text: string): Promise<void> {}
 	override async drawIcon2(_imageURL: string, _text: string): Promise<void> {}
 }

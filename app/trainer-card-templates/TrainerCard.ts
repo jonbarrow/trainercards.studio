@@ -73,19 +73,32 @@ export interface TrainerCardConstructor {
 	new (): TrainerCard;
 
 	readonly name: string;
-	readonly previewURL: string;
+	readonly backgrounds: {
+		name: string;
+		previewURL: string;
+		backgroundURL: string;
+	}[];
 }
 
 export default abstract class TrainerCard {
 	public static name: string;
-	public static previewURL: string;
+	public static get backgrounds() {
+		// * Kinda jank looking, but this creates an instance of the parent class
+		// * so it returns the overridden value
+		return new (this as unknown as TrainerCardConstructor)().backgrounds;
+	}
 
 	public canvas!: HTMLCanvasElement;
 	public ctx!: CanvasRenderingContext2D;
 	public animations: Map<string, SpriteAnimation> = new Map();
 	public watermarkEnabled = true; // * Hack for modern templates
+	public selectedBackgroundIndex = 0;
+	public backgrounds: {
+		name: string;
+		previewURL: string;
+		backgroundURL: string;
+	}[] = [];
 
-	protected backgroundURL!: string;
 	protected backgroundOriginalWidth!: number;
 	protected backgroundOriginalHeight!: number;
 	protected backgroundScale!: number;

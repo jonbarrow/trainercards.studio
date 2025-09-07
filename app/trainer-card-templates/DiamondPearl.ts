@@ -4,10 +4,42 @@ import type FontCharacterImage from '@/types/font-character-image';
 
 const { loadImage } = useImageCache();
 
-export default class DiamondPearlRed extends TrainerCard {
-	public static override name = 'Diamond / Pearl (0 Star)';
-	public static override previewURL = '/images/trainer-cards/gen-4-custom-red.png';
-	protected override backgroundURL = '/images/trainer-cards/gen-4-custom-red.png';
+export default class DiamondPearl extends TrainerCard {
+	public static override name = 'Diamond / Pearl';
+
+	public override backgrounds = [
+		{
+			name: '0 Star',
+			previewURL: '/images/trainer-cards/gen-4-custom-red.png',
+			backgroundURL: '/images/trainer-cards/gen-4-custom-red.png'
+		},
+		{
+			name: '1 Star',
+			previewURL: '/images/trainer-cards/gen-4-custom-blue.png',
+			backgroundURL: '/images/trainer-cards/gen-4-custom-blue.png'
+		},
+		{
+			name: '2 Star',
+			previewURL: '/images/trainer-cards/gen-4-custom-orange.png',
+			backgroundURL: '/images/trainer-cards/gen-4-custom-orange.png'
+		},
+		{
+			name: '3 Star',
+			previewURL: '/images/trainer-cards/gen-4-custom-gray.png',
+			backgroundURL: '/images/trainer-cards/gen-4-custom-gray.png'
+		},
+		{
+			name: '4 Star',
+			previewURL: '/images/trainer-cards/gen-4-custom-yellow.png',
+			backgroundURL: '/images/trainer-cards/gen-4-custom-yellow.png'
+		},
+		{
+			name: '5 Star',
+			previewURL: '/images/trainer-cards/gen-4-custom-black.png',
+			backgroundURL: '/images/trainer-cards/gen-4-custom-black.png'
+		}
+	];
+
 	protected override backgroundOriginalWidth = 240;
 	protected override backgroundOriginalHeight = 176;
 	protected override backgroundScale = 10;
@@ -27,7 +59,7 @@ export default class DiamondPearlRed extends TrainerCard {
 
 		const displayWidth = this.backgroundOriginalWidth * this.backgroundScale;
 		const displayHeight = this.backgroundOriginalHeight * this.backgroundScale;
-		const backgroundImage = await loadImage(this.backgroundURL);
+		const backgroundImage = await loadImage(this.backgrounds[this.selectedBackgroundIndex]!.backgroundURL);
 
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.ctx.drawImage(backgroundImage, 0, 0, displayWidth, displayHeight);

@@ -261,6 +261,11 @@ function selectTemplate(index: number) {
 	toggleTemplateModal();
 }
 
+function selectBackground(index: number) {
+	card.selectedBackgroundIndex = index;
+	updateCanvas();
+}
+
 function selectTrainer(trainer: TrainerImage) {
 	card.cleanup();
 
@@ -894,13 +899,30 @@ function canvasTouchEnd(event: TouchEvent): void {
 									<div class="p-4 grid grid-cols-3 gap-3">
 										<div v-for="(template, index) in templates" :key="index" class="relative cursor-pointer" @click="selectTemplate(index)">
 											<div :class="['border-2 rounded-lg p-2 transition-colors', selectedTrainer?.name === template.name ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-gray-300']">
-												<img loading="lazy" :src="template.previewURL" :alt="template.name" class="max-w-full max-h-full object-contain pixelated">
+												<img loading="lazy" :src="template.backgrounds[0]!.previewURL" :alt="template.name" class="max-w-full max-h-full object-contain pixelated">
 												<p class="text-xs text-center mt-2 truncate">{{ template.name }}</p>
+												<p class="text-xs text-center mt-2 truncate">{{ template.backgrounds.length }} {{ template.backgrounds.length === 1 ? 'Background' : 'Backgrounds' }}</p>
 											</div>
 										</div>
 									</div>
 								</template>
 							</UModal>
+							<template v-if="card.backgrounds.length > 1">
+								<br>
+								<br>
+								<UDropdownMenu :items="card.backgrounds">
+									<template #item="{ item, index }">
+										<div class="flex items-center gap-3 w-full" @click="selectBackground(index)">
+											<img :src="card.backgrounds.find(bg => bg.name === item.name)?.previewURL" :alt="item.name" class="w-12 h-8 object-cover rounded border">
+											<span>{{ item.name }}</span>
+										</div>
+									</template>
+									<UButton color="neutral" variant="subtle">
+										Select Background
+										<UIcon name="i-lucide-chevron-down" class="w-3 h-3 ml-2" />
+									</UButton>
+								</UDropdownMenu>
+							</template>
 							<br>
 							<br>
 							<UButtonGroup>

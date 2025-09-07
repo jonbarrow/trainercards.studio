@@ -7,10 +7,27 @@ const { loadImage } = useImageCache();
 // * ModernBase is the base template for all "modern" cards.
 // * Any "modern" card just needs to extend this class and
 // * change `name` and `previewURL`
-export default class ModernBase extends TrainerCard {
-	public static override name = '';
-	public static override previewURL = '';
-	protected override backgroundURL = '';
+export default class Modern extends TrainerCard {
+	public static override name = 'Modern';
+
+	public override backgrounds = [
+		{
+			name: 'City',
+			previewURL: '/images/trainer-cards/city.png',
+			backgroundURL: '/images/trainer-cards/city.png'
+		},
+		{
+			name: 'Galar Scenery',
+			previewURL: '/images/trainer-cards/galar-scenery.png',
+			backgroundURL: '/images/trainer-cards/galar-scenery.png'
+		},
+		{
+			name: 'Pokemon In The Wild',
+			previewURL: '/images/trainer-cards/pokemon-in-the-wild.png',
+			backgroundURL: '/images/trainer-cards/pokemon-in-the-wild.png'
+		}
+	];
+
 	protected override backgroundOriginalWidth = 780;
 	protected override backgroundOriginalHeight = 440;
 	protected override backgroundScale = 4.5;
@@ -27,7 +44,7 @@ export default class ModernBase extends TrainerCard {
 
 		const displayWidth = this.backgroundOriginalWidth * this.backgroundScale;
 		const displayHeight = this.backgroundOriginalHeight * this.backgroundScale;
-		const backgroundImage = await loadImage(this.backgroundURL);
+		const backgroundImage = await loadImage(this.backgrounds[this.selectedBackgroundIndex]!.backgroundURL);
 		const whitePokeball = await loadImage('/images/pokeball-white.png');
 		const blackPokeball = await loadImage('/images/pokeball-black.png');
 
