@@ -7,6 +7,7 @@ Custom Pokémon trainer card creator
 - 34,949 Pokémon sprites
 - 2,241 trainer images
 - 13 card templates in both classic and "modern" (pokecharms) styles
+- Ability to upload custom backgrounds on all templates
 - Animated trainer cards in various video formats
 - Customize the scale and positions of Pokémon and your trainer
 - Each image can be in any style and on any card, allowing you to mix and match any combination

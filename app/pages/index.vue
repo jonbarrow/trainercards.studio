@@ -15,6 +15,8 @@ const { loadImage } = useImageCache();
 
 const trainerCardCanvas = ref<HTMLCanvasElement | null>(null);
 const selectedTemplateIndex = ref(0);
+const customBackgroundFile = ref<File | null>(null);
+const customBackgroundDataURL = ref<string | null>(null);
 const trainerName = ref('');
 const selectedTrainer = ref<TrainerImage>({
 	style: 'pixel_art',
@@ -216,7 +218,7 @@ async function updateCanvas() {
 	card.canvas = canvas;
 	card.ctx = ctx;
 
-	await card.drawBackground();
+	await card.drawBackground(customBackgroundDataURL.value);
 
 	card.captureBackgroundState();
 
@@ -254,6 +256,7 @@ function selectTemplate(index: number) {
 		card.cleanup();
 
 		selectedTemplateIndex.value = index;
+		customBackgroundDataURL.value = null;
 		card = new templates[index]!();
 		updateCanvas();
 	}
@@ -263,7 +266,23 @@ function selectTemplate(index: number) {
 
 function selectBackground(index: number) {
 	card.selectedBackgroundIndex = index;
+	customBackgroundDataURL.value = null;
 	updateCanvas();
+}
+
+function selectCustomBackground() {
+	const file = customBackgroundFile.value;
+	if (file && file.type.startsWith('image/')) {
+		const reader = new FileReader();
+
+		reader.onload = (e) => {
+			customBackgroundDataURL.value = e.target?.result as string;
+			customBackgroundFile.value = null;
+			updateCanvas();
+		};
+
+		reader.readAsDataURL(file);
+	}
 }
 
 function selectTrainer(trainer: TrainerImage) {
@@ -923,6 +942,16 @@ function canvasTouchEnd(event: TouchEvent): void {
 									</UButton>
 								</UDropdownMenu>
 							</template>
+							<br>
+							<br>
+							<UFileUpload v-model="customBackgroundFile" accept="image/*" :interactive="false" :dropzone="true" class="inline-block" @change="selectCustomBackground">
+								<template #default="{ open }">
+									<UButton color="neutral" variant="subtle" @click="open()">
+										Custom Background
+										<UIcon name="i-lucide-upload" class="w-4 h-4 ml-2" />
+									</UButton>
+								</template>
+							</UFileUpload>
 							<br>
 							<br>
 							<UButtonGroup>

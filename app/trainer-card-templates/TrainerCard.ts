@@ -121,7 +121,7 @@ export default abstract class TrainerCard {
 		this.canvas.height = displayHeight;
 	}
 
-	abstract drawBackground(): Promise<void>;
+	abstract drawBackground(customURL: string | null): Promise<void>;
 	abstract drawIcon1(imageURL: string, text: string): Promise<void>;
 	abstract drawIcon2(imageURL: string, text: string): Promise<void>;
 	abstract drawTrainerName(name: string): Promise<void>;

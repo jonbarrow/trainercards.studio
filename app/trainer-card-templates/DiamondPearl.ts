@@ -53,13 +53,14 @@ export default class DiamondPearl extends TrainerCard {
 
 	private font?: FontCharacterImage[];
 
-	async drawBackground() {
+	async drawBackground(customURL: string | null) {
 		this.rescaleCanvas();
 		this.ctx.imageSmoothingEnabled = false;
 
 		const displayWidth = this.backgroundOriginalWidth * this.backgroundScale;
 		const displayHeight = this.backgroundOriginalHeight * this.backgroundScale;
-		const backgroundImage = await loadImage(this.backgrounds[this.selectedBackgroundIndex]!.backgroundURL);
+		const backgroundURL = customURL ? customURL : this.backgrounds[this.selectedBackgroundIndex]!.backgroundURL;
+		const backgroundImage = await loadImage(backgroundURL);
 
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.ctx.drawImage(backgroundImage, 0, 0, displayWidth, displayHeight);

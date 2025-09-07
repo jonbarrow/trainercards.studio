@@ -39,12 +39,13 @@ export default class Modern extends TrainerCard {
 	protected override trainerImageScale = 20.25;
 	protected override trainerNameScale = 1;
 
-	async drawBackground() {
+	async drawBackground(customURL: string | null) {
 		this.rescaleCanvas();
 
 		const displayWidth = this.backgroundOriginalWidth * this.backgroundScale;
 		const displayHeight = this.backgroundOriginalHeight * this.backgroundScale;
-		const backgroundImage = await loadImage(this.backgrounds[this.selectedBackgroundIndex]!.backgroundURL);
+		const backgroundURL = customURL ? customURL : this.backgrounds[this.selectedBackgroundIndex]!.backgroundURL;
+		const backgroundImage = await loadImage(backgroundURL);
 		const whitePokeball = await loadImage('/images/pokeball-white.png');
 		const blackPokeball = await loadImage('/images/pokeball-black.png');
 
