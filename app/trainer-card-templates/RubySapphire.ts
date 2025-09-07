@@ -6,8 +6,15 @@ const { loadImage } = useImageCache();
 
 export default class RubySapphire extends TrainerCard {
 	public static override name = 'Ruby / Sapphire';
-	public static override previewURL = '/images/trainer-cards/gen-3-trainer-card-no-id-no.png';
-	protected override backgroundURL = '/images/trainer-cards/gen-3-trainer-card-no-id-no.png';
+
+	public override backgrounds = [
+		{
+			name: 'Ruby / Sapphire',
+			previewURL: '/images/trainer-cards/gen-3-trainer-card-no-id-no.png',
+			backgroundURL: '/images/trainer-cards/gen-3-trainer-card-no-id-no.png'
+		}
+	];
+
 	protected override backgroundOriginalWidth = 228;
 	protected override backgroundOriginalHeight = 140;
 	protected override backgroundScale = 10;
@@ -21,13 +28,14 @@ export default class RubySapphire extends TrainerCard {
 
 	private font?: FontCharacterImage[];
 
-	async drawBackground() {
+	async drawBackground(customURL: string | null) {
 		this.rescaleCanvas();
 		this.ctx.imageSmoothingEnabled = false;
 
 		const displayWidth = this.backgroundOriginalWidth * this.backgroundScale;
 		const displayHeight = this.backgroundOriginalHeight * this.backgroundScale;
-		const backgroundImage = await loadImage(this.backgroundURL);
+		const backgroundURL = customURL ? customURL : this.backgrounds[this.selectedBackgroundIndex]!.backgroundURL;
+		const backgroundImage = await loadImage(backgroundURL);
 
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.ctx.drawImage(backgroundImage, 0, 0, displayWidth, displayHeight);

@@ -1,7 +1,0 @@
-import DiamondPearlZeroStar from '@/trainer-card-templates/DiamondPearlZeroStar';
-
-export default class DiamondPearlThreeStar extends DiamondPearlZeroStar {
-	public static override name = 'Diamond / Pearl (3 Star)';
-	public static override previewURL = '/images/trainer-cards/gen-4-custom-gray.png';
-	protected override backgroundURL = '/images/trainer-cards/gen-4-custom-gray.png';
-}

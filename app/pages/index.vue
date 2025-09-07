@@ -15,6 +15,8 @@ const { loadImage } = useImageCache();
 
 const trainerCardCanvas = ref<HTMLCanvasElement | null>(null);
 const selectedTemplateIndex = ref(0);
+const customBackgroundFile = ref<File | null>(null);
+const customBackgroundDataURL = ref<string | null>(null);
 const trainerName = ref('');
 const selectedTrainer = ref<TrainerImage>({
 	style: 'pixel_art',
@@ -216,7 +218,7 @@ async function updateCanvas() {
 	card.canvas = canvas;
 	card.ctx = ctx;
 
-	await card.drawBackground();
+	await card.drawBackground(customBackgroundDataURL.value);
 
 	card.captureBackgroundState();
 
@@ -254,11 +256,33 @@ function selectTemplate(index: number) {
 		card.cleanup();
 
 		selectedTemplateIndex.value = index;
+		customBackgroundDataURL.value = null;
 		card = new templates[index]!();
 		updateCanvas();
 	}
 
 	toggleTemplateModal();
+}
+
+function selectBackground(index: number) {
+	card.selectedBackgroundIndex = index;
+	customBackgroundDataURL.value = null;
+	updateCanvas();
+}
+
+function selectCustomBackground() {
+	const file = customBackgroundFile.value;
+	if (file && file.type.startsWith('image/')) {
+		const reader = new FileReader();
+
+		reader.onload = (e) => {
+			customBackgroundDataURL.value = e.target?.result as string;
+			customBackgroundFile.value = null;
+			updateCanvas();
+		};
+
+		reader.readAsDataURL(file);
+	}
 }
 
 function selectTrainer(trainer: TrainerImage) {
@@ -870,10 +894,13 @@ function canvasTouchEnd(event: TouchEvent): void {
 	<div>
 		<div class="flex items-center justify-between w-full px-4 py-2">
 			<div class="flex items-center">
-				<span class="text-xl font-semibold">Trainer Cards Studio</span>
+				<ULink raw class="text-xl font-semibold" to="/">Trainer Cards Studio</ULink>
 			</div>
 
-			<UButton to="https://github.com/jonbarrow/trainercards.studio" target="_blank" color="neutral" variant="subtle" icon="i-simple-icons-github">GitHub</UButton>
+			<div class="flex items-center gap-2">
+				<UButton to="/credits" color="neutral" variant="subtle" icon="i-heroicons-information-circle">Credits</UButton>
+				<UButton to="https://github.com/jonbarrow/trainercards.studio" target="_blank" color="neutral" variant="subtle" icon="i-simple-icons-github">GitHub</UButton>
+			</div>
 		</div>
 		<USeparator />
 		<UContainer class="py-10">
@@ -891,13 +918,40 @@ function canvasTouchEnd(event: TouchEvent): void {
 									<div class="p-4 grid grid-cols-3 gap-3">
 										<div v-for="(template, index) in templates" :key="index" class="relative cursor-pointer" @click="selectTemplate(index)">
 											<div :class="['border-2 rounded-lg p-2 transition-colors', selectedTrainer?.name === template.name ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-gray-300']">
-												<img loading="lazy" :src="template.previewURL" :alt="template.name" class="max-w-full max-h-full object-contain pixelated">
+												<img loading="lazy" :src="template.backgrounds[0]!.previewURL" :alt="template.name" class="max-w-full max-h-full object-contain pixelated">
 												<p class="text-xs text-center mt-2 truncate">{{ template.name }}</p>
+												<p class="text-xs text-center mt-2 truncate">{{ template.backgrounds.length }} {{ template.backgrounds.length === 1 ? 'Background' : 'Backgrounds' }}</p>
 											</div>
 										</div>
 									</div>
 								</template>
 							</UModal>
+							<template v-if="card.backgrounds.length > 1">
+								<br>
+								<br>
+								<UDropdownMenu :items="card.backgrounds">
+									<template #item="{ item, index }">
+										<div class="flex items-center gap-3 w-full" @click="selectBackground(index)">
+											<img :src="card.backgrounds.find(bg => bg.name === item.name)?.previewURL" :alt="item.name" class="w-12 h-8 object-cover rounded border">
+											<span>{{ item.name }}</span>
+										</div>
+									</template>
+									<UButton color="neutral" variant="subtle">
+										Select Background
+										<UIcon name="i-lucide-chevron-down" class="w-3 h-3 ml-2" />
+									</UButton>
+								</UDropdownMenu>
+							</template>
+							<br>
+							<br>
+							<UFileUpload v-model="customBackgroundFile" accept="image/*" :interactive="false" :dropzone="true" class="inline-block" @change="selectCustomBackground">
+								<template #default="{ open }">
+									<UButton color="neutral" variant="subtle" @click="open()">
+										Custom Background
+										<UIcon name="i-lucide-upload" class="w-4 h-4 ml-2" />
+									</UButton>
+								</template>
+							</UFileUpload>
 							<br>
 							<br>
 							<UButtonGroup>

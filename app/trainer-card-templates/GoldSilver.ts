@@ -5,9 +5,16 @@ import type FontCharacterImage from '@/types/font-character-image';
 const { loadImage } = useImageCache();
 
 export default class GoldSilver extends TrainerCard {
-	public static override name = 'Gold /Silver';
-	public static override previewURL = '/images/trainer-cards/gen-2.png';
-	protected override backgroundURL = '/images/trainer-cards/gen-2.png';
+	public static override name = 'Gold / Silver';
+
+	public override backgrounds = [
+		{
+			name: 'Gold / Silver',
+			previewURL: '/images/trainer-cards/gen-2.png',
+			backgroundURL: '/images/trainer-cards/gen-2.png'
+		}
+	];
+
 	protected override backgroundOriginalWidth = 160;
 	protected override backgroundOriginalHeight = 64;
 	protected override backgroundScale = 20;
@@ -21,13 +28,14 @@ export default class GoldSilver extends TrainerCard {
 
 	private font?: FontCharacterImage[];
 
-	async drawBackground() {
+	async drawBackground(customURL: string | null) {
 		this.rescaleCanvas();
 		this.ctx.imageSmoothingEnabled = false;
 
 		const displayWidth = this.backgroundOriginalWidth * this.backgroundScale;
 		const displayHeight = this.backgroundOriginalHeight * this.backgroundScale;
-		const backgroundImage = await loadImage(this.backgroundURL);
+		const backgroundURL = customURL ? customURL : this.backgrounds[this.selectedBackgroundIndex]!.backgroundURL;
+		const backgroundImage = await loadImage(backgroundURL);
 
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.ctx.drawImage(backgroundImage, 0, 0, displayWidth, displayHeight);
