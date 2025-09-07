@@ -13,7 +13,7 @@ Custom Pokémon trainer card creator
 - Each image can be in any style and on any card, allowing you to mix and match any combination
 - Support for showing what Pokéball each Pokémon is in
 - Support for giving each Pokémon a held item
-- Badges for all games generations 1-5
+- Badges for all games generations 1-9, including Z-Crystals
 
 ## Configuration
 
