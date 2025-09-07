@@ -23,6 +23,7 @@ Credits for assets/data taken from other sources in no specific order. Some data
 - Gen 6 badges: https://bulbapedia.bulbagarden.net/wiki/Kalos_League
 - Gen 7 badges: https://bulbapedia.bulbagarden.net/wiki/Generation_VII
 - Gen 7 Z-Crystals: https://bulbapedia.bulbagarden.net/wiki/Z-Crystal
+- Gen 8 badges: https://bulbapedia.bulbagarden.net/wiki/Generation_VIII
 - Base Pokeball used for "modern" trainer cards: https://www.etsy.com/listing/1024585656/pokemon-pokeball-svg-black-and-white
 - Gender icon: https://github.com/FlagBrew/PKSM/blob/b8d735ecffea6a341bcffbc33829ca9b2c78df1d/assets/gfx/ui/icon_female.png
 - Gender icon: https://github.com/FlagBrew/PKSM/blob/b8d735ecffea6a341bcffbc33829ca9b2c78df1d/assets/gfx/ui/icon_male.png

@@ -205,5 +205,33 @@
 			"/images/badges/alola/ultranecrozium_sprite.png",
 			"/images/badges/alola/waterium_sprite.png"
 		]
+	},
+	{
+		"label": "Sword / Shield",
+		"images": [
+			"/images/badges/galar/grass.png",
+			"/images/badges/galar/water.png",
+			"/images/badges/galar/fire.png",
+			"/images/badges/galar/fighting.png",
+			"/images/badges/galar/ghost.png",
+			"/images/badges/galar/fairy.png",
+			"/images/badges/galar/rock.png",
+			"/images/badges/galar/ice.png",
+			"/images/badges/galar/dark.png",
+			"/images/badges/galar/dragon.png"
+		]
+	},
+	{
+		"label": "Brilliant Diamond / Shining Pearl",
+		"images": [
+			"/images/badges/sinnoh/coal-bdsp.png",
+			"/images/badges/sinnoh/forest-bdsp.png",
+			"/images/badges/sinnoh/cobble-bdsp.png",
+			"/images/badges/sinnoh/fen-bdsp.png",
+			"/images/badges/sinnoh/relic-bdsp.png",
+			"/images/badges/sinnoh/mine-bdsp.png",
+			"/images/badges/sinnoh/icicle-bdsp.png",
+			"/images/badges/sinnoh/beacon-bdsp.png"
+		]
 	}
 ]
