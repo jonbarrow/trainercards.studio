@@ -144,5 +144,66 @@
 			"/images/badges/hoenn/mind-oras.png",
 			"/images/badges/hoenn/rain-oras.png"
 		]
+	},
+	{
+		"label": "Let's Go, Pikachu! / Let's Go, Eevee!",
+		"images": [
+			"/images/badges/kanto/boulder-lgpe.png",
+			"/images/badges/kanto/cascade-lgpe.png",
+			"/images/badges/kanto/thunder-lgpe.png",
+			"/images/badges/kanto/rainbow-lgpe.png",
+			"/images/badges/kanto/soul-lgpe.png",
+			"/images/badges/kanto/marsh-lgpe.png",
+			"/images/badges/kanto/volcano-lgpe.png",
+			"/images/badges/kanto/earth-lgpe.png"
+		]
+	},
+	{
+		"label": "Sun / Moon",
+		"images": [
+			"/images/badges/alola/solganium_artwork.png",
+			"/images/badges/alola/electrium_artwork.png",
+			"/images/badges/alola/fairium_artwork.png",
+			"/images/badges/alola/kommonium_artwork.png",
+			"/images/badges/alola/lunalium_artwork.png",
+			"/images/badges/alola/lycanium_artwork.png",
+			"/images/badges/alola/mimikium_artwork.png",
+			"/images/badges/alola/pikashunium_artwork.png",
+			"/images/badges/alola/pikashunium_sprite.png",
+			"/images/badges/alola/aloraichium_sprite.png",
+			"/images/badges/alola/buginium_sprite.png",
+			"/images/badges/alola/darkinium_sprite.png",
+			"/images/badges/alola/decidium_sprite.png",
+			"/images/badges/alola/dragonium_sprite.png",
+			"/images/badges/alola/eevium_sprite.png",
+			"/images/badges/alola/electrium_sprite.png",
+			"/images/badges/alola/fairium_sprite.png",
+			"/images/badges/alola/fightinium_sprite.png",
+			"/images/badges/alola/firium_sprite.png",
+			"/images/badges/alola/flyinium_sprite.png",
+			"/images/badges/alola/ghostium_sprite.png",
+			"/images/badges/alola/grassium_sprite.png",
+			"/images/badges/alola/groundium_sprite.png",
+			"/images/badges/alola/icium_sprite.png",
+			"/images/badges/alola/incinium_sprite.png",
+			"/images/badges/alola/kommonium_sprite.png",
+			"/images/badges/alola/lunalium_sprite.png",
+			"/images/badges/alola/lycanium_sprite.png",
+			"/images/badges/alola/marshadium_sprite.png",
+			"/images/badges/alola/mewnium_sprite.png",
+			"/images/badges/alola/mimikium_sprite.png",
+			"/images/badges/alola/normalium_sprite.png",
+			"/images/badges/alola/pikanium_sprite.png",
+			"/images/badges/alola/poisonium_sprite.png",
+			"/images/badges/alola/primarium_sprite.png",
+			"/images/badges/alola/psychium_sprite.png",
+			"/images/badges/alola/rockium_sprite.png",
+			"/images/badges/alola/snorlium_sprite.png",
+			"/images/badges/alola/solganium_sprite.png",
+			"/images/badges/alola/steelium_sprite.png",
+			"/images/badges/alola/tapunium_sprite.png",
+			"/images/badges/alola/ultranecrozium_sprite.png",
+			"/images/badges/alola/waterium_sprite.png"
+		]
 	}
 ]
