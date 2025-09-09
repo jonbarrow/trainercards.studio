@@ -342,6 +342,10 @@ function selectPokemon(pokemon: Pokemon, image: PokemonImage) {
 
 		const oldPokemon = selectedTeam[selectedTeamIndex.value];
 		if (oldPokemon) {
+			if (oldPokemon.nickname === oldPokemon.pokemon.display_name) {
+				oldPokemon.nickname = pokemon.display_name;
+			}
+
 			oldPokemon.pokemon = pokemon;
 			oldPokemon.image = image;
 		} else {
