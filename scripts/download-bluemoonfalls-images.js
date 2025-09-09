@@ -6,6 +6,7 @@ import { promisify } from 'node:util';
 import fs from 'fs-extra';
 import yauzl from 'yauzl-promise';
 import gifInfo from 'gif-info';
+import getImageDimensions from './get-image-dimensions.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -295,17 +296,27 @@ const DEX_NAME_MAP = {
 	'251': 'celebi'
 };
 
-async function downloadGoogleDrive(fileID) {
-	const response = await fetch(`https://drive.google.com/uc?export=download&id=${fileID}`);
+async function run(command, options = {}) {
+	await execAsync(command, {
+		stdio: ['pipe', 'pipe', 'pipe'],
+		...options
+	});
+}
+
+async function downloadFileBuffer(url) {
+	const response = await fetch(url);
 	const arrayBuffer = await response.arrayBuffer();
-	let buffer = Buffer.from(arrayBuffer);
+
+	return Buffer.from(arrayBuffer);
+}
+
+async function downloadGoogleDrive(fileID) {
+	let buffer = await downloadFileBuffer(`https://drive.google.com/uc?export=download&id=${fileID}`);
 
 	if (buffer.toString().includes('Google Drive can\'t scan this file for viruses.')) {
 		const uuid = buffer.toString().match(UUID_REGEX)[1];
 
-		const response = await fetch(`https://drive.usercontent.google.com/download?id=${fileID}&export=download&authuser=0&confirm=t&uuid=${uuid}`);
-		const arrayBuffer = await response.arrayBuffer();
-		buffer = Buffer.from(arrayBuffer);
+		buffer = await downloadFileBuffer(`https://drive.usercontent.google.com/download?id=${fileID}&export=download&authuser=0&confirm=t&uuid=${uuid}`);
 	}
 
 	return buffer;
@@ -356,13 +367,79 @@ async function processZipFile(buffer, style, platform, platform_display_name, sh
 					const writeStream = fs.createWriteStream(outPath);
 					await pipeline(readStream, writeStream);
 
+					if (style === 'pixel_art') {
+						// * Crystal sprites have padding on all sides, need to
+						// * crop it all out and rebuild the GIF for better sizing
+						const framesPath = path.join(__dirname, 'frames');
+						const framesCenteredPath = path.join(__dirname, 'frames_centered');
+						const demuxerPath = path.join(__dirname, 'demuxer.txt');
+						const palettePath = path.join(__dirname, 'palette.png');
+
+						await fs.ensureDir(framesPath);
+						await fs.emptyDir(framesPath);
+						await run(`ffmpeg -vsync 0 -i ${outPath} -vf format=rgba ${framesPath}/frame_%03d.png`);
+
+						const frames = (await fs.readdir(framesPath)).filter(file => file.endsWith('.png')).sort();
+
+						let minContentX = Infinity;
+						let minContentY = Infinity;
+						let maxContentRight = 0;
+						let maxContentBottom = 0;
+
+						// * We can't just center frames in the new images because
+						// * then GIFs that only have movement on one side may have
+						// * content get cropped out. So we need to calculate the
+						// * position each frame is offset by
+						for (const frame of frames) {
+							const framePath = path.join(framesPath, frame);
+							const dimensions = await getImageDimensions(framePath);
+
+							const contentX = dimensions.padding.left;
+							const contentY = dimensions.padding.top;
+							const contentRight = contentX + dimensions.content.width;
+							const contentBottom = contentY + dimensions.content.height;
+
+							minContentX = Math.min(minContentX, contentX);
+							minContentY = Math.min(minContentY, contentY);
+							maxContentRight = Math.max(maxContentRight, contentRight);
+							maxContentBottom = Math.max(maxContentBottom, contentBottom);
+						}
+
+						const totalContentWidth = maxContentRight - minContentX;
+						const totalContentHeight = maxContentBottom - minContentY;
+
+						await fs.ensureDir(framesCenteredPath);
+						await fs.emptyDir(framesCenteredPath);
+
+						for (const frame of frames) {
+							const inputPath = path.join(framesPath, frame);
+							const outputPath = path.join(framesCenteredPath, frame);
+							await run(`ffmpeg -i ${inputPath} -vf "crop=${totalContentWidth}:${totalContentHeight}:${minContentX}:${minContentY}" ${outputPath}`);
+						}
+
+						const gifBuffer = await fs.readFile(outPath);
+						const info = gifInfo(Uint8Array.from(gifBuffer).buffer);
+						const delays = info.images.map(frame => frame.delay);
+						const ffmpegDelays = delays.map(delay => delay / 1000);
+
+						let demuxer = frames.map((frame, i) => `file '${framesCenteredPath}/${frame}'\nduration ${ffmpegDelays[i]}`).join('\n');
+						demuxer = `${demuxer}\nfile '${framesCenteredPath}/${frames[frames.length - 1]}'`;
+
+						await fs.writeFile(demuxerPath, demuxer);
+						await run(`ffmpeg -y -f concat -safe 0 -i ${demuxerPath} -vf palettegen=reserve_transparent=1 ${palettePath}`);
+						await run(`ffmpeg -y -f concat -safe 0 -i ${demuxerPath} -i ${palettePath} -lavfi paletteuse=alpha_threshold=128 -gifflags -offsetting ${outPath}`);
+
+						await fs.remove(framesPath);
+						await fs.remove(framesCenteredPath);
+						await fs.remove(demuxerPath);
+						await fs.remove(palettePath);
+					}
+
 					const gifBuffer = await fs.readFile(outPath);
 					const info = gifInfo(Uint8Array.from(gifBuffer).buffer);
 					const frameCount = info.images.length;
 
-					await execAsync(`ffmpeg -y -i ${outPath} -vf "tile=${frameCount}x1" -update 1 ${outSheetPath}`, {
-						stdio: ['pipe', 'pipe', 'pipe']
-					});
+					await run(`ffmpeg -y -i ${outPath} -vf "tile=${frameCount}x1" -update 1 ${outSheetPath}`);
 
 					await fs.move(outPath, outPreviewPath, {
 						overwrite: true
@@ -398,9 +475,13 @@ async function processZipFile(buffer, style, platform, platform_display_name, sh
 async function main() {
 	const stadium2RegularBuffer = await downloadGoogleDrive('1Zqh1rcQmW7hs8dqucWtT-hJuNwFwPFGX');
 	const stadium2ShinyBuffer = await downloadGoogleDrive('1BNXGH5SlbsOeaKZQ9pyXL8nMg5rtHVO0');
+	const crystalAnimatedRegularBuffer = await downloadFileBuffer('https://bluemoonfalls.com/downloads/Crystal-Sprites-Normal-Number-Sorted.zip');
+	const crystalAnimatedShinyBuffer = await downloadFileBuffer('https://bluemoonfalls.com/downloads/Crystal-Sprites-Shiny-Number-Sorted.zip');
 
 	await processZipFile(stadium2RegularBuffer, 'model_render', 'stadium_2', 'Stadium 2', false);
 	await processZipFile(stadium2ShinyBuffer, 'model_render', 'stadium_2', 'Stadium 2', true);
+	await processZipFile(crystalAnimatedRegularBuffer, 'pixel_art', 'crystal', 'Crystal', false);
+	await processZipFile(crystalAnimatedShinyBuffer, 'pixel_art', 'crystal', 'Crystal', true);
 
 	await fs.writeJSON(`${__dirname}/../public/metadata/pokemon.json`, pokeapi);
 }

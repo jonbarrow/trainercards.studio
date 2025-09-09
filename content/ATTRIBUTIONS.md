@@ -13,6 +13,7 @@ Credits for assets/data taken from other sources in no specific order. Some data
 - Pokemon images: https://archives.bulbagarden.net/wiki/Category:Pok%C3%A9mon_Dream_World_artwork
 - Pokemon sprites: https://github.com/msikma/pokesprite
 - Pokemon renders: https://bluemoonfalls.com/pages/general/stadium-gif-archive
+- Pokemon sprites: https://bluemoonfalls.com/pages/general/crystal-gif-archive
 - Trainer card template, gen 1 badges and gen 1 font: https://www.spriters-resource.com/game_boy_gbc/pokemonredblue/
 - Trainer card template, gen 2 badges and gen 2 font: https://www.spriters-resource.com/game_boy_gbc/pokemongoldsilver/
 - Trainer card template, gen 3 badges and gen 3 font: https://www.spriters-resource.com/game_boy_advance/pokemonrubysapphire/
