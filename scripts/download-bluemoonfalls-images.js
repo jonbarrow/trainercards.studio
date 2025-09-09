@@ -446,17 +446,9 @@ async function processZipFile(buffer, style, platform, platform_display_name, sh
 					});
 
 					image.frame_data = info.images.map(i => ({
-						identifier: i.identifier,
-						local_palette: i.localPalette,
-						local_palette_size: i.localPaletteSize,
-						interlace: i.interlace,
-						text: i.text,
-						left: i.left,
-						top: i.top,
 						width: i.width,
 						height: i.height,
-						delay: i.delay,
-						disposal: i.disposal
+						delay: i.delay
 					}));
 
 					pokemon.images.push(image);

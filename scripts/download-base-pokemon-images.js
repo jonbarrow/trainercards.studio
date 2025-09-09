@@ -323,17 +323,9 @@ async function main() {
 						image.url = localPath;
 						image.preview_url = localPreviewPath;
 						image.frame_data = info.images.map(i => ({
-							identifier: i.identifier,
-							local_palette: i.localPalette,
-							local_palette_size: i.localPaletteSize,
-							interlace: i.interlace,
-							text: i.text,
-							left: i.left,
-							top: i.top,
 							width: i.width,
 							height: i.height,
-							delay: i.delay,
-							disposal: i.disposal
+							delay: i.delay
 						}));
 					}
 
