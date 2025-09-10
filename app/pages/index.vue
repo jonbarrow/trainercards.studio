@@ -1283,9 +1283,9 @@ function canvasTouchEnd(event: TouchEvent): void {
 									<div class="text-xs text-muted-foreground hidden sm:block">Click to select</div>
 								</div>
 							</div>
-							<UModal v-model:open="pokemonModalOpen">
+							<UModal v-model:open="pokemonModalOpen" :ui="{ content: 'fixed bg-default divide-y divide-default flex flex-col focus:outline-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100vw-1rem)] sm:w-max max-w-none max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-4rem)] rounded-lg shadow-lg ring ring-default overflow-hidden' }">
 								<template #content>
-									<div class="p-4 w-full max-w-4xl">
+									<div class="p-4">
 										<h3 class="text-lg font-semibold mb-4">Select Pokemon for Slot {{ selectedTeamIndex }}</h3>
 
 										<div class="mb-4">
@@ -1294,7 +1294,7 @@ function canvasTouchEnd(event: TouchEvent): void {
 										<div class="overflow-y-auto max-h-96">
 											<div v-for="pokemon in filteredPokemon" :key="pokemon.name">
 												<h3>{{ pokemon.display_name }}</h3>
-												<div class="grid grid-cols-4 gap-2 mb-4">
+												<div class="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-7 gap-2 mb-4">
 													<div v-for="image in pokemon.images" :key="`${pokemon.name}-${image.platform}-${image.gender}`" class="flex flex-col items-center" @click="selectPokemon(pokemon, image)">
 														<div class="w-16 h-16 flex items-center justify-center overflow-hidden cursor-pointer">
 															<img loading="lazy" :src="image.preview_url" alt="" :class="['w-full', 'h-full', 'object-contain', { pixelated: image.style === 'pixel_art' }]" @load="loadImage(image.url)">
