@@ -460,15 +460,29 @@ async function main() {
 		const dom = new JSDOM(html);
 		const document = dom.window.document;
 		const formLinks = [...document.querySelectorAll('.sprites-table-card')]
-			.map(card => ({
-				url: card.querySelector('.sprite-share-link').href,
-				display_name: card.querySelector('small.text-muted')?.innerHTML || ''
-			}))
-			.map(formLink => ({
-				url: formLink.url,
-				display_name: formLink.display_name,
-				gender: formLink.url.endsWith('-f.png') || formLink.url.endsWith('-female.png') ? 'female' : 'male'
-			}))
+			.map((card) => {
+				const href = card.querySelector('.sprite-share-link').href;
+				const smallTexts = card.querySelectorAll('small.text-muted');
+				let displayName = '';
+
+				if (smallTexts.length === 1) {
+					displayName = smallTexts.item(0).innerHTML;
+				}
+
+				if (smallTexts.length === 2) {
+					displayName = smallTexts.item(1).innerHTML;
+				}
+
+				if (displayName === 'Male' || displayName === 'Female') {
+					displayName = '';
+				}
+
+				return {
+					url: href,
+					display_name: displayName,
+					gender: href.endsWith('-f.png') || href.endsWith('-female.png') ? 'female' : 'male'
+				};
+			})
 			.filter(formLink => !formLink.url.includes('/back-'))
 			.filter(formLink => !formLink.url.endsWith('.gif'));
 
@@ -476,11 +490,22 @@ async function main() {
 			const url = new URL(formLink.url);
 			const platform = normalizePlatformName(url.pathname.split('/').filter(part => part)[1]);
 			const formName = normalizeFormName(path.basename(url.pathname, path.extname(url.pathname)));
-			const pokemon = pokeapi.find(({ name }) => name === formName);
+			let pokemon = pokeapi.find(({ name }) => name === formName);
 
-			// * Just skip unknown forms for now. We CAN add these later though
 			if (!pokemon) {
-				continue;
+				const speciesName = spriteLink.split('/').filter(part => part).pop();
+				const speciesDisplayName = document.querySelector('main#main h1').innerHTML.match(/(.*?) sprites/)[1];
+				const displayName = `${speciesDisplayName} ${formLink.display_name}`;
+
+				pokemon = {
+					species: speciesName,
+					species_display_name: speciesDisplayName,
+					name: formName,
+					display_name: displayName,
+					images: []
+				};
+
+				pokeapi.push(pokemon);
 			}
 
 			// * Just skip these platforms cuz we know we have all the forms
