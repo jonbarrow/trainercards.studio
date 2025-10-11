@@ -16,6 +16,7 @@ Credits for assets/data taken from other sources in no specific order. Some data
 - Pokemon sprites: https://bluemoonfalls.com/pages/general/crystal-gif-archive
 - Pokemon sprites/renders: https://pokemondb.net/sprites
 - Pokemon images: https://archives.bulbagarden.net/w/index.php?title=Category:Pok%C3%A9mon_Sleep_sleep_style_sprites
+- Pokemon images: https://www.pokepedia.fr/index.php?title=Cat%C3%A9gorie:Sprite_Pok%C3%A9mon_(Link:_Battle!)
 - Trainer card template, gen 1 badges and gen 1 font: https://www.spriters-resource.com/game_boy_gbc/pokemonredblue/
 - Trainer card template, gen 2 badges and gen 2 font: https://www.spriters-resource.com/game_boy_gbc/pokemongoldsilver/
 - Trainer card template, gen 3 badges and gen 3 font: https://www.spriters-resource.com/game_boy_advance/pokemonrubysapphire/

@@ -11,6 +11,8 @@ import getImageDimensions from './get-image-dimensions.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// TODO - Support form variations. Some images like https://archives.bulbagarden.net/wiki/File:Sleep_Style_0038A-1_s.png exist but aren't supported here yet
+
 async function getPokemonSleepImageURLs(categoryMembers) {
 	const baseUrl = 'https://archives.bulbagarden.net/w/api.php';
 	const allFiles = [];
