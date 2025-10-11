@@ -415,8 +415,12 @@ export default async function main() {
 				}
 
 				pokemonData.push({
+					id: {
+						pokeapi: pokemon.id
+					},
 					name: formData.name,
 					display_name: displayName,
+					is_default: form.is_default,
 					images
 				});
 			}
