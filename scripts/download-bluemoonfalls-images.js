@@ -6,13 +6,12 @@ import { promisify } from 'node:util';
 import fs from 'fs-extra';
 import yauzl from 'yauzl-promise';
 import gifInfo from 'gif-info';
+import cliProgress from 'cli-progress';
 import getImageDimensions from './get-image-dimensions.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const execAsync = promisify(exec);
-
-const pokeapi = fs.readJSONSync(`${__dirname}/../public/metadata/pokemon.json`);
 
 const UUID_REGEX = /<input type="hidden" name="uuid" value="(.*?)">/;
 
@@ -322,11 +321,17 @@ async function downloadGoogleDrive(fileID) {
 	return buffer;
 }
 
-async function processZipFile(buffer, style, platform, platform_display_name, shiny) {
+async function processZipFile(pokeapi, buffer, style, platform, platform_display_name, shiny) {
 	const zip = await yauzl.fromBuffer(buffer);
 
-	try {
-		for await (const entry of zip) {
+	const progress = new cliProgress.SingleBar({
+		format: `Bluemoon Falls (${platform_display_name} - ${shiny ? 'Shiny' : 'Regular'}) {bar} | {value}/{total} | {percentage}%`
+	}, cliProgress.Presets.shades_classic);
+
+	progress.start(zip.entryCount);
+
+	for await (const entry of zip) {
+		try {
 			const filename = entry.filename;
 			const dexID = path.basename(filename, path.extname(filename));
 			const slug = DEX_NAME_MAP[dexID.toLowerCase()];
@@ -458,24 +463,33 @@ async function processZipFile(buffer, style, platform, platform_display_name, sh
 			if (!found) {
 				console.log('Could not find matching pokemon for', filename);
 			}
+		} catch (error) {
+			console.error(error);
+		} finally {
+			progress.increment();
 		}
-	} catch (error) {
-		console.error(error);
 	}
+
+	progress.stop();
 }
 
-async function main() {
+export default async function main(pokeapi) {
+	console.log('Downloading Stadium 2 (regular) zip...');
 	const stadium2RegularBuffer = await downloadGoogleDrive('1Zqh1rcQmW7hs8dqucWtT-hJuNwFwPFGX');
+
+	console.log('Downloading Stadium 2 (shiny) zip...');
 	const stadium2ShinyBuffer = await downloadGoogleDrive('1BNXGH5SlbsOeaKZQ9pyXL8nMg5rtHVO0');
+
+	console.log('Downloading animated Crystal (regular) zip...');
 	const crystalAnimatedRegularBuffer = await downloadFileBuffer('https://bluemoonfalls.com/downloads/Crystal-Sprites-Normal-Number-Sorted.zip');
+
+	console.log('Downloading animated Crystal (shiny) zip...');
 	const crystalAnimatedShinyBuffer = await downloadFileBuffer('https://bluemoonfalls.com/downloads/Crystal-Sprites-Shiny-Number-Sorted.zip');
 
-	await processZipFile(stadium2RegularBuffer, 'model_render', 'stadium_2', 'Stadium 2', false);
-	await processZipFile(stadium2ShinyBuffer, 'model_render', 'stadium_2', 'Stadium 2', true);
-	await processZipFile(crystalAnimatedRegularBuffer, 'pixel_art', 'crystal', 'Crystal', false);
-	await processZipFile(crystalAnimatedShinyBuffer, 'pixel_art', 'crystal', 'Crystal', true);
+	await processZipFile(pokeapi, stadium2RegularBuffer, 'model_render', 'stadium_2', 'Stadium 2', false);
+	await processZipFile(pokeapi, stadium2ShinyBuffer, 'model_render', 'stadium_2', 'Stadium 2', true);
+	await processZipFile(pokeapi, crystalAnimatedRegularBuffer, 'pixel_art', 'crystal', 'Crystal', false);
+	await processZipFile(pokeapi, crystalAnimatedShinyBuffer, 'pixel_art', 'crystal', 'Crystal', true);
 
-	await fs.writeJSON(`${__dirname}/../public/metadata/pokemon.json`, pokeapi);
+	return pokeapi;
 }
-
-main();

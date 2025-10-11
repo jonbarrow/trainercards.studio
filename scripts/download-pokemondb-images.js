@@ -4,11 +4,11 @@ import { pipeline } from 'node:stream/promises';
 import { JSDOM } from 'jsdom';
 import fs from 'fs-extra';
 import sharp from 'sharp';
+import cliProgress from 'cli-progress';
 import getImageDimensions from './get-image-dimensions.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const pokeapi = fs.readJSONSync(`${__dirname}/../public/metadata/pokemon.json`);
 
 function normalizeFormName(form) {
 	// * Fuck my stupid baka life,
@@ -447,121 +447,132 @@ function imageStyle(platform) {
 	}
 }
 
-async function main() {
+export default async function main(pokeapi) {
 	const response = await fetch('https://pokemondb.net/sprites');
 	const html = await response.text();
 	const dom = new JSDOM(html);
 	const document = dom.window.document;
 	const spriteLinks = [...document.querySelectorAll('.infocard-list.infocard-list-pkmn-sm .infocard')].map(a => path.join('https://pokemondb.net', a.href));
+	const progress = new cliProgress.SingleBar({
+		format: 'PokemonDB {bar} | {value}/{total} | {percentage}%'
+	}, cliProgress.Presets.shades_classic);
+
+	progress.start(spriteLinks.length);
 
 	for (const spriteLink of spriteLinks) {
-		const response = await fetch(spriteLink);
-		const html = await response.text();
-		const dom = new JSDOM(html);
-		const document = dom.window.document;
-		const formLinks = [...document.querySelectorAll('.sprites-table-card')]
-			.map((card) => {
-				const href = card.querySelector('.sprite-share-link').href;
-				const smallTexts = card.querySelectorAll('small.text-muted');
-				let displayName = '';
+		try {
+			const response = await fetch(spriteLink);
+			const html = await response.text();
+			const dom = new JSDOM(html);
+			const document = dom.window.document;
+			const formLinks = [...document.querySelectorAll('.sprites-table-card')]
+				.map((card) => {
+					const href = card.querySelector('.sprite-share-link').href;
+					const smallTexts = card.querySelectorAll('small.text-muted');
+					let displayName = '';
 
-				if (smallTexts.length === 1) {
-					displayName = smallTexts.item(0).innerHTML;
+					if (smallTexts.length === 1) {
+						displayName = smallTexts.item(0).innerHTML;
+					}
+
+					if (smallTexts.length === 2) {
+						displayName = smallTexts.item(1).innerHTML;
+					}
+
+					if (displayName === 'Male' || displayName === 'Female') {
+						displayName = '';
+					}
+
+					return {
+						url: href,
+						display_name: displayName,
+						gender: href.endsWith('-f.png') || href.endsWith('-female.png') ? 'female' : 'male'
+					};
+				})
+				.filter(formLink => !formLink.url.includes('/back-'))
+				.filter(formLink => !formLink.url.endsWith('.gif'));
+
+			for (const formLink of formLinks) {
+				const url = new URL(formLink.url);
+				const platform = normalizePlatformName(url.pathname.split('/').filter(part => part)[1]);
+				const formName = normalizeFormName(path.basename(url.pathname, path.extname(url.pathname)));
+				let pokemon = pokeapi.find(({ name }) => name === formName);
+
+				if (!pokemon) {
+					const speciesName = spriteLink.split('/').filter(part => part).pop();
+					const speciesDisplayName = document.querySelector('main#main h1').innerHTML.match(/(.*?) sprites/)[1];
+					const displayName = `${speciesDisplayName} ${formLink.display_name}`;
+
+					pokemon = {
+						species: speciesName,
+						species_display_name: speciesDisplayName,
+						name: formName,
+						display_name: displayName,
+						images: []
+					};
+
+					pokeapi.push(pokemon);
 				}
 
-				if (smallTexts.length === 2) {
-					displayName = smallTexts.item(1).innerHTML;
+				// * Just skip these platforms cuz we know we have all the forms
+				if (platform === 'red_blue' || platform === 'yellow' || platform === 'gold' || platform === 'silver' || platform === 'crystal') {
+					continue;
 				}
 
-				if (displayName === 'Male' || displayName === 'Female') {
-					displayName = '';
+				const shiny = formLink.url.includes('/shiny/');
+				const imageURL = shiny ? `/images/pokemon/${pokemon.name}/${platform}_${formLink.gender}_shiny.png` : `/images/pokemon/${pokemon.name}/${platform}_${formLink.gender}.png`;
+				const previewURL = shiny ? `/images/pokemon/${pokemon.name}/${platform}_${formLink.gender}_shiny_preview.png` : `/images/pokemon/${pokemon.name}/${platform}_${formLink.gender}_preview.png`;
+
+				// * Skip if already exists, since this script can make duplicates
+				if (pokemon.images.some(({ url }) => url === imageURL)) {
+					continue;
 				}
 
-				return {
-					url: href,
-					display_name: displayName,
-					gender: href.endsWith('-f.png') || href.endsWith('-female.png') ? 'female' : 'male'
+				const fileImagePath = path.join(__dirname, '..', 'public', imageURL);
+				const filePreviewPath = path.join(__dirname, '..', 'public', previewURL);
+
+				await fs.ensureDir(path.dirname(fileImagePath));
+
+				const response = await fetch(formLink.url);
+
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+
+				const writeStream = fs.createWriteStream(fileImagePath);
+
+				await pipeline(response.body, writeStream);
+
+				const image = {
+					style: imageStyle(platform),
+					platform: platform,
+					platform_display_name: platformDisplayName(platform),
+					gender: formLink.gender,
+					gender_display_name: formLink.gender === 'female' ? 'Female' : 'Male',
+					shiny: shiny,
+					creator: 'GameFreak',
+					url: imageURL,
+					preview_url: previewURL,
+					dimensions: await getImageDimensions(fileImagePath)
 				};
-			})
-			.filter(formLink => !formLink.url.includes('/back-'))
-			.filter(formLink => !formLink.url.endsWith('.gif'));
 
-		for (const formLink of formLinks) {
-			const url = new URL(formLink.url);
-			const platform = normalizePlatformName(url.pathname.split('/').filter(part => part)[1]);
-			const formName = normalizeFormName(path.basename(url.pathname, path.extname(url.pathname)));
-			let pokemon = pokeapi.find(({ name }) => name === formName);
+				await sharp(fileImagePath).extract({
+					left: image.dimensions.padding.left,
+					top: image.dimensions.padding.top,
+					width: image.dimensions.content.width,
+					height: image.dimensions.content.height
+				}).png().toFile(filePreviewPath);
 
-			if (!pokemon) {
-				const speciesName = spriteLink.split('/').filter(part => part).pop();
-				const speciesDisplayName = document.querySelector('main#main h1').innerHTML.match(/(.*?) sprites/)[1];
-				const displayName = `${speciesDisplayName} ${formLink.display_name}`;
-
-				pokemon = {
-					species: speciesName,
-					species_display_name: speciesDisplayName,
-					name: formName,
-					display_name: displayName,
-					images: []
-				};
-
-				pokeapi.push(pokemon);
+				pokemon.images.push(image);
 			}
-
-			// * Just skip these platforms cuz we know we have all the forms
-			if (platform === 'red_blue' || platform === 'yellow' || platform === 'gold' || platform === 'silver' || platform === 'crystal') {
-				continue;
-			}
-
-			const shiny = formLink.url.includes('/shiny/');
-			const imageURL = shiny ? `/images/pokemon/${pokemon.name}/${platform}_${formLink.gender}_shiny.png` : `/images/pokemon/${pokemon.name}/${platform}_${formLink.gender}.png`;
-			const previewURL = shiny ? `/images/pokemon/${pokemon.name}/${platform}_${formLink.gender}_shiny_preview.png` : `/images/pokemon/${pokemon.name}/${platform}_${formLink.gender}_preview.png`;
-
-			// * Skip if already exists, since this script can make duplicates
-			if (pokemon.images.some(({ url }) => url === imageURL)) {
-				continue;
-			}
-
-			const fileImagePath = path.join(__dirname, '..', 'public', imageURL);
-			const filePreviewPath = path.join(__dirname, '..', 'public', previewURL);
-
-			await fs.ensureDir(path.dirname(fileImagePath));
-
-			const response = await fetch(formLink.url);
-
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-
-			const writeStream = fs.createWriteStream(fileImagePath);
-
-			await pipeline(response.body, writeStream);
-
-			const image = {
-				style: imageStyle(platform),
-				platform: platform,
-				platform_display_name: platformDisplayName(platform),
-				gender: formLink.gender,
-				gender_display_name: formLink.gender === 'female' ? 'Female' : 'Male',
-				shiny: shiny,
-				creator: 'GameFreak',
-				url: imageURL,
-				preview_url: previewURL,
-				dimensions: await getImageDimensions(fileImagePath)
-			};
-
-			await sharp(fileImagePath).extract({
-				left: image.dimensions.padding.left,
-				top: image.dimensions.padding.top,
-				width: image.dimensions.content.width,
-				height: image.dimensions.content.height
-			}).png().toFile(filePreviewPath);
-
-			pokemon.images.push(image);
+		} catch (error) {
+			console.log(error);
+		} finally {
+			progress.increment();
 		}
 	}
 
-	await fs.writeJSON(`${__dirname}/../public/metadata/pokemon.json`, pokeapi);
-}
+	progress.stop();
 
-main();
+	return pokeapi;
+}

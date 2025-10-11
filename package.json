@@ -30,6 +30,7 @@
 		"@types/fs-extra": "^11.0.4",
 		"@types/jsdom": "^21.1.7",
 		"axios": "^1.11.0",
+		"cli-progress": "^3.12.0",
 		"eslint": "^9.33.0",
 		"gif-info": "^1.0.1",
 		"jsdom": "^26.1.0",
