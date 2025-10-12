@@ -94,7 +94,7 @@ export default async function main(pokeapi) {
 	for (const mediaWikiFile of mediaWikiFiles) {
 		try {
 			// TODO - Put form variations with the right form. Images like https://www.pokepedia.fr/Fichier:Sprite_0201_!_LB.png exist but aren't being placed in the right form
-			const pokemon = pokeapi.find(p => p.id.pokeapi === mediaWikiFile.dex && p.is_default);
+			const pokemon = pokeapi.find(p => p?.id?.pokeapi === mediaWikiFile.dex && p.is_default);
 
 			if (!pokemon) {
 				continue;

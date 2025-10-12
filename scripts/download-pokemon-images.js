@@ -7,6 +7,7 @@ import downloadBluemoonFallsImages from './download-bluemoonfalls-images.js';
 import downloadPokemonDBImages from './download-pokemondb-images.js';
 import downloadPokemonSleepImages from './download-pokemon-sleep-images.js';
 import downloadPokemonLinkBattleImages from './download-pokemon-link-battle-images.js';
+import downloadPokemonShuffleImages from './download-pokemon-shuffle-images.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,6 +19,7 @@ async function main() {
 	pokemonData = await downloadPokemonDBImages(pokemonData);
 	pokemonData = await downloadPokemonSleepImages(pokemonData);
 	pokemonData = await downloadPokemonLinkBattleImages(pokemonData);
+	pokemonData = await downloadPokemonShuffleImages(pokemonData);
 
 	await fs.ensureDir(`${__dirname}/../public/metadata`);
 	await fs.writeJSON(`${__dirname}/../public/metadata/pokemon.json`, pokemonData);
