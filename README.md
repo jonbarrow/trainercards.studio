@@ -15,6 +15,55 @@ Custom Pokémon trainer card creator
 - Support for giving each Pokémon a held item
 - Badges for all games generations 1-9, including Z-Crystals
 
+## Games
+
+All games/platforms currently supported or planned for support. Other games/platforms may be added in the future, this is not a hard-list. See [Credits / Attributions](#credits--attributions) for information on where images are sourced.
+
+- [x] Official Artwork
+- [x] Pokémon Red / Blue
+- [ ] Pokémon Green
+- [x] Pokémon Yellow
+- [ ] Pokémon Snap
+- [x] Pokémon Stadium 2
+- [x] Pokémon Gold
+- [x] Pokémon Silver
+- [x] Pokémon Crystal
+- [x] Pokémon Ruby / Sapphire
+- [x] Pokémon Fire Red / Leaf Green
+- [x] Pokémon Emerald
+- [x] Pokémon Diamond / Pearl
+- [x] Pokémon Platinum
+- [x] Pokémon Heart Gold / Soul Silver
+- [x] Dream World
+- [x] Pokémon Black / White
+- [ ] Pokémon Conquest
+- [ ] Pokémon 3D Pro
+- [x] Pokémon X / Y
+- [ ] Pokémon Art Academy
+- [x] Pokémon Link: Battle!
+- [x] Pokémon Shuffle
+- [x] Pokémon Bank
+- [x] Pokémon Omega Ruby / Alpha Sapphire
+- [x] Pokémon GO
+- [ ] Pokémon Magikarp Jump
+- [x] Generation VII Icons (GameFreak)
+- [x] Generation VIII Icons (GameFreak)
+- [x] Generation VII Icons ([PokeSprite](https://github.com/msikma/pokesprite))
+- [x] Generation VIII Icons ([PokeSprite](https://github.com/msikma/pokesprite))
+- [x] Pokémon Ultra Sun / Ultra Moon
+- [x] Pokémon: Let's Go Pikachu / Let's Go Eevee
+- [x] Pokémon Home
+- [x] Pokémon Showdown
+- [ ] Pokémon Café ReMix
+- [ ] New Pokémon Snap
+- [ ] Pokémon Unite
+- [x] Pokémon Sleep
+- [x] Pokémon Brilliant Diamond / Shining Pearl
+- [x] Pokémon Legends: Arceus
+- [x] Pokémon Scarlet / Violet
+- [ ] Pokémon Smile
+- [ ] The Thieves and the 1000 Pokémon
+
 ## Configuration
 
 | Name                     | Description                                                                                                                                                                                                                 |
@@ -31,7 +80,7 @@ See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details on how to contribute.
 
 ## Credits / Attributions
 
-This project would not be possible without outside help. All credits/attributions for external resources (even those which state they do not need credit) can be found in [ATTRIBUTIONS.md](content/ATTRIBUTIONS.md). Resources made specifically for the project are (generally) attributed via the git history, but may also be placed in [ATTRIBUTIONS.md](content/ATTRIBUTIONS.md).
+This project would not be possible without outside help. All credits/attributions for external resources (even those which state they do not need credit) can be found in [`content/ATTRIBUTIONS.md`](content/ATTRIBUTIONS.md). Resources made specifically for the project are (generally) attributed via the git history, but may also be placed in [`content/ATTRIBUTIONS.md`](content/ATTRIBUTIONS.md).
 
 ## License
 
