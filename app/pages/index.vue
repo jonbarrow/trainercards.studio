@@ -96,14 +96,21 @@ const filteredPokemon = computed(() => {
 });
 
 const allTrainerData = ref<TrainerImage[]>([]);
+const allTrainerPlatforms = ref<string[]>([]);
+const selectedTrainerPlatforms = ref<string[]>([]);
 const filteredTrainers = computed(() => {
-	if (!debouncedTrainerSearchQuery.value.trim()) {
-		return allTrainerData.value;
+	let trainers = allTrainerData.value;
+
+	if (selectedTrainerPlatforms.value.length > 0) {
+		trainers = trainers.filter(trainer => selectedTrainerPlatforms.value.includes(trainer.platform_display_name));
 	}
 
-	const query = debouncedTrainerSearchQuery.value.toLowerCase().trim();
+	if (debouncedTrainerSearchQuery.value.trim()) {
+		const query = debouncedTrainerSearchQuery.value.toLowerCase().trim();
+		trainers = trainers.filter(trainer => trainer.name.toLowerCase().includes(query));
+	}
 
-	return allTrainerData.value.filter(trainer => trainer.name.toLowerCase().includes(query));
+	return trainers;
 });
 
 const allBadgeData = ref<BadgeData[]>([]);
@@ -163,6 +170,8 @@ async function loadTrainerData() {
 	try {
 		const response = await fetch('/api/trainers');
 		allTrainerData.value = await response.json();
+		allTrainerPlatforms.value = [...new Set(allTrainerData.value.map(trainer => trainer.platform_display_name))];
+		console.log(allTrainerPlatforms.value[0]);
 	} catch (error) {
 		console.error('Failed to load Pokemon data:', error);
 	}
@@ -446,6 +455,7 @@ function toggleTemplateModal() {
 function toggleTrainerModal() {
 	trainerModalOpen.value = !trainerModalOpen.value;
 	trainerSearchQuery.value = '';
+	selectedTrainerPlatforms.value = [];
 
 	if (trainerModalOpen.value) {
 		isTrainersLoading.value = true;
@@ -936,7 +946,7 @@ function canvasTouchEnd(event: TouchEvent): void {
 								<UDropdownMenu :items="card.backgrounds">
 									<template #item="{ item, index }">
 										<div class="flex items-center gap-3 w-full" @click="selectBackground(index)">
-											<img :src="card.backgrounds.find(bg => bg.name === item.name)?.previewURL" :alt="item.name" class="w-12 h-8 object-cover rounded border">
+											<img :src="card.backgrounds.find((bg: any) => bg.name === item.name)?.previewURL" :alt="item.name" class="w-12 h-8 object-cover rounded border">
 											<span>{{ item.name }}</span>
 										</div>
 									</template>
@@ -1011,6 +1021,7 @@ function canvasTouchEnd(event: TouchEvent): void {
 											<h3 class="text-lg font-semibold mb-4">Select Trainer</h3>
 
 											<div class="mb-4">
+												<USelectMenu v-model="selectedTrainerPlatforms" :items="allTrainerPlatforms" multiple placeholder="Filter by platform" class="mb-2 w-full" :ui="{ width: 'w-full' }" :popper="{ placement: 'bottom-start' }" :close-on-select="false" />
 												<UInput v-model="trainerSearchQuery" placeholder="Search trainer by name..." class="w-full" />
 											</div>
 											<div v-if="isTrainersLoading" class="flex items-center justify-center h-96">
