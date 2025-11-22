@@ -6,6 +6,8 @@ import axios from 'axios';
 import fs from 'fs-extra';
 import sharp from 'sharp';
 import gifInfo from 'gif-info';
+import { JSDOM } from 'jsdom';
+import cliProgress from 'cli-progress';
 import getImageDimensions from './get-image-dimensions.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -118,6 +120,7 @@ function buildPokemonImages(pokemon, form) {
 	];
 }
 
+/*
 async function getCategoryMembers(category) {
 	const baseUrl = 'https://archives.bulbagarden.net/w/api.php';
 	let allMembers = [];
@@ -150,6 +153,7 @@ async function getCategoryMembers(category) {
 
 	return allMembers;
 }
+*/
 
 async function getDreamWorldImageURLs(categoryMembers) {
 	const baseUrl = 'https://archives.bulbagarden.net/w/api.php';
@@ -190,11 +194,43 @@ async function getDreamWorldImageURLs(categoryMembers) {
 }
 
 async function getAllDreamWorldArt() {
+	// * The API constantly throws 503 errors here, try just manually scraping it I guess?
+	/*
 	const pokedexNumberRegex = /^File:\d{3,}/;
 	let categoryMembers = await getCategoryMembers('Pokémon_Dream_World_artwork');
 	categoryMembers = categoryMembers.filter(({ title }) => pokedexNumberRegex.test(title));
 
 	const imageURLs = await getDreamWorldImageURLs(categoryMembers);
+
+	return imageURLs.map(({ title, url }) => ({
+		id: parseInt(title.match(/^File:(\d{3,})/)[1]),
+		title,
+		url
+	}));
+	*/
+
+	const pokedexNumberRegex = /^File:\d{3,}/;
+	let response = await axios.post('https://archives.bulbagarden.net/wiki/Special:Export', {
+		title: 'Special:Export',
+		catname: 'Pokémon_Dream_World_artwork',
+		addcat: 'Add',
+		pages: '',
+		curonly: '1',
+		wpDownload: '1',
+		wpEditToken: '+\\'
+	}, {
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded'
+		}
+	});
+
+	const html = response.data;
+	const dom = new JSDOM(html);
+	const document = dom.window.document;
+	const div = document.getElementById('mw-input-pages');
+	const ooui = JSON.parse(div.dataset.ooui);
+	const fileList = ooui.value.split('\n').filter(title => pokedexNumberRegex.test(title));
+	const imageURLs = await getDreamWorldImageURLs(fileList.map(title => ({ title })));
 
 	return imageURLs.map(({ title, url }) => ({
 		id: parseInt(title.match(/^File:(\d{3,})/)[1]),
@@ -221,10 +257,20 @@ async function downloadImage(url, output) {
 	});
 }
 
-async function main() {
+export default async function main() {
+	console.log('Downloading all Dream World images...');
+
 	const dreamWorldArt = await getAllDreamWorldArt();
+
+	console.log('Found', dreamWorldArt.length, 'Dream World images');
+
 	const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0');
 	const pokemonData = [];
+	const progress = new cliProgress.SingleBar({
+		format: 'Base Pokemon {bar} | {value}/{total} | {percentage}%'
+	}, cliProgress.Presets.shades_classic);
+
+	progress.start(response.data.results.length);
 
 	for (const { url } of response.data.results) {
 		try {
@@ -323,17 +369,9 @@ async function main() {
 						image.url = localPath;
 						image.preview_url = localPreviewPath;
 						image.frame_data = info.images.map(i => ({
-							identifier: i.identifier,
-							local_palette: i.localPalette,
-							local_palette_size: i.localPaletteSize,
-							interlace: i.interlace,
-							text: i.text,
-							left: i.left,
-							top: i.top,
 							width: i.width,
 							height: i.height,
-							delay: i.delay,
-							disposal: i.disposal
+							delay: i.delay
 						}));
 					}
 
@@ -377,20 +415,25 @@ async function main() {
 				}
 
 				pokemonData.push({
+					id: {
+						pokeapi: pokemon.id
+					},
 					name: formData.name,
 					display_name: displayName,
+					is_default: form.is_default,
 					images
 				});
 			}
 		} catch (error) {
 			console.log(error);
 			console.log(url);
-			break;
+			process.exit();
+		} finally {
+			progress.increment();
 		}
 	}
 
-	await fs.ensureDir(`${__dirname}/../public/metadata`);
-	await fs.writeJSON(`${__dirname}/../public/metadata/pokemon.json`, pokemonData);
-}
+	progress.stop();
 
-main();
+	return pokemonData;
+}

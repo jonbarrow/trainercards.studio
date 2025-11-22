@@ -96,14 +96,21 @@ const filteredPokemon = computed(() => {
 });
 
 const allTrainerData = ref<TrainerImage[]>([]);
+const allTrainerPlatforms = ref<string[]>([]);
+const selectedTrainerPlatforms = ref<string[]>([]);
 const filteredTrainers = computed(() => {
-	if (!debouncedTrainerSearchQuery.value.trim()) {
-		return allTrainerData.value;
+	let trainers = allTrainerData.value;
+
+	if (selectedTrainerPlatforms.value.length > 0) {
+		trainers = trainers.filter(trainer => selectedTrainerPlatforms.value.includes(trainer.platform_display_name));
 	}
 
-	const query = debouncedTrainerSearchQuery.value.toLowerCase().trim();
+	if (debouncedTrainerSearchQuery.value.trim()) {
+		const query = debouncedTrainerSearchQuery.value.toLowerCase().trim();
+		trainers = trainers.filter(trainer => trainer.name.toLowerCase().includes(query));
+	}
 
-	return allTrainerData.value.filter(trainer => trainer.name.toLowerCase().includes(query));
+	return trainers;
 });
 
 const allBadgeData = ref<BadgeData[]>([]);
@@ -163,6 +170,8 @@ async function loadTrainerData() {
 	try {
 		const response = await fetch('/api/trainers');
 		allTrainerData.value = await response.json();
+		allTrainerPlatforms.value = [...new Set(allTrainerData.value.map(trainer => trainer.platform_display_name))];
+		console.log(allTrainerPlatforms.value[0]);
 	} catch (error) {
 		console.error('Failed to load Pokemon data:', error);
 	}
@@ -342,6 +351,10 @@ function selectPokemon(pokemon: Pokemon, image: PokemonImage) {
 
 		const oldPokemon = selectedTeam[selectedTeamIndex.value];
 		if (oldPokemon) {
+			if (oldPokemon.nickname === oldPokemon.pokemon.display_name) {
+				oldPokemon.nickname = pokemon.display_name;
+			}
+
 			oldPokemon.pokemon = pokemon;
 			oldPokemon.image = image;
 		} else {
@@ -442,6 +455,7 @@ function toggleTemplateModal() {
 function toggleTrainerModal() {
 	trainerModalOpen.value = !trainerModalOpen.value;
 	trainerSearchQuery.value = '';
+	selectedTrainerPlatforms.value = [];
 
 	if (trainerModalOpen.value) {
 		isTrainersLoading.value = true;
@@ -932,7 +946,7 @@ function canvasTouchEnd(event: TouchEvent): void {
 								<UDropdownMenu :items="card.backgrounds">
 									<template #item="{ item, index }">
 										<div class="flex items-center gap-3 w-full" @click="selectBackground(index)">
-											<img :src="card.backgrounds.find(bg => bg.name === item.name)?.previewURL" :alt="item.name" class="w-12 h-8 object-cover rounded border">
+											<img :src="card.backgrounds.find((bg: any) => bg.name === item.name)?.previewURL" :alt="item.name" class="w-12 h-8 object-cover rounded border">
 											<span>{{ item.name }}</span>
 										</div>
 									</template>
@@ -1007,6 +1021,7 @@ function canvasTouchEnd(event: TouchEvent): void {
 											<h3 class="text-lg font-semibold mb-4">Select Trainer</h3>
 
 											<div class="mb-4">
+												<USelectMenu v-model="selectedTrainerPlatforms" :items="allTrainerPlatforms" multiple placeholder="Filter by platform" class="mb-2 w-full" :ui="{ width: 'w-full' }" :popper="{ placement: 'bottom-start' }" :close-on-select="false" />
 												<UInput v-model="trainerSearchQuery" placeholder="Search trainer by name..." class="w-full" />
 											</div>
 											<div v-if="isTrainersLoading" class="flex items-center justify-center h-96">
@@ -1279,9 +1294,9 @@ function canvasTouchEnd(event: TouchEvent): void {
 									<div class="text-xs text-muted-foreground hidden sm:block">Click to select</div>
 								</div>
 							</div>
-							<UModal v-model:open="pokemonModalOpen">
+							<UModal v-model:open="pokemonModalOpen" :ui="{ content: 'fixed bg-default divide-y divide-default flex flex-col focus:outline-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100vw-1rem)] sm:w-max max-w-none max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-4rem)] rounded-lg shadow-lg ring ring-default overflow-hidden' }">
 								<template #content>
-									<div class="p-4 w-full max-w-4xl">
+									<div class="p-4">
 										<h3 class="text-lg font-semibold mb-4">Select Pokemon for Slot {{ selectedTeamIndex }}</h3>
 
 										<div class="mb-4">
@@ -1290,7 +1305,7 @@ function canvasTouchEnd(event: TouchEvent): void {
 										<div class="overflow-y-auto max-h-96">
 											<div v-for="pokemon in filteredPokemon" :key="pokemon.name">
 												<h3>{{ pokemon.display_name }}</h3>
-												<div class="grid grid-cols-4 gap-2 mb-4">
+												<div class="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-7 gap-2 mb-4">
 													<div v-for="image in pokemon.images" :key="`${pokemon.name}-${image.platform}-${image.gender}`" class="flex flex-col items-center" @click="selectPokemon(pokemon, image)">
 														<div class="w-16 h-16 flex items-center justify-center overflow-hidden cursor-pointer">
 															<img loading="lazy" :src="image.preview_url" alt="" :class="['w-full', 'h-full', 'object-contain', { pixelated: image.style === 'pixel_art' }]" @load="loadImage(image.url)">
