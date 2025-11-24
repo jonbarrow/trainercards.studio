@@ -10,6 +10,7 @@ export interface PokemonInTeam extends SelectableSprite {
 	pokeball?: ItemData;
 	held_item?: ItemData;
 	image: PokemonImage;
+	slot: number;
 }
 
 interface PokemonTeam {

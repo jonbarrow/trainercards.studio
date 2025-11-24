@@ -18,6 +18,8 @@ const selectedTemplateIndex = ref(0);
 const customBackgroundFile = ref<File | null>(null);
 const customBackgroundDataURL = ref<string | null>(null);
 const trainerName = ref('');
+const trainerHometown = ref('');
+const trainerSpecialty = ref('');
 const selectedTrainer = ref<TrainerImage>({
 	style: 'pixel_art',
 	name: 'None',
@@ -239,6 +241,14 @@ async function updateCanvas() {
 		await card.drawTrainerName(trainerName.value);
 	}
 
+	if (trainerHometown.value) {
+		await card.drawTrainerHometown(trainerHometown.value);
+	}
+
+	if (trainerSpecialty.value) {
+		await card.drawTrainerSpecialty(trainerSpecialty.value);
+	}
+
 	if (socialIcon1.value.image_url) {
 		await card.drawIcon1(socialIcon1.value.image_url, socialText1.value);
 	}
@@ -361,6 +371,7 @@ function selectPokemon(pokemon: Pokemon, image: PokemonImage) {
 			selectedTeam[selectedTeamIndex.value] = {
 				pokemon,
 				image,
+				slot: selectedTeamIndex.value,
 				nickname: pokemon.display_name,
 				gender: '',
 				offset_x: 0, // * Set prior to the drawing process but not in the original metadata
@@ -929,12 +940,29 @@ function canvasTouchEnd(event: TouchEvent): void {
 							<UButton label="Select Template" color="neutral" variant="subtle" @click="toggleTemplateModal" />
 							<UModal v-model:open="templateModalOpen">
 								<template #content>
-									<div class="p-4 grid grid-cols-3 gap-3">
-										<div v-for="(template, index) in templates" :key="index" class="relative cursor-pointer" @click="selectTemplate(index)">
-											<div :class="['border-2 rounded-lg p-2 transition-colors', selectedTrainer?.name === template.name ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-gray-300']">
-												<img loading="lazy" :src="template.backgrounds[0]!.previewURL" :alt="template.name" class="max-w-full max-h-full object-contain pixelated">
-												<p class="text-xs text-center mt-2 truncate">{{ template.name }}</p>
-												<p class="text-xs text-center mt-2 truncate">{{ template.backgrounds.length }} {{ template.backgrounds.length === 1 ? 'Background' : 'Backgrounds' }}</p>
+									<div class="p-6 max-h-[85vh] overflow-y-auto">
+										<div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+											<div v-for="(template, index) in templates" :key="index" class="relative cursor-pointer" @click="selectTemplate(index)">
+												<div :class="['border-2 rounded-lg p-3 transition-colors', selectedTrainer?.name === template.name ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-gray-300']">
+													<div class="w-full mb-3 bg-gray-800 rounded flex items-center justify-center" style="aspect-ratio: 16/10;">
+														<img loading="lazy" :src="template.backgrounds[0]!.previewURL" :alt="template.name" class="max-w-full max-h-full object-contain pixelated">
+													</div>
+													<p class="text-sm font-medium text-center mb-1.5">{{ template.name }}</p>
+													<p class="text-xs text-center text-gray-600 mb-2">
+														{{ template.backgrounds.length }} {{ template.backgrounds.length === 1 ? 'Background' : 'Backgrounds' }}
+													</p>
+													<div v-if="template.creatorURL" class="flex justify-center">
+														<UButton 
+															:to="template.creatorURL" 
+															target="_blank" 
+															color="neutral" 
+															variant="subtle"
+															size="sm"
+														>
+															Creator
+														</UButton>
+													</div>
+												</div>
 											</div>
 										</div>
 									</div>
@@ -1021,7 +1049,7 @@ function canvasTouchEnd(event: TouchEvent): void {
 											<h3 class="text-lg font-semibold mb-4">Select Trainer</h3>
 
 											<div class="mb-4">
-												<USelectMenu v-model="selectedTrainerPlatforms" :items="allTrainerPlatforms" multiple placeholder="Filter by platform" class="mb-2 w-full" :ui="{ width: 'w-full' }" :popper="{ placement: 'bottom-start' }" :close-on-select="false" />
+												<USelectMenu v-model="selectedTrainerPlatforms" :items="allTrainerPlatforms" multiple placeholder="Filter by platform" class="mb-2 w-full" :popper="{ placement: 'bottom-start' }" :close-on-select="false" />
 												<UInput v-model="trainerSearchQuery" placeholder="Search trainer by name..." class="w-full" />
 											</div>
 											<div v-if="isTrainersLoading" class="flex items-center justify-center h-96">
@@ -1051,6 +1079,14 @@ function canvasTouchEnd(event: TouchEvent): void {
 										</div>
 									</template>
 								</UModal>
+							</div>
+							<div>
+								<label for="trainerHometown" class="block text-sm font-medium mb-2">Hometown</label>
+								<UInput id="trainerHometown" v-model="trainerHometown" placeholder="Enter trainer hometown" @input="updateCanvas" />
+							</div>
+							<div>
+								<label for="trainerSpecialty" class="block text-sm font-medium mb-2">Specialty</label>
+								<UInput id="trainerSpecialty" v-model="trainerSpecialty" placeholder="Enter trainer specialty" @input="updateCanvas" />
 							</div>
 						</div>
 						<div v-if="selectedTrainer.image_url" class="space-y-4">

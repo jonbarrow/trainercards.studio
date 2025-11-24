@@ -451,4 +451,6 @@ export default class Modern extends TrainerCard {
 
 	// * Not supported
 	override async drawBadges(_urls: string[]) {}
+	override async drawTrainerHometown(_hometown: string): Promise<void> {}
+	override async drawTrainerSpecialty(_specialty: string): Promise<void> {}
 }
