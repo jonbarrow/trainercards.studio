@@ -10,6 +10,7 @@ Credits for assets/data taken from other sources in no specific order. Some data
 - Seed data for Pokemon and sprites: https://pokeapi.co/
 - Seed data for trainer images: https://archives.bulbagarden.net/wiki/Category:Trainer_sprites
 - Seed data for trainer images: https://archives.bulbagarden.net/wiki/Category:Trainer_class_artwork
+- Trainer sprites: https://pokengine.org
 - Pokemon images: https://archives.bulbagarden.net/wiki/Category:Pok%C3%A9mon_Dream_World_artwork
 - Pokemon sprites: https://github.com/msikma/pokesprite
 - Pokemon renders: https://bluemoonfalls.com/pages/general/stadium-gif-archive

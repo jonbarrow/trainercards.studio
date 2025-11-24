@@ -73,6 +73,8 @@ export interface TrainerCardConstructor {
 	new (): TrainerCard;
 
 	readonly name: string;
+	readonly creatorURL: string;
+	readonly creator: string;
 	readonly backgrounds: {
 		name: string;
 		previewURL: string;
@@ -82,6 +84,8 @@ export interface TrainerCardConstructor {
 
 export default abstract class TrainerCard {
 	public static name: string;
+	public static creatorURL = '';
+	public static creator = '';
 	public static get backgrounds() {
 		// * Kinda jank looking, but this creates an instance of the parent class
 		// * so it returns the overridden value
@@ -125,6 +129,8 @@ export default abstract class TrainerCard {
 	abstract drawIcon1(imageURL: string, text: string): Promise<void>;
 	abstract drawIcon2(imageURL: string, text: string): Promise<void>;
 	abstract drawTrainerName(name: string): Promise<void>;
+	abstract drawTrainerHometown(hometown: string): Promise<void>;
+	abstract drawTrainerSpecialty(specialty: string): Promise<void>;
 	abstract drawPokemonTeam(team: PokemonTeam): Promise<void>;
 	abstract drawBadges(images: string[]): Promise<void>;
 	abstract drawWatermark(): Promise<void>;
@@ -189,63 +195,11 @@ export default abstract class TrainerCard {
 		pokemon.drawn_height = drawHeight;
 
 		if (pokemon.pokeball) {
-			const pokeballImage = await loadImage(pokemon.pokeball.image.url);
-			const pokeballPadding = pokemon.pokeball.image.dimensions.padding;
-			const pokeballContentWidth = pokemon.pokeball.image.dimensions.content.width;
-			const pokeballContentHeight = pokemon.pokeball.image.dimensions.content.height;
-
-			const pokeballTargetSize = Math.min(drawWidth, drawHeight) * 0.3;
-			const pokeballScaleX = pokeballTargetSize / pokeballContentWidth;
-			const pokeballScaleY = pokeballTargetSize / pokeballContentHeight;
-			const pokeballScale = Math.min(pokeballScaleX, pokeballScaleY);
-
-			const pokeballDrawWidth = pokeballContentWidth * pokeballScale;
-			const pokeballDrawHeight = pokeballContentHeight * pokeballScale;
-
-			const pokeballX = finalX + drawWidth - pokeballDrawWidth;
-			const pokeballY = finalY + drawHeight - pokeballDrawHeight;
-
-			this.ctx.drawImage(
-				pokeballImage,
-				pokeballPadding.left,
-				pokeballPadding.top,
-				pokeballContentWidth,
-				pokeballContentHeight,
-				pokeballX,
-				pokeballY,
-				pokeballDrawWidth,
-				pokeballDrawHeight
-			);
+			await this.drawPokemonPokeball(pokemon, drawWidth, drawHeight, finalX, finalY);
 		}
 
 		if (pokemon.held_item) {
-			const heldItemImage = await loadImage(pokemon.held_item.image.url);
-			const heldItemPadding = pokemon.held_item.image.dimensions.padding;
-			const heldItemContentWidth = pokemon.held_item.image.dimensions.content.width;
-			const heldItemContentHeight = pokemon.held_item.image.dimensions.content.height;
-
-			const heldItemTargetSize = Math.min(drawWidth, drawHeight) * 0.3;
-			const heldItemScaleX = heldItemTargetSize / heldItemContentWidth;
-			const heldItemScaleY = heldItemTargetSize / heldItemContentHeight;
-			const heldItemScale = Math.min(heldItemScaleX, heldItemScaleY);
-
-			const heldItemDrawWidth = heldItemContentWidth * heldItemScale;
-			const heldItemDrawHeight = heldItemContentHeight * heldItemScale;
-
-			const heldItemX = finalX;
-			const heldItemY = finalY + drawHeight - heldItemDrawHeight;
-
-			this.ctx.drawImage(
-				heldItemImage,
-				heldItemPadding.left,
-				heldItemPadding.top,
-				heldItemContentWidth,
-				heldItemContentHeight,
-				heldItemX,
-				heldItemY,
-				heldItemDrawWidth,
-				heldItemDrawHeight
-			);
+			await this.drawPokemonHeldItem(pokemon, drawWidth, drawHeight, finalX, finalY);
 		}
 	}
 
@@ -339,6 +293,22 @@ export default abstract class TrainerCard {
 		pokemon.drawn_height = drawHeight;
 
 		if (pokemon.pokeball) {
+			await this.drawPokemonPokeball(pokemon, drawWidth, drawHeight, finalX, finalY);
+		}
+
+		if (pokemon.held_item) {
+			await this.drawPokemonHeldItem(pokemon, drawWidth, drawHeight, finalX, finalY);
+		}
+
+		const frameID = requestAnimationFrame(() => {
+			this.drawAnimatedPokemon(pokemon, x, y, width, height);
+		});
+
+		this.animationFrameIDs.add(frameID);
+	}
+
+	protected async drawPokemonPokeball(pokemon: PokemonInTeam, drawWidth: number, drawHeight: number, finalX: number, finalY: number) {
+		if (pokemon.pokeball) {
 			const pokeballImage = await loadImage(pokemon.pokeball.image.url);
 			const pokeballPadding = pokemon.pokeball.image.dimensions.padding;
 			const pokeballContentWidth = pokemon.pokeball.image.dimensions.content.width;
@@ -367,7 +337,9 @@ export default abstract class TrainerCard {
 				pokeballDrawHeight
 			);
 		}
+	}
 
+	protected async drawPokemonHeldItem(pokemon: PokemonInTeam, drawWidth: number, drawHeight: number, finalX: number, finalY: number) {
 		if (pokemon.held_item) {
 			const heldItemImage = await loadImage(pokemon.held_item.image.url);
 			const heldItemPadding = pokemon.held_item.image.dimensions.padding;
@@ -397,12 +369,6 @@ export default abstract class TrainerCard {
 				heldItemDrawHeight
 			);
 		}
-
-		const frameID = requestAnimationFrame(() => {
-			this.drawAnimatedPokemon(pokemon, x, y, width, height);
-		});
-
-		this.animationFrameIDs.add(frameID);
 	}
 
 	protected async redrawBackgroundArea(x: number, y: number, width: number, height: number) {
@@ -417,6 +383,15 @@ export default abstract class TrainerCard {
 			width,
 			height
 		);
+	}
+
+	public async drawClippedPokemon(pokemon: PokemonInTeam, x: number, y: number, width: number, height: number) {
+		this.ctx.save();
+		this.ctx.beginPath();
+		this.ctx.rect(x, y, width, height);
+		this.ctx.clip();
+		await this.drawPokemon(pokemon, x, y, width, height);
+		this.ctx.restore();
 	}
 
 	public async drawPokemon(pokemon: PokemonInTeam, x: number, y: number, width: number, height: number) {

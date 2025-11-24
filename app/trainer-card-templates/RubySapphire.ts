@@ -188,4 +188,6 @@ export default class RubySapphire extends TrainerCard {
 	// * Not supported
 	override async drawIcon1(_imageURL: string, _text: string): Promise<void> {}
 	override async drawIcon2(_imageURL: string, _text: string): Promise<void> {}
+	override async drawTrainerHometown(_hometown: string): Promise<void> {}
+	override async drawTrainerSpecialty(_specialty: string): Promise<void> {}
 }
