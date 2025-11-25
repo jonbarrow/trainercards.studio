@@ -177,7 +177,6 @@ async function loadTrainerData() {
 		const response = await fetch('/api/trainers');
 		allTrainerData.value = await response.json();
 		allTrainerPlatforms.value = [...new Set(allTrainerData.value.map(trainer => trainer.platform_display_name))];
-		console.log(allTrainerPlatforms.value[0]);
 	} catch (error) {
 		console.error('Failed to load Pokemon data:', error);
 	}
@@ -627,8 +626,6 @@ async function exportAnimatedCard(mimeType: string, extension: string) {
 		const progress = Math.min(90, (elapsed / animationLength) * 100);
 		exportProgress.value = Math.round(progress);
 	}, 50);
-
-	console.log(animationLength);
 
 	mediaRecorder.start(animationLength);
 
