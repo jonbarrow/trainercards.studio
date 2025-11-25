@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { UButton } from '#components';
 import templates from '@/trainer-card-templates';
+import { parseSave } from '@/save-file-parser';
 import type TrainerImage from '@/types/trainer-image';
 import type Pokemon from '@/types/pokemon';
 import type PokemonImage from '@/types/pokemon-image';
@@ -157,6 +158,9 @@ const filteredHeldItems = computed(() => {
 	return allHeldItemsData.value.filter(item => item.name.toLowerCase().includes(query) || item.display_name.toLowerCase().includes(query));
 });
 
+const saveFilePartyInput = ref<HTMLInputElement | null>(null);
+const saveFileHallOfFameInput = ref<HTMLInputElement | null>(null);
+
 let card: TrainerCard = new templates[0]!();
 
 async function loadPokemonData() {
@@ -305,6 +309,11 @@ function selectCustomBackground() {
 }
 
 function selectTrainer(trainer: TrainerImage) {
+	selectTrainerNoModal(trainer);
+	toggleTrainerModal();
+}
+
+function selectTrainerNoModal(trainer: TrainerImage) {
 	card.cleanup();
 
 	selectedTrainer.value = {
@@ -317,7 +326,6 @@ function selectTrainer(trainer: TrainerImage) {
 
 	trainerSearchQuery.value = '';
 	updateCanvas();
-	toggleTrainerModal();
 }
 
 function updateTrainerOffset(axis: 'x' | 'y', value: number) {
@@ -913,6 +921,68 @@ function canvasTouchEnd(event: TouchEvent): void {
 		pinchData.value = null;
 	}
 }
+
+async function handleFileSaveFilePartySelect(event: Event) {
+	const input = event.target as HTMLInputElement;
+
+	if (!input.files?.length) {
+		return;
+	}
+
+	const file = input.files[0]!;
+	const arrayBuffer = await file.arrayBuffer();
+	const saveData = parseSave(arrayBuffer, false);
+
+	handleSaveFile(saveData);
+}
+
+async function handleFileSaveFileHallOfFameSelect(event: Event) {
+	const input = event.target as HTMLInputElement;
+
+	if (!input.files?.length) {
+		return;
+	}
+
+	const file = input.files[0]!;
+	const arrayBuffer = await file.arrayBuffer();
+	const saveData = parseSave(arrayBuffer, true);
+
+	handleSaveFile(saveData);
+}
+
+function handleSaveFile(saveData: ReturnType<typeof parseSave>) {
+	if (!saveData) {
+		return;
+	}
+
+	trainerName.value = saveData.data.player_name;
+
+	for (let i = 0; i < saveData.data.party.length; i++) {
+		const partyPokemon = saveData.data.party[i]!;
+		const pokemonData = allPokemonData.value.find(p => p.id.pokeapi === partyPokemon.dex);
+		const image = pokemonData?.images.find(i => i.platform === saveData.platform && !i.url.endsWith('_gray.png'));
+
+		if (pokemonData && image) {
+			selectedTeamIndex.value = i + 1;
+			selectPokemon(pokemonData, image);
+
+			if (partyPokemon.name !== partyPokemon.nickname) {
+				updatePokemonNickname(selectedTeamIndex.value, partyPokemon.nickname);
+			}
+		}
+	}
+
+	if (saveData.platform === 'red_blue') {
+		trainerHometown.value = 'Pallet Town';
+		const trainer = allTrainerData.value.find(t => t.platform === saveData.platform && t.name === 'Red 2');
+
+		if (trainer) {
+			selectTrainerNoModal(trainer);
+		}
+	}
+
+	updateCanvas();
+}
 </script>
 
 <template>
@@ -934,6 +1004,14 @@ function canvasTouchEnd(event: TouchEvent): void {
 					<UCard>
 						<template #header>Trainer Card</template>
 
+						<input ref="saveFilePartyInput" type="file" style="display: none" @change="handleFileSaveFilePartySelect">
+						<UButton color="neutral" variant="subtle" size="sm" @click="saveFilePartyInput?.click()">Select Save File Party</UButton>
+						<br>
+						<br>
+						<input ref="saveFileHallOfFameInput" type="file" style="display: none" @change="handleFileSaveFileHallOfFameSelect">
+						<UButton color="neutral" variant="subtle" size="sm" @click="saveFileHallOfFameInput?.click()">Select Save File Hall of Fame</UButton>
+						<br>
+						<br>
 						<h1>Card Settings</h1>
 						<USeparator class="py-5" />
 						<div>
@@ -952,15 +1030,7 @@ function canvasTouchEnd(event: TouchEvent): void {
 														{{ template.backgrounds.length }} {{ template.backgrounds.length === 1 ? 'Background' : 'Backgrounds' }}
 													</p>
 													<div v-if="template.creatorURL" class="flex justify-center">
-														<UButton 
-															:to="template.creatorURL" 
-															target="_blank" 
-															color="neutral" 
-															variant="subtle"
-															size="sm"
-														>
-															Creator
-														</UButton>
+														<UButton :to="template.creatorURL" target="_blank" color="neutral" variant="subtle" size="sm">Creator</UButton>
 													</div>
 												</div>
 											</div>
