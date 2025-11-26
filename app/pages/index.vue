@@ -956,13 +956,13 @@ function handleLoadSaveFile(saveData: PokemonSaveFileData) {
 	trainerName.value = saveData.data.player_name;
 
 	for (let i = 0; i < saveData.data.party.length; i++) {
-		// TODO - Check shiny
+		// TODO - Check shiny, this differs per generation and sucks really bad to check
 		const partyPokemon = saveData.data.party[i]!;
 		const pokemonData = allPokemonData.value.find(p => p.id.pokeapi === partyPokemon.dex);
 		const platformImages = pokemonData?.images.filter(i => i.platform === saveData.platform);
 		let image;
 
-		if (saveData.platform === 'red_blue') {
+		if (saveData.platform === 'red_blue' || saveData.platform === 'yellow') {
 			image = platformImages?.find(i => !i.url.endsWith('_gray.png'));
 		}
 
@@ -980,8 +980,9 @@ function handleLoadSaveFile(saveData: PokemonSaveFileData) {
 		}
 	}
 
-	if (saveData.platform === 'red_blue') {
-		const trainer = allTrainerData.value.find(t => t.platform === saveData.platform && t.name === 'Red 2');
+	if (saveData.platform === 'red_blue' || saveData.platform === 'yellow') {
+		const trainerName = saveData.platform === 'red_blue' ? 'Red 2' : 'Red';
+		const trainer = allTrainerData.value.find(t => t.platform === saveData.platform && t.name === trainerName);
 
 		if (trainer) {
 			selectTrainerNoModal(trainer);
