@@ -1,18 +1,6 @@
-import StreamIn from '@/save-file-parser/stream-in';
+import type { PokemonSpecies, PartyPokemon } from '@/types/pokemon-save-file-data';
 
 // * https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_I)
-
-type PokemonSpecies = {
-	dex: number;
-	name: string;
-};
-
-type PartyPokemon = {
-	index: number;
-	dex: number;
-	name: string;
-	nickname: string;
-};
 
 // * Currently only supports the English text encoding. Will probably work
 // * in other languages, besides Japanese. Only includes characters the user
@@ -730,7 +718,7 @@ function decodeText(buffer: Uint8Array): string {
 	return result;
 }
 
-export function parseGeneration1SaveParty(saveFile: ArrayBuffer) {
+export function parseGeneration1SaveParty(saveFile: ArrayBuffer | Buffer) {
 	const saveStream = new StreamIn(saveFile);
 
 	saveStream.seek(0x2598); // * Bank1 "Player Name"
@@ -775,7 +763,7 @@ export function parseGeneration1SaveParty(saveFile: ArrayBuffer) {
 	};
 }
 
-export function parseGeneration1SaveHallOfFame(saveFile: ArrayBuffer) {
+export function parseGeneration1SaveHallOfFame(saveFile: ArrayBuffer | Buffer) {
 	const saveStream = new StreamIn(saveFile);
 
 	saveStream.seek(0x2598); // * Bank1 "Player Name"
@@ -825,7 +813,7 @@ export function parseGeneration1SaveHallOfFame(saveFile: ArrayBuffer) {
 	};
 }
 
-export function validateGeneration1SaveChecksum(saveFile: ArrayBuffer) {
+export function validateGeneration1SaveChecksum(saveFile: ArrayBuffer | Buffer) {
 	const data = new Uint8Array(saveFile);
 	const expectedChecksum = data[0x3523];
 	let calculatedChecksum = 0;

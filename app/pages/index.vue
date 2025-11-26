@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { UButton } from '#components';
 import templates from '@/trainer-card-templates';
-import { parseSave } from '@/save-file-parser';
 import type TrainerImage from '@/types/trainer-image';
 import type Pokemon from '@/types/pokemon';
 import type PokemonImage from '@/types/pokemon-image';
@@ -11,6 +10,7 @@ import type ModernIconData from '@/types/modern-icon-data';
 import type TrainerCard from '@/trainer-card-templates/TrainerCard';
 import type ItemData from '@/types/item-data';
 import type SelectableSprite from '@/types/selectable-sprite';
+import type { PokemonSaveFileData } from '@/types/pokemon-save-file-data';
 
 const { loadImage } = useImageCache();
 
@@ -920,20 +920,14 @@ function canvasTouchEnd(event: TouchEvent): void {
 }
 
 async function handleFileSaveFilePartySelect(event: Event) {
-	const input = event.target as HTMLInputElement;
-
-	if (!input.files?.length) {
-		return;
-	}
-
-	const file = input.files[0]!;
-	const arrayBuffer = await file.arrayBuffer();
-	const saveData = parseSave(arrayBuffer, false);
-
-	handleLoadSaveFile(saveData);
+	await postSaveFile(event, false);
 }
 
 async function handleFileSaveFileHallOfFameSelect(event: Event) {
+	await postSaveFile(event, true);
+}
+
+async function postSaveFile(event: Event, hof: boolean) {
 	const input = event.target as HTMLInputElement;
 
 	if (!input.files?.length) {
@@ -941,13 +935,20 @@ async function handleFileSaveFileHallOfFameSelect(event: Event) {
 	}
 
 	const file = input.files[0]!;
-	const arrayBuffer = await file.arrayBuffer();
-	const saveData = parseSave(arrayBuffer, true);
+	const formData = new FormData();
 
-	handleLoadSaveFile(saveData);
+	formData.append('file', file);
+	formData.append('isHallOfFame', hof ? 'true' : 'false');
+
+	const saveData = await $fetch('/api/parse-save-file', {
+		method: 'POST',
+		body: formData
+	});
+
+	handleLoadSaveFile(saveData as PokemonSaveFileData);
 }
 
-function handleLoadSaveFile(saveData: ReturnType<typeof parseSave>) {
+function handleLoadSaveFile(saveData: PokemonSaveFileData) {
 	if (!saveData) {
 		return;
 	}

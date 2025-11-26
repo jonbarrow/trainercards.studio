@@ -1,10 +1,15 @@
-export default class StreamIn {
+export class StreamIn {
 	private buffer: Uint8Array;
 	private view: DataView;
 	public pos: number;
 
-	constructor(buffer: ArrayBuffer | Uint8Array) {
-		this.buffer = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+	constructor(buffer: ArrayBuffer | Uint8Array | Buffer) {
+		if (typeof Buffer !== 'undefined' && Buffer.isBuffer(buffer)) {
+			this.buffer = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+		} else {
+			this.buffer = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+		}
+
 		this.view = new DataView(this.buffer.buffer, this.buffer.byteOffset, this.buffer.byteLength);
 		this.pos = 0;
 	}

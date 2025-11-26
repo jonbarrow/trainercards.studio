@@ -1,18 +1,6 @@
-import StreamIn from '@/save-file-parser/stream-in';
+import type { PokemonSpecies, PartyPokemon } from '@/types/pokemon-save-file-data';
 
 // * https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_II)
-
-type PokemonSpecies = {
-	dex: number;
-	name: string;
-};
-
-type PartyPokemon = {
-	index: number;
-	dex: number;
-	name: string;
-	nickname: string;
-};
 
 // * Taken from the generation 1 parser, seems to work well enough
 // * Currently only supports the English text encoding. Will probably work
@@ -378,7 +366,7 @@ function decodeText(buffer: Uint8Array): string {
 	return result;
 }
 
-export function parseGeneration2SaveParty(saveFile: ArrayBuffer) {
+export function parseGeneration2SaveParty(saveFile: ArrayBuffer | Buffer) {
 	const saveStream = new StreamIn(saveFile);
 	const isGoldSilver = validateGoldSilverSaveChecksum(saveFile);
 	const isEnglishCrystal = validateCrystalSaveChecksumEnglish(saveFile);
@@ -434,16 +422,16 @@ export function parseGeneration2SaveParty(saveFile: ArrayBuffer) {
 	};
 }
 
-export function parseGeneration2SaveHallOfFame(saveFile: ArrayBuffer) {
+export function parseGeneration2SaveHallOfFame(saveFile: ArrayBuffer | Buffer) {
 	// TODO - Bulbapedia has no information as to where the Hall of Fame is stored
 	return parseGeneration2SaveParty(saveFile);
 }
 
-export function validateGeneration2SaveChecksums(saveFile: ArrayBuffer) {
+export function validateGeneration2SaveChecksums(saveFile: ArrayBuffer | Buffer) {
 	return validateGoldSilverSaveChecksum(saveFile) || validateCrystalSaveChecksum(saveFile);
 }
 
-export function validateGoldSilverSaveChecksum(saveFile: ArrayBuffer) {
+export function validateGoldSilverSaveChecksum(saveFile: ArrayBuffer | Buffer) {
 	const data = new Uint8Array(saveFile);
 	const expectedPrimaryChecksum = data[0x2D69]! | (data[0x2D6A]! << 8);
 	const expectedSecondaryChecksum = data[0x7E6D]! | (data[0x7E6E]! << 8);
@@ -484,12 +472,12 @@ export function validateGoldSilverSaveChecksum(saveFile: ArrayBuffer) {
 	return calculatedPrimaryChecksum === expectedPrimaryChecksum || calculatedSecondaryChecksum === expectedSecondaryChecksum;
 }
 
-export function validateCrystalSaveChecksum(saveFile: ArrayBuffer) {
+export function validateCrystalSaveChecksum(saveFile: ArrayBuffer | Buffer) {
 	// * English and Japanese saves use different regions for checksum data
 	return validateCrystalSaveChecksumEnglish(saveFile) || validateCrystalSaveChecksumJapanese(saveFile);
 }
 
-export function validateCrystalSaveChecksumEnglish(saveFile: ArrayBuffer) {
+export function validateCrystalSaveChecksumEnglish(saveFile: ArrayBuffer | Buffer) {
 	const data = new Uint8Array(saveFile);
 	const expectedPrimaryChecksum = data[0x2D0D]! | (data[0x2D0E]! << 8);
 	const expectedSecondaryChecksum = data[0x1F0D]! | (data[0x1F0E]! << 8);
@@ -510,7 +498,7 @@ export function validateCrystalSaveChecksumEnglish(saveFile: ArrayBuffer) {
 	return primaryChecksum === expectedPrimaryChecksum || secondaryChecksum === expectedSecondaryChecksum;
 }
 
-export function validateCrystalSaveChecksumJapanese(saveFile: ArrayBuffer) {
+export function validateCrystalSaveChecksumJapanese(saveFile: ArrayBuffer | Buffer) {
 	const data = new Uint8Array(saveFile);
 	const expectedPrimaryChecksum = data[0x2D0D]! | (data[0x2D0E]! << 8);
 	const expectedSecondaryChecksum = data[0x7F0D]! | (data[0x7F0E]! << 8);

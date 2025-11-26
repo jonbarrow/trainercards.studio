@@ -1,11 +1,5 @@
-import { validateGeneration1SaveChecksum, parseGeneration1SaveParty, parseGeneration1SaveHallOfFame } from '@/save-file-parser/generation-1';
-import {
-	validateGeneration2SaveChecksums, validateGoldSilverSaveChecksum, validateCrystalSaveChecksum,
-	parseGeneration2SaveParty, parseGeneration2SaveHallOfFame
-} from '@/save-file-parser/generation-2';
-
 // TODO - Remove the "hallOfFame" flag and make a dedicated function
-export function parseSave(saveFile: ArrayBuffer, hallOfFame: boolean) {
+export function parseSaveFile(saveFile: ArrayBuffer | Buffer, hallOfFame: boolean) {
 	const saveFileLength = saveFile.byteLength;
 
 	if (saveFileLength === 0x8000) {
