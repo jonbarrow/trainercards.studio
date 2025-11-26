@@ -824,3 +824,17 @@ export function parseGeneration1SaveHallOfFame(saveFile: ArrayBuffer) {
 		party: hallOfFame.pop() || [] // * Only return the most recent Hall of Fame entry
 	};
 }
+
+export function validateGeneration1SaveChecksum(saveFile: ArrayBuffer) {
+	const data = new Uint8Array(saveFile);
+	const expectedChecksum = data[0x3523];
+	let calculatedChecksum = 0;
+
+	for (let offset = 0x2598; offset <= 0x3522; offset++) {
+		calculatedChecksum += data[offset]!;
+	}
+
+	calculatedChecksum = (~calculatedChecksum) & 0xFF;
+
+	return calculatedChecksum === expectedChecksum;
+}

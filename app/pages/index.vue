@@ -930,7 +930,7 @@ async function handleFileSaveFilePartySelect(event: Event) {
 	const arrayBuffer = await file.arrayBuffer();
 	const saveData = parseSave(arrayBuffer, false);
 
-	handleSaveFile(saveData);
+	handleLoadSaveFile(saveData);
 }
 
 async function handleFileSaveFileHallOfFameSelect(event: Event) {
@@ -944,10 +944,10 @@ async function handleFileSaveFileHallOfFameSelect(event: Event) {
 	const arrayBuffer = await file.arrayBuffer();
 	const saveData = parseSave(arrayBuffer, true);
 
-	handleSaveFile(saveData);
+	handleLoadSaveFile(saveData);
 }
 
-function handleSaveFile(saveData: ReturnType<typeof parseSave>) {
+function handleLoadSaveFile(saveData: ReturnType<typeof parseSave>) {
 	if (!saveData) {
 		return;
 	}
@@ -955,9 +955,19 @@ function handleSaveFile(saveData: ReturnType<typeof parseSave>) {
 	trainerName.value = saveData.data.player_name;
 
 	for (let i = 0; i < saveData.data.party.length; i++) {
+		// TODO - Check shiny
 		const partyPokemon = saveData.data.party[i]!;
 		const pokemonData = allPokemonData.value.find(p => p.id.pokeapi === partyPokemon.dex);
-		const image = pokemonData?.images.find(i => i.platform === saveData.platform && !i.url.endsWith('_gray.png'));
+		const platformImages = pokemonData?.images.filter(i => i.platform === saveData.platform);
+		let image;
+
+		if (saveData.platform === 'red_blue') {
+			image = platformImages?.find(i => !i.url.endsWith('_gray.png'));
+		}
+
+		if (saveData.platform === 'gold' || saveData.platform === 'silver' || saveData.platform === 'crystal') {
+			image = platformImages?.find(i => !i.url.endsWith('_shiny.png')); // * See TODO
+		}
 
 		if (pokemonData && image) {
 			selectedTeamIndex.value = i + 1;
@@ -970,12 +980,25 @@ function handleSaveFile(saveData: ReturnType<typeof parseSave>) {
 	}
 
 	if (saveData.platform === 'red_blue') {
-		trainerHometown.value = 'Pallet Town';
 		const trainer = allTrainerData.value.find(t => t.platform === saveData.platform && t.name === 'Red 2');
 
 		if (trainer) {
 			selectTrainerNoModal(trainer);
 		}
+
+		trainerHometown.value = 'Pallet Town';
+	}
+
+	if (saveData.platform === 'gold' || saveData.platform === 'silver' || saveData.platform === 'crystal') {
+		// TODO - Gendered trainer sprite
+		const platform = saveData.platform === 'gold' || saveData.platform === 'silver' ? 'gold_silver' : 'crystal';
+		const trainer = allTrainerData.value.find(t => t.platform === platform && t.name === 'Ethan');
+
+		if (trainer) {
+			selectTrainerNoModal(trainer);
+		}
+
+		trainerHometown.value = 'New Bark Town';
 	}
 
 	updateCanvas();
